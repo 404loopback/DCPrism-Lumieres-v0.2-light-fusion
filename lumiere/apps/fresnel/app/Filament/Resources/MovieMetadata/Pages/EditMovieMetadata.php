@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Filament\Resources\MovieMetadata\Pages;
+
+use App\Filament\Resources\MovieMetadata\MovieMetadataResource;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
+
+class EditMovieMetadata extends EditRecord
+{
+    protected static string $resource = MovieMetadataResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make(),
+        ];
+    }
+}

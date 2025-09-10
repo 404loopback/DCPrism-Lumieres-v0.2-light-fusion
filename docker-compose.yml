@@ -1,0 +1,247 @@
+services:
+  # =====================================
+  # FRESNEL - DCPrism (Film Management)
+  # =====================================
+  fresnel-app:
+    build:
+      context: ./lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:app
+    container_name: dcprism-fresnel-app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '8001:80'
+      - '5173:5173'  # Vite dev server
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}/lumiere/apps/fresnel'
+    volumes:
+      - './lumiere/apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+      - mailpit
+
+  fresnel-worker:
+    build:
+      context: ./lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:worker
+    container_name: dcprism-fresnel-worker
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - './lumiere/apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+
+  fresnel-scheduler:
+    build:
+      context: ./lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:scheduler
+    container_name: dcprism-fresnel-scheduler
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - './lumiere/apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan schedule:work
+
+  # =====================================
+  # DICHROIC - DCParty (Event Management)
+  # =====================================
+  dichroic-app:
+    build:
+      context: ./lumiere/apps/dichroic
+      dockerfile: ../../infra/docker/backend/Dockerfile
+    container_name: dcprism-dichroic-app
+    working_dir: /var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=dichroic
+      - DB_USERNAME=dichroic
+      - DB_PASSWORD=dichroic_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./lumiere/apps/dichroic:/var/www/html
+      - ./lumiere/infra/docker/backend/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - dcprism-network
+    restart: unless-stopped
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  dichroic-worker:
+    build:
+      context: ./lumiere/apps/dichroic
+      dockerfile: ../../infra/docker/backend/Dockerfile
+    container_name: dcprism-dichroic-worker
+    working_dir: /var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=dichroic
+      - DB_USERNAME=dichroic
+      - DB_PASSWORD=dichroic_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - ./lumiere/apps/dichroic:/var/www/html
+    depends_on:
+      - mariadb
+      - redis
+      - dichroic-app
+    networks:
+      - dcprism-network
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+
+  # =====================================
+  # SHARED INFRASTRUCTURE
+  # =====================================
+  mariadb:
+    image: 'mariadb:11'
+    container_name: dcprism-mariadb
+    restart: unless-stopped
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'dcprism_root_password'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+    volumes:
+      - 'mariadb-data:/var/lib/mysql'
+      - './lumiere/infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
+    networks:
+      - dcprism-network
+    healthcheck:
+      test:
+        - CMD
+        - healthcheck.sh
+        - '--connect'
+        - '--innodb_initialized'
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: 'redis:7.2-alpine'
+    container_name: dcprism-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    command: 'redis-server --requirepass redis_password --appendonly yes'
+    volumes:
+      - 'redis-data:/data'
+    networks:
+      - dcprism-network
+
+  # =====================================
+  # DEVELOPMENT TOOLS
+  # =====================================
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    container_name: dcprism-mailpit
+    restart: unless-stopped
+    ports:
+      - '1025:1025'  # SMTP port
+      - '8025:8025'  # Web UI port
+    networks:
+      - dcprism-network
+
+  adminer:
+    image: 'adminer:4.8.1'
+    container_name: dcprism-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    environment:
+      - ADMINER_DEFAULT_SERVER=mariadb
+    depends_on:
+      - mariadb
+    networks:
+      - dcprism-network
+
+  redis-commander:
+    image: 'rediscommander/redis-commander:latest'
+    container_name: dcprism-redis-commander
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+    environment:
+      - 'REDIS_HOSTS=redis:redis:6379:0:redis_password'
+    depends_on:
+      - redis
+    networks:
+      - dcprism-network
+
+  # =====================================
+  # NGINX PROXY (Production-ready)
+  # =====================================
+  nginx-proxy:
+    image: 'nginx:alpine'
+    container_name: dcprism-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './lumiere/infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
+      - './lumiere/infra/nginx/sites:/etc/nginx/conf.d:ro'
+      - './lumiere/infra/nginx/ssl:/etc/nginx/ssl:ro'
+    depends_on:
+      - fresnel-app
+      - dichroic-app
+    networks:
+      - dcprism-network
+    profiles:
+      - production
+
+volumes:
+  mariadb-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  dcprism-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          gateway: 172.30.0.1

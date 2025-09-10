@@ -1,0 +1,235 @@
+version: '3.8'
+
+services:
+  # Application Laravel principale (Production)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: dcprism-app-prod
+    restart: always
+    environment:
+      - APP_NAME=DCPrism
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=https://dcprism.yourdomain.com
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=dcprism_prod
+      - DB_USERNAME=dcprism_prod
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      # Configuration B2/S3
+      - B2_S3_KEY=${B2_S3_KEY}
+      - B2_S3_SECRET=${B2_S3_SECRET}
+      - B2_S3_REGION=${B2_S3_REGION}
+      - B2_S3_BUCKET=${B2_S3_BUCKET}
+      - B2_S3_ENDPOINT=${B2_S3_ENDPOINT}
+    volumes:
+      # Volumes en lecture seule pour la production
+      - storage-data:/var/www/storage/app:rw
+      - logs-data:/var/www/storage/logs:rw
+      - uploads-data:/var/www/storage/uploads:rw
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - dcprism-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Base de données MySQL (Production)
+  mysql:
+    image: mysql:8.0
+    container_name: dcprism-mysql-prod
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=dcprism_prod
+      - MYSQL_USER=dcprism_prod
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/prod.cnf:/etc/mysql/conf.d/prod.cnf:ro
+      - ./backups:/backups:rw
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - dcprism-network
+
+  # Redis pour cache et sessions (Production)
+  redis:
+    image: redis:7.2-alpine
+    container_name: dcprism-redis-prod
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - dcprism-network
+
+  # Workers pour les queues (Production - multiple workers)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    restart: always
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600 --timeout=90
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_DATABASE=dcprism_prod
+      - DB_USERNAME=dcprism_prod
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - storage-data:/var/www/storage/app:rw
+      - logs-data:/var/www/storage/logs:rw
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - dcprism-network
+    deploy:
+      replicas: 3
+
+  # Scheduler pour les tâches cron (Production)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: dcprism-scheduler-prod
+    restart: always
+    command: crond -f -l 2
+    volumes:
+      - storage-data:/var/www/storage/app:rw
+      - logs-data:/var/www/storage/logs:rw
+      - ./docker/cron/laravel-scheduler:/etc/crontabs/www:ro
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_DATABASE=dcprism_prod
+      - DB_USERNAME=dcprism_prod
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - dcprism-network
+
+  # Nginx Load Balancer avec SSL (Production)
+  nginx-lb:
+    image: nginx:alpine
+    container_name: dcprism-nginx-lb-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/prod-load-balancer.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      - ./docker/nginx/dhparam.pem:/etc/nginx/dhparam.pem:ro
+    depends_on:
+      - app
+    networks:
+      - dcprism-network
+
+  # Monitoring avec Prometheus (optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dcprism-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - dcprism-network
+
+  # Grafana pour les dashboards (optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dcprism-grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - dcprism-network
+
+  # Backup automatique de la base de données
+  db-backup:
+    image: mysql:8.0
+    container_name: dcprism-db-backup
+    restart: "no"
+    command: |
+      bash -c "
+      mysqldump -h mysql -u dcprism_prod -p${DB_PASSWORD} dcprism_prod > /backups/dcprism_prod_$$(date +%Y%m%d_%H%M%S).sql &&
+      find /backups -name '*.sql' -mtime +7 -delete
+      "
+    volumes:
+      - ./backups:/backups:rw
+    depends_on:
+      - mysql
+    networks:
+      - dcprism-network
+    profiles:
+      - backup
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  storage-data:
+    driver: local
+  logs-data:
+    driver: local
+  uploads-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  dcprism-network:
+    driver: bridge
