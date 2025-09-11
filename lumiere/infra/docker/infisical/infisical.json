@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "name": "DCPrism Infisical Configuration",
+  "description": "Default configuration for Infisical secrets management",
+  "settings": {
+    "logLevel": "info",
+    "enableAuditLogs": true,
+    "secretScanningEnabled": true,
+    "encryptionAtRest": true
+  },
+  "environments": {
+    "development": {
+      "name": "Development",
+      "slug": "dev",
+      "description": "Development environment secrets"
+    },
+    "staging": {
+      "name": "Staging", 
+      "slug": "staging",
+      "description": "Staging environment secrets"
+    },
+    "production": {
+      "name": "Production",
+      "slug": "prod", 
+      "description": "Production environment secrets"
+    }
+  },
+  "projects": {
+    "dcprism": {
+      "name": "DCPrism",
+      "description": "Main DCPrism project secrets",
+      "environments": ["development", "staging", "production"]
+    },
+    "fresnel": {
+      "name": "Fresnel",
+      "description": "Fresnel application secrets", 
+      "environments": ["development", "staging", "production"]
+    },
+    "meniscus": {
+      "name": "Meniscus",
+      "description": "Meniscus application secrets",
+      "environments": ["development", "staging", "production"]
+    }
+  },
+  "integrations": {
+    "docker": {
+      "enabled": true,
+      "autoInject": true
+    },
+    "kubernetes": {
+      "enabled": false,
+      "namespace": "dcprism"
+    },
+    "terraform": {
+      "enabled": true,
+      "provider": "infisical"
+    },
+    "ansible": {
+      "enabled": true,
+      "lookupPlugin": true
+    }
+  },
+  "security": {
+    "accessTokenTTL": "7d",
+    "refreshTokenTTL": "30d", 
+    "maxLoginAttempts": 5,
+    "lockoutDuration": "15m"
+  }
+}

@@ -1,0 +1,86 @@
+services:
+  # =====================================
+  # FRESNEL - DCPrism (Film Management)
+  # =====================================
+  fresnel-app:
+    build:
+      context: ../../apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:app
+    container_name: dcprism-fresnel-app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '8001:80'
+      - '5173:5173'  # Vite dev server
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}/lumiere/apps/fresnel'
+    volumes:
+      - '../../apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+    profiles:
+      - fresnel
+      - apps
+      - prod
+    restart: unless-stopped
+
+  fresnel-worker:
+    build:
+      context: ../../apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:worker
+    container_name: dcprism-fresnel-worker
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - '../../apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+    profiles:
+      - fresnel
+      - apps
+      - workers
+      - prod
+    restart: unless-stopped
+
+  fresnel-scheduler:
+    build:
+      context: ../../apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: dcprism-fresnel:scheduler
+    container_name: dcprism-fresnel-scheduler
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - '../../apps/fresnel:/var/www'
+    networks:
+      - dcprism-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan schedule:work
+    profiles:
+      - fresnel
+      - apps
+      - schedulers
+      - prod
+    restart: unless-stopped
+
+# Le réseau sera défini dans le compose principal
