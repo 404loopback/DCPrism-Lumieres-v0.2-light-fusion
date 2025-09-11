@@ -68,14 +68,15 @@ services:
     command: php artisan schedule:work
 
   # =====================================
-  # DICHROIC - DCParty (Event Management)
+  # MENISCUS - DCParty (Event Management)
   # =====================================
-  dichroic-app:
+  meniscus-app:
     build:
-      context: ./lumiere/apps/dichroic
-      dockerfile: ../../infra/docker/backend/Dockerfile
-    container_name: dcprism-dichroic-app
-    working_dir: /var/www/html
+      context: ./lumiere/apps/meniscus
+      dockerfile: docker/app/Dockerfile
+      target: development
+    container_name: dcprism-meniscus-app
+    working_dir: /var/www
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -90,23 +91,22 @@ services:
       - CACHE_DRIVER=redis
       - QUEUE_CONNECTION=redis
     ports:
-      - "8000:8000"
+      - "8000:80"
+      - "5174:5174"  # Vite dev server pour Meniscus
     volumes:
-      - ./lumiere/apps/dichroic:/var/www/html
-      - ./lumiere/infra/docker/backend/php.ini:/usr/local/etc/php/php.ini
+      - ./lumiere/apps/meniscus:/var/www
     depends_on:
       - mariadb
       - redis
     networks:
       - dcprism-network
     restart: unless-stopped
-    command: php artisan serve --host=0.0.0.0 --port=8000
 
-  dichroic-worker:
+  meniscus-worker:
     build:
-      context: ./lumiere/apps/dichroic
+      context: ./lumiere/apps/meniscus
       dockerfile: ../../infra/docker/backend/Dockerfile
-    container_name: dcprism-dichroic-worker
+    container_name: dcprism-meniscus-worker
     working_dir: /var/www/html
     environment:
       - APP_ENV=local
@@ -122,11 +122,11 @@ services:
       - CACHE_DRIVER=redis
       - QUEUE_CONNECTION=redis
     volumes:
-      - ./lumiere/apps/dichroic:/var/www/html
+      - ./lumiere/apps/meniscus:/var/www/html
     depends_on:
       - mariadb
       - redis
-      - dichroic-app
+      - meniscus-app
     networks:
       - dcprism-network
     restart: unless-stopped
@@ -210,27 +210,6 @@ services:
     networks:
       - dcprism-network
 
-  # =====================================
-  # NGINX PROXY (Production-ready)
-  # =====================================
-  nginx-proxy:
-    image: 'nginx:alpine'
-    container_name: dcprism-nginx-proxy
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '443:443'
-    volumes:
-      - './lumiere/infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
-      - './lumiere/infra/nginx/sites:/etc/nginx/conf.d:ro'
-      - './lumiere/infra/nginx/ssl:/etc/nginx/ssl:ro'
-    depends_on:
-      - fresnel-app
-      - dichroic-app
-    networks:
-      - dcprism-network
-    profiles:
-      - production
 
 volumes:
   mariadb-data:

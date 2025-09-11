@@ -1,0 +1,62 @@
+services:
+  # =====================================
+  # TRAEFIK REVERSE PROXY (PRODUCTION)
+  # =====================================
+  traefik:
+    image: traefik:v3.0
+    container_name: dcprism-traefik-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard (à sécuriser en prod)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./lumiere/infra/traefik/traefik-prod.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik-data:/data
+    networks:
+      - dcprism-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.dcprism.be`)"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+      # Sécurisation du dashboard (optionnel)
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$10$$..."  # À générer
+
+  # =====================================
+  # APPS - LABELS PRODUCTION
+  # =====================================
+  fresnel-app:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fresnel.rule=Host(`fresnel.dcprism.be`)"
+      - "traefik.http.routers.fresnel.entrypoints=websecure"
+      - "traefik.http.routers.fresnel.tls.certresolver=letsencrypt"
+      - "traefik.http.services.fresnel.loadbalancer.server.port=80"
+      # Security headers
+      - "traefik.http.routers.fresnel.middlewares=security-headers"
+      - "traefik.http.middlewares.security-headers.headers.customRequestHeaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.security-headers.headers.customResponseHeaders.X-Frame-Options=DENY"
+      - "traefik.http.middlewares.security-headers.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+
+  meniscus-app:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.meniscus.rule=Host(`meniscus.dcprism.be`)"
+      - "traefik.http.routers.meniscus.entrypoints=websecure"
+      - "traefik.http.routers.meniscus.tls.certresolver=letsencrypt"
+      - "traefik.http.services.meniscus.loadbalancer.server.port=80"
+      # Security headers
+      - "traefik.http.routers.meniscus.middlewares=security-headers"
+      - "traefik.http.middlewares.security-headers.headers.customRequestHeaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.security-headers.headers.customResponseHeaders.X-Frame-Options=DENY"
+      - "traefik.http.middlewares.security-headers.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+
+  # Les services de dev (adminer, redis-commander, mailpit) ne sont pas exposés en prod
+  # On peut les garder dans le override.yml seulement
+
+volumes:
+  traefik-data:
+    driver: local

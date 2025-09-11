@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('deployment_templates', function (Blueprint $table) {
+            // Add missing network_config and ansible_config columns
+            $table->json('network_config')->nullable()->after('machine_config');
+            $table->json('ansible_config')->nullable()->after('network_config');
+            $table->timestamp('last_used_at')->nullable()->after('metadata');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('deployment_templates', function (Blueprint $table) {
+            $table->dropColumn(['network_config', 'ansible_config', 'last_used_at']);
+        });
+    }
+};
