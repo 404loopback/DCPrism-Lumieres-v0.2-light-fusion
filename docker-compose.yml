@@ -22,11 +22,11 @@
 # Inclusion des modules Docker
 
 include:
-  - lumiere/infra/docker/compose/core.compose.yml                 #
-  - lumiere/infra/docker/compose/app/meniscus.compose.yml         #
-  - lumiere/infra/docker/compose/app/fresnel.compose.yml          #
-  - lumiere/infra/docker/compose/dev_tools.compose.yml            #
-  - lumiere/infra/docker/compose/iac_tools.compose.yml            #
+  - lumieres/infra/docker/compose/core.compose.yml                 #
+  - lumieres/infra/docker/compose/app/meniscus.compose.yml         #
+  - lumieres/infra/docker/compose/app/fresnel.compose.yml          #
+  - lumieres/infra/docker/compose/dev_tools.compose.yml            #
+  - lumieres/infra/docker/compose/iac_tools.compose.yml            #
 
 # Réseau commun
 

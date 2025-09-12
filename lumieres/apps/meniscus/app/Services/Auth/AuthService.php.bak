@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Services\Auth;
+
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+class AuthService
+{
+    public function login($credentials)
+    {
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            return [
+                'success' => true,
+                'user' => $user,
+                'token' => null // JWT token would go here
+            ];
+        }
+        
+        return ['success' => false, 'message' => 'Invalid credentials'];
+    }
+
+    public function register($data)
+    {
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
+        
+        return [
+            'success' => true,
+            'user' => $user,
+            'token' => null // JWT token would go here
+        ];
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+        return ['success' => true, 'message' => 'Logged out successfully'];
+    }
+
+    public function refreshToken()
+    {
+        return ['success' => false, 'message' => 'Token refresh not implemented yet'];
+    }
+
+    public function forgotPassword($email)
+    {
+        return ['success' => false, 'message' => 'Password reset not implemented yet'];
+    }
+
+    public function resetPassword($token, $password)
+    {
+        return ['success' => false, 'message' => 'Password reset not implemented yet'];
+    }
+
+    public function verifyEmail($token)
+    {
+        return ['success' => false, 'message' => 'Email verification not implemented yet'];
+    }
+
+    public function resendVerificationEmail($userId)
+    {
+        return ['success' => false, 'message' => 'Email resend not implemented yet'];
+    }
+}

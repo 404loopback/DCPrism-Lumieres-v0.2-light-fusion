@@ -1,0 +1,103 @@
+# =============================================================================
+# Configuration Traefik pour DCPrism-Laravel
+# =============================================================================
+
+# Configuration globale
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# Points d'entrée
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        options: default
+
+# Providers
+providers:
+  # Docker provider pour service discovery
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: lumieres-network
+    
+  # Configuration dynamique via fichiers
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+# API et Dashboard
+api:
+  dashboard: true
+  debug: true
+
+# Certificats SSL
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      # Email pour Let's Encrypt
+      email: admin@dcprism.local
+      storage: /data/acme.json
+      # Challenge HTTP pour développement local
+      httpChallenge:
+        entryPoint: web
+      # Challenge DNS pour production (décommentez si nécessaire)
+      # dnsChallenge:
+      #   provider: cloudflare
+      #   resolvers:
+      #     - "1.1.1.1:53"
+      #     - "8.8.8.8:53"
+
+# Métriques et monitoring
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    addRoutersLabels: true
+
+# Logging
+log:
+  level: INFO
+  filePath: "/var/log/traefik/traefik.log"
+  format: json
+
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json
+  bufferingSize: 100
+  filters:
+    statusCodes:
+      - "200"
+      - "300-302"
+      - "400-499"
+      - "500-599"
+
+# Options TLS par défaut
+tls:
+  options:
+    default:
+      sslProtocols:
+        - "TLSv1.2"
+        - "TLSv1.3"
+      cipherSuites:
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+      curvePreferences:
+        - "CurveP521"
+        - "CurveP384"
+      minVersion: "VersionTLS12"
+
+# Les middlewares seront définis dans les fichiers dynamiques

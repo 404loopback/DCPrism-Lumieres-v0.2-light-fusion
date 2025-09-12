@@ -1,0 +1,58 @@
+services:
+  # =====================================
+  # INFRASTRUCTURE ORCHESTRATION TOOLS
+  # =====================================
+  opentofu:
+    build:
+      context: ${PWD}/lumieres/infra/docker/opentofu
+      dockerfile: Dockerfile
+    container_name: lumieres-opentofu
+    working_dir: /workspace
+    environment:
+      - TF_DATA_DIR=/workspace/.terraform
+      - TF_PLUGIN_CACHE_DIR=/home/opentofu/.terraform.d/plugin-cache
+      - TF_LOG=INFO
+    volumes:
+      - ${PWD}/lumieres/infra/terraform:/workspace/terraform:rw
+      - ${PWD}/lumieres/infra/docker/opentofu/tofu.rc:/home/opentofu/.tofurc:ro
+      - opentofu-cache:/home/opentofu/.terraform.d/plugin-cache
+      - opentofu-data:/workspace/.terraform
+    networks:
+      - lumieres-network
+    restart: unless-stopped
+    profiles:
+      - dev
+      - prod
+
+  ansible:
+    build:
+      context: ${PWD}/lumieres/infra/docker/ansible
+      dockerfile: Dockerfile
+    container_name: lumieres-ansible
+    working_dir: /ansible
+    environment:
+      - ANSIBLE_HOST_KEY_CHECKING=False
+      - ANSIBLE_STDOUT_CALLBACK=yaml
+      - ANSIBLE_CALLBACKS_ENABLED=profile_tasks
+    volumes:
+      - ${PWD}/lumieres/infra/ansible:/ansible:rw
+      - ${PWD}/lumieres/infra/docker/ansible/ansible.cfg:/ansible/ansible.cfg:ro
+      - ${PWD}/lumieres/infra/docker/ansible/inventory:/ansible/inventory:ro
+      - ansible-logs:/ansible/logs
+      - ~/.ssh:/home/ansible/.ssh:ro
+    networks:
+      - lumieres-network
+    restart: unless-stopped
+    profiles:
+      - dev
+      - prod
+
+volumes:
+  opentofu-cache:
+    driver: local
+  opentofu-data:
+    driver: local
+  ansible-logs:
+    driver: local
+
+# Le réseau sera défini dans le compose principal

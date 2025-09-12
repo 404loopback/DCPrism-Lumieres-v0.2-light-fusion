@@ -1,0 +1,11 @@
+-rw-r--r-- 1 inad inad 3183 Sep  2 08:44 2025_09_02_000002_fix_categories_mapping.php
+-rw-r--r-- 1 inad inad 1201 Sep  2 08:49 2025_09_02_000003_allow_null_is_valid_dcps.php
+-rw-r--r-- 1 inad inad  878 Sep  2 08:55 2025_09_02_000004_remove_sort_order_from_parameters.php
+-rw-r--r-- 1 inad inad  712 Sep  2 02:19 2025_09_02_001845_add_metadata_to_parameters_category_enum.php
+-rw-r--r-- 1 inad inad  739 Sep  2 02:21 2025_09_02_002106_add_accessibility_to_parameters_category_enum.php
+-rw-r--r-- 1 inad inad 1941 Sep  2 07:50 2025_09_02_055004_update_movie_statuses_to_new_workflow.php
+-rw-r--r-- 1 inad inad  714 Sep  2 09:04 2025_09_02_070408_remove_is_global_from_parameters_table.php
+-rw-r--r-- 1 inad inad  736 Sep  2 17:00 2025_09_02_145831_add_format_to_versions_table.php
+-rw-r--r-- 1 inad inad  681 Sep  2 17:00 2025_09_02_150006_remove_format_from_movies_table.php
+-rw-r--r-- 1 root root  614 Sep  2 18:49 2025_09_02_164846_remove_expected_versions_from_movies_table.php
+-rw-r--r-- 1 root root  637 Sep  2 18:57 2025_09_02_165730_remove_is_required_from_parameters_table.php

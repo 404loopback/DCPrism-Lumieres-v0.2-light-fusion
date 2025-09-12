@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Filament\Resources\Langs\Pages;
+
+use App\Filament\Resources\Langs\LangResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateLang extends CreateRecord
+{
+    protected static string $resource = LangResource::class;
+}

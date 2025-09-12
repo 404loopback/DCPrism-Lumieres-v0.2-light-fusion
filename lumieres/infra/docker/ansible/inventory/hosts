@@ -1,0 +1,43 @@
+# Ansible Inventory File
+# This file defines the hosts and groups for Ansible playbooks
+
+# Example groups and hosts
+[local]
+localhost ansible_connection=local
+
+[webservers]
+# Add your web servers here
+# web1.example.com
+# web2.example.com
+
+[databases]
+# Add your database servers here
+# db1.example.com
+# db2.example.com
+
+[loadbalancers]
+# Add your load balancers here
+# lb1.example.com
+# lb2.example.com
+
+[monitoring]
+# Add your monitoring servers here
+# monitor1.example.com
+
+# Group variables can be defined here or in group_vars/
+[webservers:vars]
+# http_port=80
+# https_port=443
+
+[databases:vars]
+# db_port=3306
+
+# Child groups
+[production:children]
+webservers
+databases
+loadbalancers
+
+[staging:children]
+# staging_webservers
+# staging_databases
