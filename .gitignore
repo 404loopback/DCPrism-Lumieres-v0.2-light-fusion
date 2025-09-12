@@ -44,3 +44,4 @@ composer.phar
 # Build artifacts
 dist/
 build/
+lumiere/apps/fresnel/database/schema/mysql-schema.sql
