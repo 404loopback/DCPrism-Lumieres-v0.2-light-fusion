@@ -1,3 +1,4 @@
+@vite(['resources/js/app.js', 'resources/css/app.css'])
 <div class="login-container">
     <style>
         body {
@@ -127,14 +128,15 @@
             color: rgba(255, 255, 255, 0.9) !important;
         }
         
-        /* Bouton flottant de navigation vers Meniscus */
+        /* Bouton flottant de navigation vers Meniscus - magnetic button */
         .floating-nav-arrow {
             position: fixed;
             top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
+            right: 80px;
+            /* Removed transform to avoid conflict with GSAP */
+            margin-top: -35px; /* Half of height to center vertically */
+            width: 70px;
+            height: 70px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -144,34 +146,85 @@
             justify-content: center;
             color: white;
             text-decoration: none;
-            transition: all 0.3s ease;
             z-index: 1000;
-            animation: pulse 2s infinite;
+            cursor: pointer;
+            outline: none;
         }
         
         .floating-nav-arrow:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-50%) scale(1.1);
             color: white;
             text-decoration: none;
         }
         
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 0.8;
-                transform: translateY(-50%) scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(-50%) scale(1.05);
-            }
+        /* Magnetic button specific styles */
+        .magnetic-button {
+            /* Remove transform transition to let GSAP handle it completely */
+        }
+        
+        .magnetic-button span {
+            position: relative;
+            display: inline-block;
+            /* Remove transform transition to let GSAP handle it completely */
+        }
+        
+        .arrow-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
         }
         
         .floating-nav-arrow svg {
-            width: 20px;
-            height: 20px;
+            width: 100%;
+            height: 100%;
         }
+        
+        /* Texte stationnaire Meniscus - ne bouge jamais */
+        .meniscus-label {
+            position: fixed;
+            top: 50%;
+            right: 115px; /* Button right (80px) + button width/2 (35px) */
+            margin-top: -80px; /* Button height/2 + 45px spacing above */
+            transform: translateX(50%); /* Center horizontally above button */
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 700;
+            transition: opacity 0.3s ease-out;
+            white-space: nowrap;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 999; /* Below button but visible */
+            text-align: center;
+        }
+        
+        /* Styles needy pour l'effet magnétique - plus visible */
+        .needy-btn.needy-attracted {
+            background: rgba(255, 255, 255, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 
+                0 0 40px rgba(255, 255, 255, 0.5) !important,
+                0 0 80px rgba(255, 255, 255, 0.25) !important,
+                0 0 120px rgba(255, 255, 255, 0.15) !important,
+                inset 0 0 30px rgba(255, 255, 255, 0.15) !important;
+            /* Disable original animations when needy is active */
+            animation: none !important;
+        }
+        
+        /* Override hover styles when needy is active */
+        .needy-btn.needy-attracted:hover {
+            transform: none !important;
+        }
+        
+        .needy-btn.needy-attracted .needy-indicator {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.8);
+        }
+        
         
         /* Styles pour le logo */
         .logo-container {
@@ -378,12 +431,22 @@
         </div>
     </div>
     
-    <!-- Bouton flottant vers Meniscus -->
-    <a href="http://meniscus.localhost/panel/admin/login" class="floating-nav-arrow" title="Aller sur Meniscus">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
-        </svg>
+    <!-- Texte stationnaire pour Meniscus -->
+    <div class="meniscus-label">
+        Meniscus
+    </div>
+    
+    <!-- Bouton flottant vers Meniscus avec effet magnétique -->
+    <a href="http://meniscus.localhost/panel/admin/login" class="magnetic-button floating-nav-arrow" title="Aller sur Meniscus">
+        <div class="arrow-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+            </svg>
+        </div>
     </a>
+    
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <script>
         function fillCredentials(email, password) {
@@ -441,6 +504,29 @@
                     }, 100);
                 }
             }
+        });
+        
+        // Initialize magnetic button behavior when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== MAGNETIC BUTTON DEBUG START ===');
+            console.log('DOM loaded, checking GSAP...', typeof gsap);
+            console.log('Checking initMagneticButton...', typeof window.initMagneticButton);
+            console.log('Magnetic elements found:', document.querySelectorAll('.magnetic-button').length);
+            console.log('Button element:', document.querySelector('.magnetic-button'));
+            
+            if (typeof window.initMagneticButton === 'function') {
+                console.log('Initializing magnetic button behavior...');
+                
+                try {
+                    window.initMagneticButton();
+                    console.log('Magnetic button initialized successfully');
+                } catch(error) {
+                    console.error('Error initializing magnetic button:', error);
+                }
+            } else {
+                console.error('initMagneticButton function not available');
+            }
+            console.log('=== MAGNETIC BUTTON DEBUG END ===');
         });
     </script>
 </div>

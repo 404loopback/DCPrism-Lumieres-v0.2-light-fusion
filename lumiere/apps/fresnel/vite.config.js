@@ -7,7 +7,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css', 
                 'resources/js/app.js',
-                'resources/css/filament/theme.css' // Nouveau thème global (ex-manager)
+                'resources/css/filament/theme.css', // Nouveau thème global (ex-manager)
+                'resources/css/needy/needy.css' // Needy button styles
             ],
             refresh: true,
         }),
