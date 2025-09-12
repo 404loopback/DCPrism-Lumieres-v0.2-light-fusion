@@ -45,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->id('admin')
             ->path('panel/admin')
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
             ->authGuard('web')
             ->brandName('DCPrism - Connexion')
             ->brandLogo(asset('images/logo-dcprism.svg'))

@@ -1,0 +1,86 @@
+services:
+  # =====================================
+  # FRESNEL - DCPrism (Film Management)
+  # =====================================
+  fresnel-app:
+    build:
+      context: ${PWD}/lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: lumieres-fresnel:app
+    container_name: lumieres-fresnel-app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '8001:80'
+      - '5173:5173'  # Vite dev server
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}/lumiere/apps/fresnel'
+    volumes:
+      - '${PWD}/lumiere/apps/fresnel:/var/www'
+    networks:
+      - lumieres-network
+    depends_on:
+      - mariadb
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fresnel.rule=Host(`fresnel.localhost`) || Host(`localhost`)"
+      - "traefik.http.routers.fresnel.entrypoints=web"
+      - "traefik.http.services.fresnel.loadbalancer.server.port=80"
+    profiles:
+      - dev
+      - prod
+    restart: unless-stopped
+
+  fresnel-worker:
+    build:
+      context: ${PWD}/lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: lumieres-fresnel:worker
+    container_name: lumieres-fresnel-worker
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - '${PWD}/lumiere/apps/fresnel:/var/www'
+    networks:
+      - lumieres-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+    profiles:
+      - dev
+      - prod
+    restart: unless-stopped
+
+  fresnel-scheduler:
+    build:
+      context: ${PWD}/lumiere/apps/fresnel
+      dockerfile: docker/app/Dockerfile
+      target: development
+    image: lumieres-fresnel:scheduler
+    container_name: lumieres-fresnel-scheduler
+    environment:
+      WWWUSER: '${WWWUSER:-1000}'
+      LARAVEL_SAIL: 1
+    volumes:
+      - '${PWD}/lumiere/apps/fresnel:/var/www'
+    networks:
+      - lumieres-network
+    depends_on:
+      - mariadb
+      - redis
+    command: php artisan schedule:work
+    profiles:
+      - dev
+      - prod
+    restart: unless-stopped
+
+# Le réseau sera défini dans le compose principal

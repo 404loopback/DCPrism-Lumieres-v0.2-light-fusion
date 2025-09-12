@@ -24,5 +24,5 @@
 
     <x-filament-actions::modals />
 
-    {{ \\Filament\\Support\\Facades\\FilamentView::renderHook(\\Filament\\View\\PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
 </div>

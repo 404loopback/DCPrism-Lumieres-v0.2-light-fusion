@@ -27,7 +27,8 @@ class FilamentRoleRedirect
         $excludedRoutes = [
             'panel/*/logout',
             '*/logout', 
-            'panel/login',
+            'panel/*/login',
+            'panel/admin/login',
             'panel/*/livewire/*',
             '*/livewire/*',
             'filament/exports/*',

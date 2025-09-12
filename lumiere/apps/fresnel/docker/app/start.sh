@@ -3,6 +3,30 @@
 # Script de démarrage pour DCPrism Laravel App
 echo "🚀 Starting DCPrism Laravel Application..."
 
+# Fonction pour vérifier et corriger les permissions
+fix_permissions() {
+    local path="$1"
+    local owner="${2:-www-data:www-data}"
+    local mode="${3:-775}"
+    
+    if [ ! -w "$path" ]; then
+        echo "🔧 Fixing permissions for $path..."
+        chown -R "$owner" "$path" 2>/dev/null || true
+        chmod -R "$mode" "$path" 2>/dev/null || true
+        
+        if [ -w "$path" ]; then
+            echo "✅ $path permissions fixed"
+            return 0
+        else
+            echo "❌ Warning: Could not fix $path permissions"
+            return 1
+        fi
+    else
+        echo "✅ $path permissions OK"
+        return 0
+    fi
+}
+
 # Attendre que la base de données soit prête
 echo "⏳ Waiting for database connection..."
 until php artisan tinker --execute="DB::connection()->getPdo(); echo 'DB Connected';" 2>/dev/null; do
@@ -38,19 +62,26 @@ if [ "$APP_ENV" = "local" ] || [ "$APP_ENV" = "development" ]; then
     php artisan config:clear
     php artisan route:clear
     php artisan view:clear
+    
+    # Publier les assets Telescope (développement)
+    echo "🔭 Publishing Telescope assets..."
+    php artisan telescope:publish
 else
     # Production : optimisations
-    echo "🏭 Production mode: optimizing..."
+    echo "🏠 Production mode: optimizing..."
     php artisan migrate --force
     php artisan config:cache
     php artisan route:cache
     php artisan view:cache
+    
+    # En production, on peut désactiver Telescope ou le limiter
+    echo "🔭 Telescope configured for production..."
 fi
 
-# Vérifier les permissions
-echo "🔒 Setting up permissions..."
-chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+# Vérifier et corriger les permissions avec fonction réutilisable
+echo "🔒 Checking critical directories permissions..."
+fix_permissions "/var/www/storage" "www-data:www-data" "775"
+fix_permissions "/var/www/bootstrap/cache" "www-data:www-data" "775"
 
 # Sanity check
 echo "✅ Application ready!"

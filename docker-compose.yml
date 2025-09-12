@@ -1,150 +1,37 @@
 # =====================================
 # DCPrism - Main Docker Compose
 # Orchestrateur principal avec composition modulaire
+# Auteur : Inadvertance
+
+
+# ============UTILISATION==============
+
+## docker compose --profile $profile up -d ##
+
+# Profiles disponibles : 
+# --profile architecture - MariaDB, Redis,
+# --profile orchestration -OpenTofu, Ansible  
+# --profile tools - 
+# --profile development - Adminer, Redis Commander, [todo] DBeaver
+# --profile production - 
+# [todo] monitoring - prometheus, grafana, loki, tempo
+# [todo] logging - loki, promtail
+# [todo] tracing - tempo, jaeger
 # =====================================
 
 # Inclusion des modules Docker
+
 include:
-  - lumiere/infra/docker/fresnel/docker-compose.yml
-  - lumiere/infra/docker/meniscus/docker-compose.yml
-  - lumiere/infra/docker/development/docker-compose.yml
+  - lumiere/infra/docker/compose/core.compose.yml                 #
+  - lumiere/infra/docker/compose/app/meniscus.compose.yml         #
+  - lumiere/infra/docker/compose/app/fresnel.compose.yml          #
+  - lumiere/infra/docker/compose/dev_tools.compose.yml            #
+  - lumiere/infra/docker/compose/iac_tools.compose.yml            #
 
-services:
-  # =====================================
-  # SHARED INFRASTRUCTURE
-  # =====================================
-  mariadb:
-    image: 'mariadb:11'
-    container_name: dcprism-mariadb
-    restart: unless-stopped
-    ports:
-      - '3306:3306'
-    environment:
-      MYSQL_ROOT_PASSWORD: 'dcprism_root_password'
-      MYSQL_ROOT_HOST: '%'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
-    volumes:
-      - 'mariadb-data:/var/lib/mysql'
-      - './lumiere/infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
-    networks:
-      - dcprism-network
-    healthcheck:
-      test:
-        - CMD
-        - healthcheck.sh
-        - '--connect'
-        - '--innodb_initialized'
-      retries: 3
-      timeout: 5s
-
-  redis:
-    image: 'redis:7.2-alpine'
-    container_name: dcprism-redis
-    restart: unless-stopped
-    ports:
-      - '6379:6379'
-    command: 'redis-server --requirepass redis_password --appendonly yes'
-    volumes:
-      - 'redis-data:/data'
-    networks:
-      - dcprism-network
-
-  # =====================================
-  # INFRASTRUCTURE TOOLS
-  # =====================================
-  opentofu:
-    build:
-      context: ./lumiere/infra/docker/opentofu
-      dockerfile: Dockerfile
-    container_name: dcprism-opentofu
-    working_dir: /workspace
-    environment:
-      - TF_DATA_DIR=/workspace/.terraform
-      - TF_PLUGIN_CACHE_DIR=/home/opentofu/.terraform.d/plugin-cache
-      - TF_LOG=INFO
-    volumes:
-      - ./lumiere/infra/terraform:/workspace/terraform:rw
-      - ./lumiere/infra/docker/opentofu/tofu.rc:/home/opentofu/.tofurc:ro
-      - opentofu-cache:/home/opentofu/.terraform.d/plugin-cache
-      - opentofu-data:/workspace/.terraform
-    networks:
-      - dcprism-network
-    restart: unless-stopped
-    profiles:
-      - infrastructure
-      - tools
-      - prod
-
-  ansible:
-    build:
-      context: ./lumiere/infra/docker/ansible
-      dockerfile: Dockerfile
-    container_name: dcprism-ansible
-    working_dir: /ansible
-    environment:
-      - ANSIBLE_HOST_KEY_CHECKING=False
-      - ANSIBLE_STDOUT_CALLBACK=yaml
-      - ANSIBLE_CALLBACKS_ENABLED=profile_tasks
-    volumes:
-      - ./lumiere/infra/ansible:/ansible:rw
-      - ./lumiere/infra/docker/ansible/ansible.cfg:/ansible/ansible.cfg:ro
-      - ./lumiere/infra/docker/ansible/inventory:/ansible/inventory:ro
-      - ansible-logs:/ansible/logs
-      - ~/.ssh:/home/ansible/.ssh:ro
-    networks:
-      - dcprism-network
-    restart: unless-stopped
-    profiles:
-      - infrastructure
-      - tools
-      - prod
-
-  infisical:
-    build:
-      context: ./lumiere/infra/docker/infisical
-      dockerfile: Dockerfile
-    container_name: dcprism-infisical
-    working_dir: /app
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - LOG_LEVEL=info
-      - AUDIT_LOGS_ENABLED=true
-      - SECRET_SCANNING_ENABLED=true
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./lumiere/infra/secrets:/app/data:rw
-      - ./lumiere/infra/docker/infisical/infisical.json:/app/config/infisical.json:ro
-      - infisical-logs:/app/logs
-      - infisical-config:/home/infisical/.infisical
-    networks:
-      - dcprism-network
-    restart: unless-stopped
-    profiles:
-      - infrastructure
-      - tools
-      - security
-      - prod
-
-volumes:
-  mariadb-data:
-    driver: local
-  redis-data:
-    driver: local
-  opentofu-cache:
-    driver: local
-  opentofu-data:
-    driver: local
-  ansible-logs:
-    driver: local
-  infisical-logs:
-    driver: local
-  infisical-config:
-    driver: local
+# Réseau commun
 
 networks:
-  dcprism-network:
+  lumieres-network:
     driver: bridge
     ipam:
       config:

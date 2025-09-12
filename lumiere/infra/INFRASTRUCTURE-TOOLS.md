@@ -5,11 +5,10 @@ Ce document décrit les outils d'infrastructure disponibles dans DCPrism pour la
 ## Services Disponibles
 
 ### OpenTofu
-Service de Infrastructure as Code (IaC) utilisant OpenTofu, le fork open source de Terraform.
-
-**Container**: `dcprism-opentofu`
-**Port**: Aucun (CLI uniquement)
-**Configuration**: `lumiere/infra/docker/opentofu/`
+**Status**: ✅ ACTIF  
+**Container**: `dcprism-opentofu`  
+**Version**: 1.6.2  
+**Usage**: `docker-compose exec opentofu tofu --help`
 
 #### Utilisation
 ```bash
@@ -29,11 +28,10 @@ docker-compose exec opentofu tofu apply
 - Données Terraform: Volume Docker `opentofu-data`
 
 ### Ansible
-Service d'automatisation et de gestion de configuration.
-
+**Status**: ✅ ACTIF  
 **Container**: `dcprism-ansible`  
-**Port**: Aucun (CLI uniquement)
-**Configuration**: `lumiere/infra/docker/ansible/`
+**Version**: 2.19.2  
+**Usage**: `docker-compose exec ansible ansible --help`
 
 #### Utilisation
 ```bash
@@ -54,12 +52,11 @@ docker-compose exec ansible ansible all -m ping
 - Logs: Volume Docker `ansible-logs`
 
 ### Infisical
-Service de gestion des secrets et variables d'environnement.
-
-**Container**: `dcprism-infisical`
-**Port**: `3000:3000`
-**Interface Web**: http://localhost:3000
-**Configuration**: `lumiere/infra/docker/infisical/`
+**Status**: ✅ ACTIF  
+**Container**: `dcprism-infisical`  
+**Port**: 3000  
+**Interface**: http://localhost:3000  
+**CLI**: `docker-compose exec infisical infisical --help`
 
 #### Utilisation
 ```bash

@@ -24,11 +24,11 @@ RUN apk add --no-cache \
     && apk del .build-deps \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/* /usr/src/*
 
-# Configuration utilisateur
-RUN if [ ${USER_ID:-0} -ne 0 ] && [ ${GROUP_ID:-0} -ne 0 ]; then \
-        usermod -u ${USER_ID} www-data && \
-        groupmod -g ${GROUP_ID} www-data; \
-    fi
+# Configuration utilisateur compatible Sail
+RUN groupadd --force -g ${GROUP_ID} sail \
+    && useradd -ms /bin/bash --no-user-group -g ${GROUP_ID} -u ${USER_ID} sail \
+    && groupadd --force -g ${GROUP_ID} www-data \
+    && usermod -g ${GROUP_ID} www-data
 
 # Installer Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
@@ -76,6 +76,12 @@ COPY --chown=www-data:www-data . .
 
 # Ajuster permissions pour les dossiers critiques seulement
 RUN chown -R www-data:www-data storage bootstrap/cache
+
+# Installer XDEBUG pour le développement
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del .build-deps
 
 # Finaliser Composer avec dev dependencies
 RUN --mount=type=cache,target=/tmp/composer-cache \

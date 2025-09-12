@@ -47,13 +47,13 @@ WORKDIR /var/www
 FROM php-base AS dependencies
 
 # Copier les fichiers de dépendances
-COPY composer.json composer.lock package.json ./
+COPY composer.json composer.lock package.json package-lock.json ./
 
 # Cache mounts pour performances optimales
 RUN --mount=type=cache,target=/tmp/composer-cache \
     --mount=type=cache,target=/root/.npm \
     composer install --no-scripts --no-autoloader --no-dev && \
-    npm install --only=production
+    npm ci --only=production
 
 # Stage 3: Application de développement
 FROM php-base AS development
@@ -77,6 +77,12 @@ COPY --chown=www-data:www-data . .
 # Ajuster permissions pour les dossiers critiques seulement
 RUN chown -R www-data:www-data storage bootstrap/cache
 
+# Installer XDEBUG pour le développement
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del .build-deps
+
 # Finaliser Composer avec dev dependencies
 RUN --mount=type=cache,target=/tmp/composer-cache \
     composer install --optimize-autoloader
@@ -98,12 +104,12 @@ ENV APP_DEBUG=false
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
 # Installer dépendances production
-COPY composer.json composer.lock package.json ./
+COPY composer.json composer.lock package.json package-lock.json ./
 
 RUN --mount=type=cache,target=/tmp/composer-cache \
     --mount=type=cache,target=/root/.npm \
     composer install --no-dev --optimize-autoloader --no-scripts && \
-    npm install --only=production && \
+    npm ci --only=production && \
     npm run build && \
     npm cache clean --force && \
     rm -rf node_modules /root/.npm

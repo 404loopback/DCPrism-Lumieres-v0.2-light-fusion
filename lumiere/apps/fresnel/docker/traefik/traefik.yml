@@ -30,7 +30,7 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    network: dcprism-network
+    network: lumieres-network
     
   # Configuration dynamique via fichiers
   file:
