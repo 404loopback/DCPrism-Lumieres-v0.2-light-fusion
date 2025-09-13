@@ -68,17 +68,36 @@
             color: rgba(255, 255, 255, 0.9);
             font-size: 16px;
             font-weight: 700;
-            transition: opacity 0.3s ease-out;
+            transition: opacity 0.2s ease-out; /* Plus rapide */
             white-space: nowrap;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            /* Ombre portée supprimée */
             pointer-events: none;
             z-index: 999; /* Below button but visible */
             text-align: center;
+        }
+        
+        /* Logo DCPrism centré au-dessus */
+        .dcprism-logo {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+        }
+        
+        .dcprism-logo img {
+            width: 48px;
+            height: 48px;
         }
     </style>
 
     <!-- GSAP CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Logo DCPrism centré en haut -->
+    <div class="dcprism-logo">
+        <img src="{{ asset('images/logo-dcprism.svg') }}" alt="DCPrism" />
+    </div>
     
     <!-- Texte stationnaire pour Fresnel -->
     <div class="fresnel-label">
@@ -180,7 +199,7 @@
                 if (indicator) {
                   gsap.to(indicator, {
                     opacity: textOpacity,
-                    duration: 0.2, // Faster fade out
+                    duration: 0.15, // Légèrement plus rapide
                     ease: "power3.out",
                     overwrite: "auto"
                   });
@@ -201,7 +220,7 @@
                 if (indicator) {
                   gsap.to(indicator, {
                     opacity: 1,
-                    duration: 0.5,
+                    duration: 0.35, // Légèrement plus rapide
                     ease: "power3.out",
                     overwrite: "auto"
                   });

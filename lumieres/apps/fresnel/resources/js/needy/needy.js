@@ -27,7 +27,7 @@ function resetMagnet(button, text) {
   if (indicator) {
     gsap.to(indicator, {
       opacity: 1,
-      duration: 0.5,
+      duration: 0.35, // Légèrement plus rapide
       ease: "power3.out"
     });
   }
@@ -84,7 +84,7 @@ function initMagneticButton() {
         if (indicator) {
           gsap.to(indicator, {
             opacity: textOpacity,
-            duration: 0.2, // Faster fade out
+            duration: 0.15, // Légèrement plus rapide
             ease: "power3.out",
             overwrite: "auto"
           });
@@ -105,7 +105,7 @@ function initMagneticButton() {
         if (indicator) {
           gsap.to(indicator, {
             opacity: 1,
-            duration: 0.5,
+            duration: 0.35, // Légèrement plus rapide
             ease: "power3.out",
             overwrite: "auto"
           });

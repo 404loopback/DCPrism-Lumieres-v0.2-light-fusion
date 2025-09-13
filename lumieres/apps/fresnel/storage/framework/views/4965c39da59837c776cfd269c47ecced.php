@@ -102,7 +102,7 @@
                 </div>
 
                 <!-- Navigation Desktop -->
-                <div class="hidden md:block">
+                <div class="block">
                     <div class="ml-10 flex items-baseline space-x-8">
                         <a href="<?php echo e(route('showcase.home')); ?>" 
                            class="nav-link <?php echo e(request()->routeIs('showcase.home') ? 'text-blue-600' : 'text-gray-700'); ?> hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors">
@@ -261,11 +261,11 @@
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
-                navbar.classList.add('bg-white/95');
-                navbar.classList.remove('bg-white/80');
+                navbar.classList.add('bg-white', 'shadow-md');
+                navbar.classList.remove('shadow-sm');
             } else {
-                navbar.classList.add('bg-white/80');
-                navbar.classList.remove('bg-white/95');
+                navbar.classList.add('bg-white', 'shadow-sm');
+                navbar.classList.remove('shadow-md');
             }
         });
 

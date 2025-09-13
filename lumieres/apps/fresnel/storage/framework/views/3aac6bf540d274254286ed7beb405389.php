@@ -1,8 +1,11 @@
 <div class="login-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0a0a0a; display: flex; align-items: center; justify-content: center; font-family: 'Figtree', sans-serif;">
-    {!! \Filament\Support\Facades\FilamentAsset::renderStyles() !!}
-    {!! \Filament\Support\Facades\FilamentAsset::renderScripts() !!}
-    @livewireStyles
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    <?php echo \Filament\Support\Facades\FilamentAsset::renderStyles(); ?>
+
+    <?php echo \Filament\Support\Facades\FilamentAsset::renderScripts(); ?>
+
+    <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
+
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/js/app.js', 'resources/css/app.css']); ?>
     <style>
         body {
             min-height: 100vh;
@@ -437,18 +440,37 @@
     <div class="glass-login-card">
         <!-- Header avec logo -->
         <div class="logo-container">
-            <img src="{{ asset('images/logo-dcprism.svg') }}" alt="DCPrism" class="mx-auto h-12 mb-4">
+            <img src="<?php echo e(asset('images/logo-dcprism.svg')); ?>" alt="DCPrism" class="mx-auto h-12 mb-4">
             <h1 class="text-2xl font-bold mb-2">DCPrism</h1>
             <p class="text-sm mb-6">Connexion à votre espace</p>
         </div>
         
         <form wire:submit="authenticate">
-            {{ $this->form }}
+            <?php echo e($this->form); ?>
+
             
             <div style="margin-top: 20px;">
-                <x-filament::button type="submit" size="lg" class="w-full">
+                <?php if (isset($component)) { $__componentOriginal6330f08526bbb3ce2a0da37da512a11f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal6330f08526bbb3ce2a0da37da512a11f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'filament::components.button.index','data' => ['type' => 'submit','size' => 'lg','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('filament::button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['type' => 'submit','size' => 'lg','class' => 'w-full']); ?>
                     Se connecter
-                </x-filament::button>
+                 <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal6330f08526bbb3ce2a0da37da512a11f)): ?>
+<?php $attributes = $__attributesOriginal6330f08526bbb3ce2a0da37da512a11f; ?>
+<?php unset($__attributesOriginal6330f08526bbb3ce2a0da37da512a11f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal6330f08526bbb3ce2a0da37da512a11f)): ?>
+<?php $component = $__componentOriginal6330f08526bbb3ce2a0da37da512a11f; ?>
+<?php unset($__componentOriginal6330f08526bbb3ce2a0da37da512a11f); ?>
+<?php endif; ?>
             </div>
         </form>
         
@@ -625,8 +647,29 @@
     </script>
     
     <!-- Composant modal requis pour Filament -->
-    <x-filament-actions::modals />
+    <?php if (isset($component)) { $__componentOriginal028e05680f6c5b1e293abd7fbe5f9758 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal028e05680f6c5b1e293abd7fbe5f9758 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'filament-actions::components.modals','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('filament-actions::modals'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal028e05680f6c5b1e293abd7fbe5f9758)): ?>
+<?php $attributes = $__attributesOriginal028e05680f6c5b1e293abd7fbe5f9758; ?>
+<?php unset($__attributesOriginal028e05680f6c5b1e293abd7fbe5f9758); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal028e05680f6c5b1e293abd7fbe5f9758)): ?>
+<?php $component = $__componentOriginal028e05680f6c5b1e293abd7fbe5f9758; ?>
+<?php unset($__componentOriginal028e05680f6c5b1e293abd7fbe5f9758); ?>
+<?php endif; ?>
     
     <!-- Scripts Livewire requis -->
-    @livewireScripts
+    <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
+
 </div> <!-- Fin login-container racine -->
+<?php /**PATH /var/www/resources/views/panel/login-livewire.blade.php ENDPATH**/ ?>

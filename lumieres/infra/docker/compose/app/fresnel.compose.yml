@@ -4,7 +4,7 @@ services:
   # =====================================
   fresnel-app:
     build:
-      context: ${PWD}/lumieres/apps/fresnel
+      context: ${PWD}/apps/fresnel
       dockerfile: docker/app/Dockerfile
       target: development
     image: lumieres-fresnel:app
@@ -19,9 +19,9 @@ services:
       LARAVEL_SAIL: 1
       XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
       XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-      IGNITION_LOCAL_SITES_PATH: '${PWD}/lumieres/apps/fresnel'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}/apps/fresnel'
     volumes:
-      - '${PWD}/lumieres/apps/fresnel:/var/www'
+      - '${PWD}/apps/fresnel:/var/www'
     networks:
       - lumieres-network
     depends_on:
@@ -39,7 +39,7 @@ services:
 
   fresnel-worker:
     build:
-      context: ${PWD}/lumieres/apps/fresnel
+      context: ${PWD}/apps/fresnel
       dockerfile: docker/app/Dockerfile
       target: development
     image: lumieres-fresnel:worker
@@ -48,7 +48,7 @@ services:
       WWWUSER: '${WWWUSER:-1000}'
       LARAVEL_SAIL: 1
     volumes:
-      - '${PWD}/lumieres/apps/fresnel:/var/www'
+      - '${PWD}/apps/fresnel:/var/www'
     networks:
       - lumieres-network
     depends_on:
@@ -62,7 +62,7 @@ services:
 
   fresnel-scheduler:
     build:
-      context: ${PWD}/lumieres/apps/fresnel
+      context: ${PWD}/apps/fresnel
       dockerfile: docker/app/Dockerfile
       target: development
     image: lumieres-fresnel:scheduler
@@ -71,7 +71,7 @@ services:
       WWWUSER: '${WWWUSER:-1000}'
       LARAVEL_SAIL: 1
     volumes:
-      - '${PWD}/lumieres/apps/fresnel:/var/www'
+      - '${PWD}/apps/fresnel:/var/www'
     networks:
       - lumieres-network
     depends_on:

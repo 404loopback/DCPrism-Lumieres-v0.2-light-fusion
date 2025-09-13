@@ -14,7 +14,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     volumes:
       - 'mariadb-data:/var/lib/mysql'
-      - './lumieres/infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
+      - './infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
     networks:
       - lumieres-network
     healthcheck:
@@ -50,7 +50,7 @@ services:
       - "8088:8080"  # Dashboard Traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${PWD}/lumieres/infra/docker/traefik/traefik-dev.yml:/etc/traefik/traefik.yml:ro
+      - ${PWD}/infra/docker/traefik/traefik-dev.yml:/etc/traefik/traefik.yml:ro
     networks:
       - lumieres-network
     profiles:
@@ -65,7 +65,7 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${PWD}/lumieres/infra/docker/traefik/traefik-prod.yml:/etc/traefik/traefik.yml:ro
+      - ${PWD}/infra/docker/traefik/traefik-prod.yml:/etc/traefik/traefik.yml:ro
       - traefik-data:/data
     networks:
       - lumieres-network
