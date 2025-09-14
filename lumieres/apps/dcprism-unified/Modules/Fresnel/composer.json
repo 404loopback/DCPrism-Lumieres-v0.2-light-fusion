@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/fresnel",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Fresnel\\": "app/",
+            "Modules\\Fresnel\\Database\\Factories\\": "database/factories/",
+            "Modules\\Fresnel\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Fresnel\\Tests\\": "tests/"
+        }
+    }
+}

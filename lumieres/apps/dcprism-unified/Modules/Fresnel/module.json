@@ -1,0 +1,11 @@
+{
+    "name": "Fresnel",
+    "alias": "fresnel",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Fresnel\\app\\Providers\\FresnelServiceProvider"
+    ],
+    "files": []
+}
