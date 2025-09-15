@@ -43,7 +43,8 @@ class AdminPanelProvider extends PanelProvider
         $panel = $this->applyGlobalTheme($panel);
         
         return $panel
-            ->id('admin')
+            ->default()
+            ->id('fresnel')
             ->path('fresnel')
             ->login(\Modules\Fresnel\app\Filament\Pages\Auth\Login::class)
             ->authGuard('web')
@@ -55,32 +56,32 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
                 'gray' => Color::Slate,
             ])
-            // ->resources([
-            //     \Modules\Fresnel\app\Filament\Resources\Parameters\ParameterResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Movies\MovieResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Users\UserResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Langs\LangResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Nomenclatures\NomenclatureResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\Versions\VersionResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,
-            //     \Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource::class,
-            // ])
-            // ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
+            ->resources([
+                \Modules\Fresnel\app\Filament\Resources\Parameters\ParameterResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Movies\MovieResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Users\UserResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Langs\LangResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Nomenclatures\NomenclatureResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Versions\VersionResource::class,
+                \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,
+                \Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource::class,
+            ])
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
             ])
             // ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Widgets')
             ->widgets([
                 // Widgets DCP personnalisés organisés par priorité
-                // DcpVersionsOverviewWidget::class, // Notre nouveau widget Phase 1
-                // DcpStatisticsWidget::class,
-                // StorageUsageWidget::class,
-                // ProcessingActivityWidget::class,
-                // FestivalPerformanceWidget::class,
-                // TrendsChartWidget::class,
-                // UploadTrendsWidget::class,
+                DcpVersionsOverviewWidget::class, // Notre nouveau widget Phase 1
+                DcpStatisticsWidget::class,
+                StorageUsageWidget::class,
+                ProcessingActivityWidget::class,
+                FestivalPerformanceWidget::class,
+                TrendsChartWidget::class,
+                UploadTrendsWidget::class,
                 
                 // Widgets par défaut
                 AccountWidget::class,

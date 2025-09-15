@@ -2,7 +2,7 @@
 
 return [
     App\Providers\AppServiceProvider::class,
-    App\Providers\Filament\CorePanelProvider::class,
+    // CorePanelProvider supprimé - remplacé par une page d'accueil publique
     
     // Laravel Modules
     Nwidart\Modules\LaravelModulesServiceProvider::class,

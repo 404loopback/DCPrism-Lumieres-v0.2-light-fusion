@@ -136,7 +136,7 @@ class UsersTable
                         ->label('Gérer les festivals')
                         ->icon('heroicon-o-building-office')
                         ->color('info')
-                        ->url(fn ($record) => route('filament.admin.resources.users.edit', ['record' => $record->id]) . '#festivals')
+                        ->url(fn ($record) => route('filament.fresnel.resources.users.edit', ['record' => $record->id]) . '#festivals')
                         ->openUrlInNewTab(false),
                         
                     Action::make('toggle_status')

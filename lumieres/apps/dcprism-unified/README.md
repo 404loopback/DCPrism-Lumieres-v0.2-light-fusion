@@ -1,3 +1,107 @@
+# DCPrism Unified
+
+Application unifiée combinant Fresnel (gestion DCP) et Meniscus (gestion événements) avec un site vitrine public.
+
+## Architecture
+
+Cette application Laravel 12 utilise le système de modules Laravel pour organiser le code :
+
+- **Module Fresnel** : Gestion des DCP, validation technique, festivals
+- **Module Meniscus** : Gestion d'événements, infrastructure, jobs
+- **Site vitrine public** : Pages d'accueil, présentation, contact
+
+## Panels Filament disponibles
+
+### Site public
+- **Page d'accueil** : `http://localhost/`
+- **Features** : `http://localhost/features`
+- **About** : `http://localhost/about`
+- **Contact** : `http://localhost/contact`
+
+### Panels d'administration
+- **Panel Fresnel** (principal) : `http://localhost/fresnel`
+- **Panel Meniscus** : `http://localhost/meniscus`
+
+### Panels spécialisés par rôle
+- **Manager** : `http://localhost/panel/manager`
+- **Tech** : `http://localhost/panel/tech`  
+- **Cinema** : `http://localhost/panel/cinema`
+- **Source** : `http://localhost/panel/source`
+
+## Authentification et rôles
+
+Les utilisateurs accèdent aux panels selon leur rôle :
+- `admin` → Fresnel + Meniscus
+- `manager` → Panel Manager
+- `supervisor` → Panel Manager (partagé)
+- `tech` → Panel Tech
+- `cinema` → Panel Cinema
+- `source` → Panel Source
+
+## Démarrage avec Docker
+
+```bash
+# Depuis le répertoire lumieres/
+./scripts/start-dcprism-unified.sh
+```
+
+Ou manuellement :
+```bash
+# Développement
+docker compose --profile dev --profile architecture up -d --build
+
+# Production
+docker compose --profile prod --profile architecture up -d --build
+```
+
+## Développement
+
+```bash
+# Installation des dépendances
+composer install
+npm install
+
+# Configuration
+cp .env.example .env
+php artisan key:generate
+
+# Migrations et seed
+php artisan migrate --seed
+
+# Serveur de développement
+php artisan serve
+```
+
+## Structure des modules
+
+```
+Modules/
+├── Fresnel/        # Module principal DCP
+│   ├── app/
+│   │   ├── Filament/           # Panels et ressources
+│   │   ├── Http/Controllers/   # Contrôleurs
+│   │   └── Models/            # Modèles Eloquent
+│   ├── resources/views/       # Vues Blade
+│   └── routes/               # Routes du module
+└── Meniscus/       # Module événements
+    ├── app/
+    │   ├── Filament/
+    │   ├── Http/Controllers/
+    │   └── Models/
+    ├── resources/views/
+    └── routes/
+```
+
+## Migration depuis les anciennes applications
+
+Cette application remplace :
+- `apps/fresnel/` → Intégré dans `Modules/Fresnel/`
+- `apps/meniscus/` → Intégré dans `Modules/Meniscus/`
+
+Les redirections automatiques Traefik permettent la rétrocompatibilité :
+- `fresnel.localhost` → `localhost`
+- `meniscus.localhost` → `localhost`
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

@@ -4,6 +4,7 @@ namespace Modules\Fresnel\app\Filament\Resources\Nomenclatures\Tables;
 
 use Modules\Fresnel\app\Models\Festival;
 use Modules\Fresnel\app\Models\Parameter;
+use Modules\Fresnel\app\Models\Nomenclature;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -126,7 +127,7 @@ class NomenclaturesTable
                         ->label('Gérer les paramètres')
                         ->icon('heroicon-o-cog-6-tooth')
                         ->color('warning')
-                        ->url(fn ($record) => route('filament.admin.resources.nomenclatures.index', ['tableFilters[festival_id][value]' => $record->id]))
+                        ->url(fn ($record) => route('filament.fresnel.resources.nomenclatures.index', ['tableFilters[festival_id][value]' => $record->id]))
                         ->openUrlInNewTab(),
                 ])
             ])
@@ -158,7 +159,7 @@ class NomenclaturesTable
         }
         
         // Récupérer toutes les nomenclatures du festival ordonnées
-        $nomenclatures = \App\Models\Nomenclature::where('festival_id', $record->festival_id)
+        $nomenclatures = Nomenclature::where('festival_id', $record->festival_id)
             ->where('is_active', true)
             ->with('parameter')
             ->orderBy('order_position')
@@ -223,8 +224,8 @@ class NomenclaturesTable
             return '0';
         }
         
-        $total = \App\Models\Nomenclature::where('festival_id', $record->festival_id)->count();
-        $active = \App\Models\Nomenclature::where('festival_id', $record->festival_id)
+        $total = Nomenclature::where('festival_id', $record->festival_id)->count();
+        $active = Nomenclature::where('festival_id', $record->festival_id)
             ->where('is_active', true)
             ->count();
         
@@ -298,7 +299,7 @@ class NomenclaturesTable
      */
     private static function getFestivalNomenclatures($festivalId)
     {
-        return \App\Models\Nomenclature::where('festival_id', $festivalId)
+        return Nomenclature::where('festival_id', $festivalId)
             ->with(['parameter', 'festival'])
             ->orderBy('order_position')
             ->get();
@@ -374,7 +375,7 @@ class NomenclaturesTable
      */
     private static function getFestivalNomenclaturesQuery()
     {
-        return \App\Models\Festival::query()
+        return Festival::query()
             ->whereHas('nomenclatures')
             ->with(['nomenclatures.parameter'])
             ->withCount('nomenclatures')

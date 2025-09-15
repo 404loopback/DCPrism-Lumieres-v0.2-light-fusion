@@ -9,22 +9,16 @@
 ## docker compose --profile $profile up -d ##
 
 # Profiles disponibles : 
-# --profile architecture - MariaDB, Redis,
-# --profile orchestration -OpenTofu, Ansible  
-# --profile tools - 
-# --profile development - Adminer, Redis Commander, [todo] DBeaver
-# --profile production - 
-# [todo] monitoring - prometheus, grafana, loki, tempo
-# [todo] logging - loki, promtail
-# [todo] tracing - tempo, jaeger
+# --profile dev - Application complète en développement (Traefik dev, app, worker, scheduler, MariaDB, Redis, outils dev)
+# --profile prod - Application complète en production (Traefik prod avec SSL, app, worker, scheduler, MariaDB, Redis)
 # =====================================
 
 # Inclusion des modules Docker
 
 include:
   - infra/docker/compose/core.compose.yml
-  - infra/docker/compose/app/meniscus.compose.yml
-  - infra/docker/compose/app/fresnel.compose.yml
+  # Application unifiée DCPrism (Fresnel + Meniscus + Site vitrine)
+  - infra/docker/compose/app/lumieres.compose.yml
   - infra/docker/compose/dev_tools.compose.yml
   - infra/docker/compose/iac_tools.compose.yml
 

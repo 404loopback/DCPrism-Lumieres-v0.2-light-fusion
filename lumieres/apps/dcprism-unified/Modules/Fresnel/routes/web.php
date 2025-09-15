@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Fresnel\Http\Controllers\FresnelController;
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('fresnels', FresnelController::class)->names('fresnel');
-});
+// Routes web du module Fresnel
+// Les routes showcase sont maintenant dans l'app principale

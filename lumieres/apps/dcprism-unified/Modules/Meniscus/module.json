@@ -1,0 +1,11 @@
+{
+    "name": "Meniscus",
+    "alias": "meniscus",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Meniscus\\app\\Providers\\MeniscusServiceProvider"
+    ],
+    "files": []
+}

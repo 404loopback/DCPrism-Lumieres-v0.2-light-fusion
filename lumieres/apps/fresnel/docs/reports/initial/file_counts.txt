@@ -1,2 +1,0 @@
-516
-Total PHP files (excluding vendor):

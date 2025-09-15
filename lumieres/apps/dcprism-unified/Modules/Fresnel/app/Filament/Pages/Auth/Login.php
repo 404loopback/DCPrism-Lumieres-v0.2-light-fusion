@@ -9,7 +9,7 @@ use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContrac
 
 class Login extends BaseLogin
 {
-    protected string $view = 'fresnel::panel.login-complete';
+    protected string $view = 'fresnel::panel.login';
     
     public function mount(): void
     {

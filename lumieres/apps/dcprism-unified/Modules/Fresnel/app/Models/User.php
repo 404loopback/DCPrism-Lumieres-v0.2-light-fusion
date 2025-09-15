@@ -99,20 +99,20 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        // Mappage strict des rôles vers les panels
-        $rolePanelMapping = [
-            'admin' => 'admin',
-            'tech' => 'tech', 
-            'manager' => 'manager',
-            'supervisor' => 'supervisor',
-            'source' => 'source',
-            'cinema' => 'cinema',
+        // Mappage des rôles vers les panels (support multi-panels)
+        $rolePanelAccess = [
+            'admin' => ['fresnel', 'meniscus'], // Admin peut accéder à Fresnel ET Meniscus
+            'tech' => ['tech'],
+            'manager' => ['manager'], 
+            'supervisor' => ['manager'], // Supervisor utilise le panel manager
+            'source' => ['source'],
+            'cinema' => ['cinema'],
         ];
 
-        $expectedPanel = $rolePanelMapping[$this->role] ?? null;
+        $allowedPanels = $rolePanelAccess[$this->role] ?? [];
         
-        // L'utilisateur ne peut accéder qu'à SON panel
-        return $panel->getId() === $expectedPanel;
+        // Vérifier si l'utilisateur peut accéder à ce panel
+        return in_array($panel->getId(), $allowedPanels);
     }
     
     /**

@@ -29,7 +29,7 @@ class LatestMovies extends TableWidget
                     ->searchable()
                     ->limit(40)
                     ->weight('semibold')
-                    ->url(fn (Movie $record): string => route('filament.admin.resources.movies.view', $record)),
+                    ->url(fn (Movie $record): string => route('filament.fresnel.resources.movies.view', $record)),
                     
                 TextColumn::make('source_email')
                     ->label('Source')
@@ -61,7 +61,7 @@ class LatestMovies extends TableWidget
                     ->since()
                     ->sortable(),
             ])
-            ->recordUrl(fn (Movie $record): string => route('filament.admin.resources.movies.view', $record))
+            ->recordUrl(fn (Movie $record): string => route('filament.fresnel.resources.movies.view', $record))
             ->paginated(false);
     }
 }

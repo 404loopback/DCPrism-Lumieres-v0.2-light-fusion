@@ -1,0 +1,19 @@
+<?php
+
+namespace Modules\Meniscus\app\Filament\Resources\Providers\Pages;
+
+use Modules\Meniscus\app\Filament\Resources\Providers\ProviderResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ManageRecords;
+
+class ManageProviders extends ManageRecords
+{
+    protected static string $resource = ProviderResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make(),
+        ];
+    }
+}

@@ -49,13 +49,13 @@ class FresnelServiceProvider extends ServiceProvider
         // Enregistrement de l'AdminPanelProvider original (qui contient la page login personnalisée)
         $this->app->register(\Modules\Fresnel\app\Providers\Filament\AdminPanelProvider::class);
         
-        // Autres panels temporairement désactivés pour debug
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\CinemaPanelProvider::class);
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\InfrastructurePanelProvider::class);
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\ManagerPanelProvider::class);
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\SourcePanelProvider::class);
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\SupervisorPanelProvider::class);
-        // $this->app->register(\Modules\Fresnel\app\Providers\Filament\TechPanelProvider::class);
+        // Autres panels Filament spécialisés
+        $this->app->register(\Modules\Fresnel\app\Providers\Filament\CinemaPanelProvider::class);
+        $this->app->register(\Modules\Fresnel\app\Providers\Filament\InfrastructurePanelProvider::class);
+        $this->app->register(\Modules\Fresnel\app\Providers\Filament\ManagerPanelProvider::class);
+        $this->app->register(\Modules\Fresnel\app\Providers\Filament\SourcePanelProvider::class);
+        // SupervisorPanelProvider supprimé - les superviseurs utilisent le panel manager
+        $this->app->register(\Modules\Fresnel\app\Providers\Filament\TechPanelProvider::class);
     }
 
     /**
