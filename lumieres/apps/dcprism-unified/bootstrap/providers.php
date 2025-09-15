@@ -6,4 +6,5 @@ return [
     
     // Laravel Modules
     Nwidart\Modules\LaravelModulesServiceProvider::class,
+    // App\Providers\Filament\AdminPanelProvider::class, // REMPLACÉ
 ];

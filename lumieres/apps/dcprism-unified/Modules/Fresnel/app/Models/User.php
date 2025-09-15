@@ -12,11 +12,12 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\\Database\\Factories\\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, LogsActivity;
+    use HasFactory, Notifiable, HasApiTokens, LogsActivity, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -85,21 +86,22 @@ class User extends Authenticatable implements FilamentUser
     
     /**
      * Détermine si l'utilisateur peut accéder à un panel Filament donné
+     * Compatible avec Shield - utilise les rôles Spatie
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        // Vérification de base : utilisateur authentifié avec un rôle
-        if (!$this->role) {
-            return false;
-        }
-
         // En environnement local, on peut bypasser la vérification d'email
         // En production, vérifier que l'email est vérifié
         if (!app()->isLocal() && !$this->email_verified_at) {
             return false;
         }
 
-        // Mappage des rôles vers les panels (support multi-panels)
+        // Super admin peut accéder à tout
+        if ($this->hasRole('super_admin')) {
+            return true;
+        }
+
+        // Mappage des rôles Shield vers les panels (support multi-panels)
         $rolePanelAccess = [
             'admin' => ['fresnel', 'meniscus'], // Admin peut accéder à Fresnel ET Meniscus
             'tech' => ['tech'],
@@ -109,31 +111,24 @@ class User extends Authenticatable implements FilamentUser
             'cinema' => ['cinema'],
         ];
 
-        $allowedPanels = $rolePanelAccess[$this->role] ?? [];
-        
-        // Vérifier si l'utilisateur peut accéder à ce panel
-        return in_array($panel->getId(), $allowedPanels);
-    }
-    
-    /**
-     * Vérifier si l'utilisateur a un rôle spécifique (version simplifiée)
-     */
-    public function hasRole(string|array $roles): bool
-    {
-        if (is_string($roles)) {
-            return $this->role === $roles;
+        // Vérifier les rôles Shield de l'utilisateur
+        foreach ($rolePanelAccess as $role => $allowedPanels) {
+            if ($this->hasRole($role) && in_array($panel->getId(), $allowedPanels)) {
+                return true;
+            }
         }
-        
-        return in_array($this->role, $roles);
+
+        return false;
     }
     
     /**
      * Vérifier si l'utilisateur peut accéder à un festival donné
+     * Compatible avec Shield
      */
     public function canAccessFestival(int $festivalId): bool
     {
-        // Seul l'admin peut accéder à tous les festivals
-        if ($this->hasRole('admin')) {
+        // Super admin et admin peuvent accéder à tous les festivals
+        if ($this->hasRole(['super_admin', 'admin'])) {
             return true;
         }
         

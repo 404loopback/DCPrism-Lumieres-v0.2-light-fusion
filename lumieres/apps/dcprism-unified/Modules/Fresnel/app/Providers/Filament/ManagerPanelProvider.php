@@ -28,7 +28,7 @@ class ManagerPanelProvider extends PanelProvider
         return $panel
             ->viteTheme('resources/css/filament/theme.css')
             ->id('manager')
-            ->path('panel/manager')
+            ->path('fresnel/manager')
             ->authGuard('web')
             ->brandName('DCPrism Manager')
             ->brandLogo(asset('images/logo-dcprism.svg'))

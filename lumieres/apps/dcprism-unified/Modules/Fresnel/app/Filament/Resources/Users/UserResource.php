@@ -29,7 +29,10 @@ class UserResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Utilisateurs';
     
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
+    
+    // Masquer de la navigation - accessible uniquement via AdministrationPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Administration';
 
@@ -58,4 +61,5 @@ class UserResource extends Resource
             'edit' => EditUser::route('/{record}/edit'),
         ];
     }
+    
 }

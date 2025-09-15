@@ -29,7 +29,10 @@ class ParameterResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Paramètres Globaux';
     
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
+    
+    // Masquer de la navigation - accessible uniquement via AdministrationPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Contenu';
 

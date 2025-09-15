@@ -14,10 +14,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            // Seeders de base
-            RoleSeeder::class,
-            UserSeeder::class,
-            AdminUserSeeder::class,
+            // Seeders de base - Shield et utilisateurs
+            ShieldSeeder::class,               // Rôles et permissions Shield
+            UserSeeder::class,                 // Utilisateurs avec rôles Shield
+            
+            // Seeders de référentiel
             LanguageSeeder::class,
             
             // Seeders métier

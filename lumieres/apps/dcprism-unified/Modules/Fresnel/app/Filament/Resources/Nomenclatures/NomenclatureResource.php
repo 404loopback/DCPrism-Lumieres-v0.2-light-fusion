@@ -29,7 +29,10 @@ class NomenclatureResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Nomenclatures';
     
-    protected static ?int $navigationSort = 13;
+    protected static ?int $navigationSort = 24;
+    
+    // Masquer de la navigation - accessible uniquement via AdministrationPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Contenu';
 

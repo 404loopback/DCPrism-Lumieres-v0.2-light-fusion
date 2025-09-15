@@ -23,7 +23,7 @@ class SourcePanelProvider extends PanelProvider
     {
         return $panel
             ->id('source')
-            ->path('panel/source')
+            ->path('fresnel/source')
             ->authGuard('web')
             ->brandName('DCPrism Source')
             ->brandLogo(asset('images/logo-dcprism.svg'))

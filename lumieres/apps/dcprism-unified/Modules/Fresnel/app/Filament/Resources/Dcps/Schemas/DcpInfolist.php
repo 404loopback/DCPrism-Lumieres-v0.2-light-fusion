@@ -30,7 +30,7 @@ class DcpInfolist
                                 TextEntry::make('status')
                                     ->label('Statut')
                                     ->badge()
-                                    ->formatStateUsing(fn ($state) => \App\Models\Dcp::STATUSES[$state] ?? $state)
+                                    ->formatStateUsing(fn ($state) => \Modules\Fresnel\app\Models\Dcp::STATUSES[$state] ?? $state)
                                     ->color(fn ($state) => match($state) {
                                         'valid' => 'success',
                                         'invalid' => 'danger',

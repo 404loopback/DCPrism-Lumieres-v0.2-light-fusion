@@ -29,15 +29,10 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\Facades\Auth;
 use Modules\Fresnel\app\Http\Middleware\FilamentRoleRedirect;
 
-class AdminPanelProvider extends PanelProvider
+class FresnelAdminProvider extends PanelProvider
 {
     use AppliesGlobalTheme;
     
-    // Temporairement désactivé pour debug
-    // public function canAccess(): bool
-    // {
-    //     return Auth::check() && Auth::user()->role === 'admin';
-    // }
     public function panel(Panel $panel): Panel
     {
         $panel = $this->applyGlobalTheme($panel);
@@ -45,8 +40,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('fresnel')
-            ->path('fresnel')
-            ->login(\Modules\Fresnel\app\Filament\Pages\Auth\Login::class)
+            ->path('fresnel/admin')
+            // ->login()
             ->authGuard('web')
             ->brandName('DCPrism - Connexion')
             ->brandLogo(asset('images/logo-dcprism.svg'))
@@ -57,31 +52,38 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Slate,
             ])
             ->resources([
+                // Ressources intégrées dans AdministrationPage (masquées de la navigation)
                 \Modules\Fresnel\app\Filament\Resources\Parameters\ParameterResource::class,
-                \Modules\Fresnel\app\Filament\Resources\Movies\MovieResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Users\UserResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Langs\LangResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Nomenclatures\NomenclatureResource::class,
+                
+                // Ressources intégrées dans FilmsPage (masquées de la navigation)
+                \Modules\Fresnel\app\Filament\Resources\Movies\MovieResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource::class,
-                \Modules\Fresnel\app\Filament\Resources\Versions\VersionResource::class,
-                \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,
+                \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,  
                 \Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource::class,
+                \Modules\Fresnel\app\Filament\Resources\Versions\VersionResource::class,
             ])
             ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
+                \Modules\Fresnel\app\Filament\Pages\AdministrationPage::class,
+                \Modules\Fresnel\app\Filament\Pages\FilmsPage::class,
             ])
-            // ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Widgets') // RÉACTIVÉ - routes movies disponibles
             ->widgets([
                 // Widgets DCP personnalisés organisés par priorité
                 DcpVersionsOverviewWidget::class, // Notre nouveau widget Phase 1
                 DcpStatisticsWidget::class,
                 StorageUsageWidget::class,
-                ProcessingActivityWidget::class,
+                // ProcessingActivityWidget::class, // DÉSACTIVÉ TEMPORAIREMENT
                 FestivalPerformanceWidget::class,
-                TrendsChartWidget::class,
+                // TrendsChartWidget::class, // DÉSACTIVÉ TEMPORAIREMENT
                 UploadTrendsWidget::class,
+                \Modules\Fresnel\app\Filament\Widgets\StatsOverview::class,
+                \Modules\Fresnel\app\Filament\Widgets\LatestMovies::class, // RÉACTIVÉ - routes movies disponibles
                 
                 // Widgets par défaut
                 AccountWidget::class,
@@ -91,7 +93,7 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
+                // AuthenticateSession::class, // VIRE
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
@@ -99,8 +101,10 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
-                // FilamentRoleRedirect::class, // Temporairement désactivé pour debug
+                \App\Http\Middleware\FilamentAuthenticate::class,
+            ])
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }

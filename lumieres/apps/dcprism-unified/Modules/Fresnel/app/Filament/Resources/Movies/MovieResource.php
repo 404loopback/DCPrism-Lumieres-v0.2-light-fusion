@@ -34,6 +34,9 @@ class MovieResource extends Resource
     protected static ?int $navigationSort = 11;
     
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Contenu';
+    
+    // Masquer de la navigation - accessible uniquement via FilmsPage
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
     {
@@ -57,13 +60,14 @@ class MovieResource extends Resource
         ];
     }
 
+
     public static function getPages(): array
     {
         return [
-            'index' => ListMovies::route('/'),
-            'create' => CreateMovie::route('/create'),
-            'view' => ViewMovie::route('/{record}'),
-            'edit' => EditMovie::route('/{record}/edit'),
+            "index" => ListMovies::route("/"),
+            "create" => CreateMovie::route("/create"),
+            "view" => ViewMovie::route("/{record}"),
+            "edit" => EditMovie::route("/{record}/edit"),
         ];
     }
 }

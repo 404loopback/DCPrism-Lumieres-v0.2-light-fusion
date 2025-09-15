@@ -31,7 +31,10 @@ class VersionResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Versions';
     
-    protected static ?int $navigationSort = 31;
+    protected static ?int $navigationSort = 21;
+    
+    // Masquer de la navigation - accessible uniquement via FilmsPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Configuration DCP';
 

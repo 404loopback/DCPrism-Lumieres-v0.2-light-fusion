@@ -10,6 +10,8 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class ShowcaseController extends Controller
 {
@@ -97,6 +99,7 @@ class ShowcaseController extends Controller
             'storage_used' => $this->getStorageStats(),
         ];
     }
+
 
     /**
      * Statistiques de stockage

@@ -35,13 +35,13 @@ class FestivalSelectorWidget extends Widget implements HasForms
         $this->festivalContext = app(FestivalContextService::class);
     }
     
-    // Configuration par panel
-    protected string $sessionKey = 'selected_festival_id';
-    protected string $sessionNameKey = 'selected_festival_name';
-    protected string $label = 'Festival';
-    protected string $placeholder = 'Sélectionnez un festival';
-    protected string $viewPath = 'filament.shared.widgets.festival-selector-widget';
-    protected bool $shouldRedirect = false;
+    // Configuration par panel (publiques pour accès depuis la vue)
+    public string $sessionKey = 'selected_festival_id';
+    public string $sessionNameKey = 'selected_festival_name';
+    public string $label = 'Festival';
+    public string $placeholder = 'Sélectionnez un festival';
+    public string $viewPath = 'filament.shared.widgets.festival-selector-widget';
+    public bool $shouldRedirect = false;
     
     /**
      * Configuration pour les différents panels

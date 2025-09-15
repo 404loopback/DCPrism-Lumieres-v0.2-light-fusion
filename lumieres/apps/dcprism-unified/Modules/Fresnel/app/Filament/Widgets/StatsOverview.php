@@ -25,7 +25,7 @@ class StatsOverview extends StatsOverviewWidget
                 ->color('success')
                 ->chart([1, 3, 5, 10, 15, 8, 12]),
                 
-            Stat::make('DCPs En Attente', \App\Models\Dcp::whereNull('is_valid')->count())
+            Stat::make('DCPs En Attente', \Modules\Fresnel\app\Models\Dcp::whereNull('is_valid')->count())
                 ->description('DCPs en attente de validation')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning')

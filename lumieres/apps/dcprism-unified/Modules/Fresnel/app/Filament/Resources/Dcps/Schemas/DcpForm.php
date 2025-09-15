@@ -109,7 +109,7 @@ class DcpForm
                             ->afterStateUpdated(function (callable $set, \Filament\Forms\Get $get, $state) {
                                 if ($state) {
                                     // Déclencher l'upload Backblaze en arrière-plan
-                                    $set('status', \App\Models\Dcp::STATUS_PROCESSING);
+                                    $set('status', \Modules\Fresnel\app\Models\Dcp::STATUS_PROCESSING);
                                     $set('uploaded_at', now());
                                 }
                             })

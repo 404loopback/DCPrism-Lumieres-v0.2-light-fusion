@@ -29,7 +29,10 @@ class ValidationResultResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Validation Results';
     
-    protected static ?int $navigationSort = 21;
+    protected static ?int $navigationSort = 22;
+    
+    // Masquer de la navigation - accessible uniquement via FilmsPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Gestion DCP';
 

@@ -19,25 +19,34 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class FresnelPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('panel/admin')
-            ->login(\App\Filament\Pages\Auth\Login::class)
-            ->authGuard('web')
-            ->authPasswordBroker('users')
+            ->id('fresnel')
+            ->path('fresnel')
+            ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->resources([
+                \App\Filament\Resources\Parameters\ParameterResource::class,
+                \App\Filament\Resources\Movies\MovieResource::class,
+                \App\Filament\Resources\Festivals\FestivalResource::class,
+                \App\Filament\Resources\Users\UserResource::class,
+                \App\Filament\Resources\Langs\LangResource::class,
+                \App\Filament\Resources\Nomenclatures\NomenclatureResource::class,
+                \App\Filament\Resources\Dcps\DcpResource::class,
+                \App\Filament\Resources\Versions\VersionResource::class,
+                \App\Filament\Resources\ValidationResults\ValidationResultResource::class,
+                \App\Filament\Resources\MovieMetadata\MovieMetadataResource::class,
+            ])
+            ->discoverPages(in: app_path('Filament/Fresnel/Pages'), for: 'App\Filament\Fresnel\Pages')
             ->pages([
                 Dashboard::class,
             ])
+            ->discoverWidgets(in: app_path('Filament/Fresnel/Widgets'), for: 'App\Filament\Fresnel\Widgets')
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,

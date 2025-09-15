@@ -34,6 +34,9 @@ class DcpResource extends Resource
     protected static ?int $navigationSort = 20;
     
     protected static string|UnitEnum|null $navigationGroup = 'Gestion DCP';
+    
+    // Masquer de la navigation - accessible uniquement via FilmsPage
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
     {

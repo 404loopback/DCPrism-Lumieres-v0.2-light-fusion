@@ -31,7 +31,10 @@ class LangResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Langues';
     
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 23;
+    
+    // Masquer de la navigation - accessible uniquement via AdministrationPage
+    protected static bool $shouldRegisterNavigation = false;
     
     protected static string|UnitEnum|null $navigationGroup = 'Configuration DCP';
 

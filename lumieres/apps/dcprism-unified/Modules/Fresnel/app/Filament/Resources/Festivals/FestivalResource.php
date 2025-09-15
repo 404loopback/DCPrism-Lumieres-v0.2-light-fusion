@@ -31,6 +31,9 @@ class FestivalResource extends Resource
     
     protected static ?int $navigationSort = 2;
     
+    // Masquer de la navigation - accessible uniquement via AdministrationPage
+    protected static bool $shouldRegisterNavigation = false;
+    
     protected static string|UnitEnum|null $navigationGroup = 'Administration';
 
     public static function form(Schema $schema): Schema

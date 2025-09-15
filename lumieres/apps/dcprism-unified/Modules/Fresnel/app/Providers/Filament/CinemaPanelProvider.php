@@ -24,7 +24,7 @@ class CinemaPanelProvider extends PanelProvider
     {
         return $panel
             ->id('cinema')
-            ->path('panel/cinema')
+            ->path('fresnel/cinema')
             ->authGuard('web')
             ->brandName('DCPrism Cinema')
             ->brandLogo(asset('images/logo-dcprism.svg'))

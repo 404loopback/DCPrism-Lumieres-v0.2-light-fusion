@@ -31,6 +31,9 @@ class MovieMetadataResource extends Resource
     
     protected static ?int $navigationSort = 12;
     
+    // Masquer de la navigation - accessible uniquement via FilmsPage
+    protected static bool $shouldRegisterNavigation = false;
+    
     protected static string|UnitEnum|null $navigationGroup = 'Gestion de Contenu';
 
     public static function form(Schema $schema): Schema

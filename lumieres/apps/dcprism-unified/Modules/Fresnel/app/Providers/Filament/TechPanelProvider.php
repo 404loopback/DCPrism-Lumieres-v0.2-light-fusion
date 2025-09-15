@@ -19,6 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Fresnel\app\Http\Middleware\FilamentRoleRedirect;
 
 class TechPanelProvider extends PanelProvider
 {
@@ -26,7 +27,7 @@ class TechPanelProvider extends PanelProvider
     {
         return $panel
             ->id('tech')
-            ->path('panel/tech')
+            ->path('fresnel/tech')
             ->authGuard('web')
             ->brandName('DCPrism Tech')
             ->brandLogo(asset('images/logo-dcprism.svg'))
@@ -60,7 +61,7 @@ class TechPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\FilamentRoleRedirect::class,
+                FilamentRoleRedirect::class,
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }
