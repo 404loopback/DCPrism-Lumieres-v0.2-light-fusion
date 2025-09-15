@@ -20,7 +20,7 @@ class ListDcps extends ListRecords
                 ->icon('heroicon-o-chart-bar')
                 ->color('info')
                 ->modalHeading('Statistiques des DCPs')
-                ->modalContent(view('filament.modals.dcp-stats', $this->getDcpStatsData()))
+->modalContent(view('fresnel::filament.modals.dcp-stats', $this->getDcpStatsData()))
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Fermer'),
             Actions\Action::make('bulk_validate')
@@ -48,7 +48,7 @@ class ListDcps extends ListRecords
         $festivalId = Session::get('selected_festival_id');
         
         if ($festivalId) {
-            $festival = \App\Models\Festival::find($festivalId);
+            $festival = \Modules\Fresnel\app\Models\Festival::find($festivalId);
             return $festival ? "DCPs - {$festival->name}" : 'DCPs';
         }
         
@@ -90,7 +90,7 @@ class ListDcps extends ListRecords
     protected function getDcpStats()
     {
         $data = $this->getDcpStatsData();
-        return view('filament.modals.dcp-stats', $data);
+        return view('fresnel::filament.modals.dcp-stats', $data);
     }
     
     /**

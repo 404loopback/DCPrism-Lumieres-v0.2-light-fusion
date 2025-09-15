@@ -9,12 +9,12 @@ services:
     ports:
       - '3306:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: 'dcprism_root_password'
+      MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
       MYSQL_ROOT_HOST: '%'
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     volumes:
       - 'mariadb-data:/var/lib/mysql'
-      - './infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
+      - '${PWD}/infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
     networks:
       - lumieres-network
     healthcheck:
@@ -25,6 +25,9 @@ services:
         - '--innodb_initialized'
       retries: 3
       timeout: 5s
+    profiles:
+      - dev
+      - prod
 
   redis:
     image: 'redis:7.2-alpine'
@@ -32,11 +35,14 @@ services:
     restart: unless-stopped
     ports:
       - '6379:6379'
-    command: 'redis-server --requirepass redis_password --appendonly yes'
+    command: 'redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes'
     volumes:
       - 'redis-data:/data'
     networks:
       - lumieres-network
+    profiles:
+      - dev
+      - prod
 
   # =====================================
   # TRAEFIK REVERSE PROXY

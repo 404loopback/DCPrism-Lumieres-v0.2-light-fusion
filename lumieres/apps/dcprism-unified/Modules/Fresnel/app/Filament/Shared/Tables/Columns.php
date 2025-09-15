@@ -115,15 +115,16 @@ class Columns
     }
 
     /**
-     * Standard role badge column with predefined colors and labels
+     * Standard role badge column using Shield roles instead of legacy role column
      */
     public static function roleBadge(string $label = 'Rôle'): TextColumn
     {
-        return TextColumn::make('role')
+        return TextColumn::make('roles.name')
             ->label($label)
             ->badge()
-            ->color(fn (string $state): string => match ($state) {
+            ->color(fn ($state): string => match ($state) {
                 'admin' => 'danger',
+                'super_admin' => 'purple',
                 'tech' => 'warning', 
                 'manager' => 'success',
                 'supervisor' => 'info',
@@ -131,8 +132,9 @@ class Columns
                 'cinema' => 'gray',
                 default => 'gray',
             })
-            ->formatStateUsing(fn (string $state): string => match ($state) {
+            ->formatStateUsing(fn ($state): string => match ($state) {
                 'admin' => 'Administrateur',
+                'super_admin' => 'Super Admin',
                 'tech' => 'Technique',
                 'manager' => 'Manager',
                 'supervisor' => 'Superviseur',
@@ -140,7 +142,10 @@ class Columns
                 'cinema' => 'Cinéma',
                 default => ucfirst($state),
             })
-            ->placeholder('Aucun rôle');
+            ->placeholder('Aucun rôle')
+            ->listWithLineBreaks()
+            ->limitList(2)
+            ->expandableLimitedList();
     }
 
     /**

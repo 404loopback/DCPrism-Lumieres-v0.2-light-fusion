@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Models\Dcp;
 use Modules\Fresnel\app\Models\Movie;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpsTable;
+use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Session;
 use Filament\Actions\EditAction;
@@ -41,7 +41,7 @@ class DcpResource extends Resource
     public static function table(Table $table): Table
     {
         // Start with the existing table configuration
-        $configuredTable = DcpsTable::configure($table);
+        $configuredTable = DcpTable::configure($table);
 
         // Override record actions for manager-specific functionality
         return $configuredTable
@@ -273,7 +273,7 @@ class DcpResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Manager\Resources\DcpResource\Pages\ListDcps::route('/'),
+            'index' => \Modules\Fresnel\app\Filament\Manager\Resources\DcpResource\Pages\ListDcps::route('/'),
         ];
     }
 }

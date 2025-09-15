@@ -27,7 +27,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\Facades\Auth;
-use Modules\Fresnel\app\Http\Middleware\FilamentRoleRedirect;
 
 class FresnelAdminProvider extends PanelProvider
 {
@@ -102,9 +101,25 @@ class FresnelAdminProvider extends PanelProvider
             ])
             ->authMiddleware([
                 \App\Http\Middleware\FilamentAuthenticate::class,
+                'panel.access:panel.admin',
             ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }

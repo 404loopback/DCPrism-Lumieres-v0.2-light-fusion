@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Fresnel\app\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ Route::get('/', function () {
 // Performance test route (can be removed in production)
 Route::get('/health', function () {
     $start = microtime(true);
-    $userCount = \App\Models\User::count();
+    $userCount = User::count();
     $dbTime = round((microtime(true) - $start) * 1000, 2);
     
     return response()->json([

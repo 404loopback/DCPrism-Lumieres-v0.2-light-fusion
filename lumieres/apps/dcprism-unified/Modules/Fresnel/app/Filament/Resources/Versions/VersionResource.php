@@ -8,7 +8,7 @@ use Modules\Fresnel\app\Filament\Resources\Versions\Pages\ListVersions;
 use Modules\Fresnel\app\Filament\Resources\Versions\Pages\ViewVersion;
 use Modules\Fresnel\app\Filament\Resources\Versions\Schemas\VersionForm;
 use Modules\Fresnel\app\Filament\Resources\Versions\Schemas\VersionInfolist;
-use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionsTable;
+use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
 use Modules\Fresnel\app\Models\Version;
 use BackedEnum;
 use UnitEnum;
@@ -50,7 +50,7 @@ class VersionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return VersionsTable::configure($table);
+        return VersionTable::configure($table);
     }
 
     public static function getRelations(): array

@@ -8,7 +8,7 @@ use Modules\Fresnel\app\Filament\Resources\Langs\Pages\ListLangs;
 use Modules\Fresnel\app\Filament\Resources\Langs\Pages\ViewLang;
 use Modules\Fresnel\app\Filament\Resources\Langs\Schemas\LangForm;
 use Modules\Fresnel\app\Filament\Resources\Langs\Schemas\LangInfolist;
-use Modules\Fresnel\app\Filament\Resources\Langs\Tables\LangsTable;
+use Modules\Fresnel\app\Filament\Resources\Langs\Tables\LangTable;
 use Modules\Fresnel\app\Models\Lang;
 use BackedEnum;
 use UnitEnum;
@@ -50,7 +50,7 @@ class LangResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return LangsTable::configure($table);
+        return LangTable::configure($table);
     }
 
     public static function getRelations(): array

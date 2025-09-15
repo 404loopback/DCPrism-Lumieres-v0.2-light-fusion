@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Filament\Resources\ValidationResults\Pages\CreateValidat
 use Modules\Fresnel\app\Filament\Resources\ValidationResults\Pages\EditValidationResult;
 use Modules\Fresnel\app\Filament\Resources\ValidationResults\Pages\ListValidationResults;
 use Modules\Fresnel\app\Filament\Resources\ValidationResults\Schemas\ValidationResultForm;
-use Modules\Fresnel\app\Filament\Resources\ValidationResults\Tables\ValidationResultsTable;
+use Modules\Fresnel\app\Filament\Resources\ValidationResults\Tables\ValidationResultTable;
 use Modules\Fresnel\app\Models\ValidationResult;
 use BackedEnum;
 use UnitEnum;
@@ -43,7 +43,7 @@ class ValidationResultResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ValidationResultsTable::configure($table);
+        return ValidationResultTable::configure($table);
     }
 
     public static function getRelations(): array

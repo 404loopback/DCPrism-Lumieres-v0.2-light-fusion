@@ -8,7 +8,7 @@ use Modules\Fresnel\app\Filament\Resources\Movies\Pages\ListMovies;
 use Modules\Fresnel\app\Filament\Resources\Movies\Pages\ViewMovie;
 use Modules\Fresnel\app\Filament\Resources\Movies\Schemas\MovieForm;
 use Modules\Fresnel\app\Filament\Resources\Movies\Schemas\MovieInfolist;
-use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MoviesTable;
+use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MovieTable;
 use Modules\Fresnel\app\Models\Movie;
 use BackedEnum;
 use UnitEnum;
@@ -50,7 +50,7 @@ class MovieResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return MoviesTable::configure($table);
+        return MovieTable::configure($table);
     }
 
     public static function getRelations(): array

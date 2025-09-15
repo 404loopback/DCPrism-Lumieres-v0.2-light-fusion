@@ -21,7 +21,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -226,7 +226,15 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'panel.admin' => 'Access Admin Panel',
+        'panel.manager' => 'Access Manager Panel',
+        'panel.tech' => 'Access Tech Panel', 
+        'panel.source' => 'Access Source Panel',
+        'panel.cinema' => 'Access Cinema Panel',
+        'panel.infrastructure' => 'Access Infrastructure Panel',
+        'telescope.view' => 'View Telescope Dashboard',
+    ],
 
     /*
     |--------------------------------------------------------------------------

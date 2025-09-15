@@ -23,7 +23,7 @@ class ListVersions extends ListRecords
                 ->modalHeading('À propos des versions')
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Fermer')
-                ->modalContent(fn() => view('filament.modals.versions-info')),
+->modalContent(fn() => view('fresnel::filament.modals.versions-info')),
         ];
     }
 
@@ -32,7 +32,7 @@ class ListVersions extends ListRecords
         $festivalId = Session::get('selected_festival_id');
         
         if ($festivalId) {
-            $festival = \App\Models\Festival::find($festivalId);
+            $festival = \Modules\Fresnel\app\Models\Festival::find($festivalId);
             return $festival ? "Versions - {$festival->name}" : 'Versions';
         }
         

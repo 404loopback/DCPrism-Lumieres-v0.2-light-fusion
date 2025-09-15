@@ -38,12 +38,12 @@ class ManagerPanelProvider extends PanelProvider
                 'primary' => Color::Green,
                 'gray' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Manager/Resources'), for: 'App\Filament\Manager\Resources')
-            ->discoverPages(in: app_path('Filament/Manager/Pages'), for: 'App\Filament\Manager\Pages')
+            ->discoverResources(in: module_path('Fresnel', 'app/Filament/Manager/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Resources')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Manager/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Pages')
             ->pages([
                 ManagerDashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Manager/Widgets'), for: 'App\Filament\Manager\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Manager/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Widgets')
             ->widgets([
                 // Widgets spécialisés pour la gestion festival
                 FestivalSelectorWidget::class,
@@ -64,6 +64,7 @@ class ManagerPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'panel.access:panel.manager',
             ]);
     }
 }

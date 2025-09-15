@@ -14,7 +14,8 @@ class Lang extends Model
         'iso_639_1',
         'iso_639_3', 
         'name',
-        'local_name'
+        'local_name',
+        'french_name'
     ];
 
     protected $casts = [
@@ -68,6 +69,16 @@ class Lang extends Model
      */
     public function getDisplayNameAttribute(): string
     {
-        return $this->local_name ? "{$this->name} ({$this->local_name})" : $this->name;
+        $parts = [$this->name];
+        
+        if ($this->french_name && $this->french_name !== $this->name) {
+            $parts[] = $this->french_name;
+        }
+        
+        if ($this->local_name && $this->local_name !== $this->name && $this->local_name !== $this->french_name) {
+            $parts[] = $this->local_name;
+        }
+        
+        return implode(' / ', $parts);
     }
 }

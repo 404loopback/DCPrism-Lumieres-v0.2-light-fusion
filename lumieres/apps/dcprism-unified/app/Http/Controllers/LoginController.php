@@ -36,6 +36,9 @@ class LoginController extends Controller
         if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $request->session()->regenerate();
             
+            // Mettre à jour la dernière connexion
+            Auth::user()->update(['last_login_at' => now()]);
+            
             return $this->redirectToPanel();
         }
 

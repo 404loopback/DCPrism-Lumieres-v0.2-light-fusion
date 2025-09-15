@@ -33,12 +33,12 @@ class SourcePanelProvider extends PanelProvider
                 'primary' => Color::Cyan,
                 'gray' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Source/Resources'), for: 'App\Filament\Source\Resources')
-            ->discoverPages(in: app_path('Filament/Source/Pages'), for: 'App\Filament\Source\Pages')
+            ->discoverResources(in: module_path('Fresnel', 'app/Filament/Source/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Resources')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Source/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Pages')
             ->pages([
                 SourceDashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Source/Widgets'), for: 'App\Filament\Source\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Source/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Widgets')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -52,6 +52,7 @@ class SourcePanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'panel.access:panel.source',
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }

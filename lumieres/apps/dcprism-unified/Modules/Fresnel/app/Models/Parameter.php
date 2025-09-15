@@ -54,6 +54,8 @@ class Parameter extends Model
     const CATEGORY_SUBTITLE = 'subtitle';
     const CATEGORY_CONTENT = 'content';
     const CATEGORY_TECHNICAL = 'technical';
+    const CATEGORY_ACCESSIBILITY = 'accessibility';
+    const CATEGORY_METADATA = 'metadata';
     
     /**
      * Configuration du logging d'activité

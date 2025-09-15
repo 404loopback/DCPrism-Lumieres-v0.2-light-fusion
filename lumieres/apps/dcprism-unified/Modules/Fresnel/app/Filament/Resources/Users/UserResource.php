@@ -6,8 +6,8 @@ use Modules\Fresnel\app\Filament\Resources\Users\Pages\CreateUser;
 use Modules\Fresnel\app\Filament\Resources\Users\Pages\EditUser;
 use Modules\Fresnel\app\Filament\Resources\Users\Pages\ListUsers;
 use Modules\Fresnel\app\Filament\Resources\Users\Schemas\UserForm;
-use Modules\Fresnel\app\Filament\Resources\Users\Tables\UsersTable;
-use App\Models\User;
+use Modules\Fresnel\app\Filament\Resources\Users\Tables\UserTable;
+use Modules\Fresnel\app\Models\User;
 use BackedEnum;
 use UnitEnum;
 use Filament\Resources\Resource;
@@ -43,7 +43,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return UsersTable::configure($table);
+        return UserTable::configure($table);
     }
 
     public static function getRelations(): array

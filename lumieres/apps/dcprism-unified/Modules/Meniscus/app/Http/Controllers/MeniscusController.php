@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Meniscus\Http\Controllers;
+namespace Modules\Meniscus\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

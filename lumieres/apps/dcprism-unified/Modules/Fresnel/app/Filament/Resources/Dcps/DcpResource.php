@@ -8,7 +8,7 @@ use Modules\Fresnel\app\Filament\Resources\Dcps\Pages\ListDcps;
 use Modules\Fresnel\app\Filament\Resources\Dcps\Pages\ViewDcp;
 use Modules\Fresnel\app\Filament\Resources\Dcps\Schemas\DcpForm;
 use Modules\Fresnel\app\Filament\Resources\Dcps\Schemas\DcpInfolist;
-use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpsTable;
+use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
 use Modules\Fresnel\app\Models\Dcp;
 use BackedEnum;
 use UnitEnum;
@@ -50,7 +50,7 @@ class DcpResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return DcpsTable::configure($table);
+        return DcpTable::configure($table);
     }
 
     public static function getRelations(): array

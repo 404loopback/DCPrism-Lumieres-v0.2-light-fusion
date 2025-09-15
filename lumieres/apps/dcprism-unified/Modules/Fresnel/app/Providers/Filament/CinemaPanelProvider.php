@@ -34,12 +34,12 @@ class CinemaPanelProvider extends PanelProvider
                 'primary' => Color::Red,
                 'gray' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Cinema/Resources'), for: 'App\Filament\Cinema\Resources')
-            ->discoverPages(in: app_path('Filament/Cinema/Pages'), for: 'App\Filament\Cinema\Pages')
+            ->discoverResources(in: module_path('Fresnel', 'app/Filament/Cinema/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Cinema\\Resources')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Cinema/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Cinema\\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Cinema/Widgets'), for: 'App\Filament\Cinema\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Cinema/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Cinema\\Widgets')
             ->widgets([
                 // Widgets spécialisés pour les cinémas partenaires
                 AccountWidget::class,

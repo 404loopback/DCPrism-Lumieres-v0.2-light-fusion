@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Filament\Resources\Parameters\Pages\CreateParameter;
 use Modules\Fresnel\app\Filament\Resources\Parameters\Pages\EditParameter;
 use Modules\Fresnel\app\Filament\Resources\Parameters\Pages\ListParameters;
 use Modules\Fresnel\app\Filament\Resources\Parameters\Schemas\ParameterForm;
-use Modules\Fresnel\app\Filament\Resources\Parameters\Tables\ParametersTable;
+use Modules\Fresnel\app\Filament\Resources\Parameters\Tables\ParameterTable;
 use Modules\Fresnel\app\Models\Parameter;
 use BackedEnum;
 use UnitEnum;
@@ -43,7 +43,7 @@ class ParameterResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ParametersTable::configure($table);
+        return ParameterTable::configure($table);
     }
 
     public static function getRelations(): array

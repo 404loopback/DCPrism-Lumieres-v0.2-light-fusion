@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Pages\CreateMovie;
 use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Pages\EditMovie;
 use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Pages\ListMovies;
 use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Schemas\MovieForm;
-use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Tables\MoviesTable;
+use Modules\Fresnel\app\Filament\Festival\Resources\Movies\Tables\MovieTable;
 use Modules\Fresnel\app\Models\Movie;
 use Modules\Fresnel\app\Services\{BackblazeService, UnifiedNomenclatureService};
 use BackedEnum;
@@ -40,7 +40,7 @@ class MovieResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return MoviesTable::configure($table);
+        return MovieTable::configure($table);
     }
 
     public static function getRelations(): array

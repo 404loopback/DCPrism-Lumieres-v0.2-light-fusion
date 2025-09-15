@@ -10,7 +10,7 @@ use Livewire\Attributes\On;
 
 class NomenclaturePreviewWidget extends Widget
 {
-    protected string $view = 'filament.manager.resources.nomenclature-resource.widgets.nomenclature-preview-widget';
+    protected string $view = 'fresnel::filament.manager.resources.nomenclature-resource.widgets.nomenclature-preview-widget';
     
     protected int | string | array $columnSpan = 'full';
     

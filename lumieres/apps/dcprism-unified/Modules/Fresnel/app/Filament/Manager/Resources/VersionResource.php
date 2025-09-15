@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Models\Version;
 use Modules\Fresnel\app\Models\Movie;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
-use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionsTable;
+use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Session;
 use Filament\Actions\EditAction;
@@ -41,7 +41,7 @@ class VersionResource extends Resource
     public static function table(Table $table): Table
     {
         // Start with the existing table configuration
-        $configuredTable = VersionsTable::configure($table);
+        $configuredTable = VersionTable::configure($table);
 
         // Override record actions for manager-specific functionality
         return $configuredTable
@@ -121,7 +121,7 @@ class VersionResource extends Resource
     protected static function generateVersionNomenclature(Version $record): void
     {
         try {
-            $nomenclatureService = app(\App\Services\UnifiedNomenclatureService::class);
+            $nomenclatureService = app(\Modules\Fresnel\app\Services\UnifiedNomenclatureService::class);
             
             // Générer la nomenclature pour le festival du manager
             $movie = $record->movie;
@@ -165,7 +165,7 @@ class VersionResource extends Resource
     protected static function getNomenclaturePreview(Version $record)
     {
         try {
-            $nomenclatureService = app(\App\Services\UnifiedNomenclatureService::class);
+            $nomenclatureService = app(\Modules\Fresnel\app\Services\UnifiedNomenclatureService::class);
             $movie = $record->movie;
             $festivalId = Session::get('selected_festival_id');
             
@@ -204,7 +204,7 @@ class VersionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Manager\Resources\VersionResource\Pages\ListVersions::route('/'),
+            'index' => \Modules\Fresnel\app\Filament\Manager\Resources\VersionResource\Pages\ListVersions::route('/'),
         ];
     }
 }

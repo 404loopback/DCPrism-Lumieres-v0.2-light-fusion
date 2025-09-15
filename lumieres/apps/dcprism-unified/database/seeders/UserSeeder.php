@@ -10,8 +10,10 @@ use Spatie\Permission\Models\Role;
 /**
  * Seeder principal pour créer les utilisateurs avec les rôles Shield
  * 
- * Ce seeder crée les utilisateurs et leur assigne les rôles Shield
- * Les rôles doivent être créés au préalable par ShieldSeeder
+ * Ce seeder crée les utilisateurs et leur assigne les rôles Shield.
+ * Les rôles doivent être créés au préalable par ShieldSeeder.
+ * 
+ * NETTOYÉ : Plus de référence à la colonne 'role' legacy - 100% Shield
  */
 class UserSeeder extends Seeder
 {
@@ -25,7 +27,6 @@ class UserSeeder extends Seeder
                 'name' => 'Admin User',
                 'email' => 'admin@dcprism.local',
                 'password' => Hash::make('admin123'), // Mot de passe spécifique pour admin
-                'role' => 'admin',
                 'email_verified_at' => now(),
                 'shield_role' => 'admin',
             ],
@@ -33,7 +34,6 @@ class UserSeeder extends Seeder
                 'name' => 'Tech User',
                 'email' => 'tech@dcprism.local',
                 'password' => Hash::make('password'),
-                'role' => 'tech',
                 'email_verified_at' => now(),
                 'shield_role' => 'tech',
             ],
@@ -41,7 +41,6 @@ class UserSeeder extends Seeder
                 'name' => 'Manager User',
                 'email' => 'manager@dcprism.local',
                 'password' => Hash::make('password'),
-                'role' => 'manager',
                 'email_verified_at' => now(),
                 'shield_role' => 'manager',
             ],
@@ -49,7 +48,6 @@ class UserSeeder extends Seeder
                 'name' => 'Supervisor User',
                 'email' => 'supervisor@dcprism.local',
                 'password' => Hash::make('password'),
-                'role' => 'supervisor',
                 'email_verified_at' => now(),
                 'shield_role' => 'supervisor',
             ],
@@ -57,7 +55,6 @@ class UserSeeder extends Seeder
                 'name' => 'Source User',
                 'email' => 'source@dcprism.local',
                 'password' => Hash::make('password'),
-                'role' => 'source',
                 'email_verified_at' => now(),
                 'shield_role' => 'source',
             ],
@@ -65,7 +62,6 @@ class UserSeeder extends Seeder
                 'name' => 'Cinema User',
                 'email' => 'cinema@dcprism.local',
                 'password' => Hash::make('password'),
-                'role' => 'cinema',
                 'email_verified_at' => now(),
                 'shield_role' => 'cinema',
             ],

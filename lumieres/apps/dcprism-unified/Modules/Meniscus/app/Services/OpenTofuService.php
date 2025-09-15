@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Meniscus\app\Services\Infrastructure;
+namespace Modules\Meniscus\app\Services;
 
 class OpenTofuService
 {

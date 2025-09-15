@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Pages\CreateNomenclatur
 use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Pages\EditNomenclature;
 use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Pages\ListNomenclatures;
 use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Schemas\NomenclatureForm;
-use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Tables\NomenclaturesTable;
+use Modules\Fresnel\app\Filament\Resources\Nomenclatures\Tables\NomenclatureTable;
 use Modules\Fresnel\app\Models\Nomenclature;
 use BackedEnum;
 use UnitEnum;
@@ -21,7 +21,7 @@ class NomenclatureResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
     
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'title';
     
     protected static ?string $navigationLabel = 'Nomenclatures';
     
@@ -43,7 +43,7 @@ class NomenclatureResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return NomenclaturesTable::configure($table);
+        return NomenclatureTable::configure($table);
     }
 
     public static function getRelations(): array

@@ -28,7 +28,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
-        'role',
+        // 'role', // ❌ SUPPRIMÉ - Utilise Shield/Spatie avec HasRoles trait
         'is_active',
         'last_login_at',
     ];

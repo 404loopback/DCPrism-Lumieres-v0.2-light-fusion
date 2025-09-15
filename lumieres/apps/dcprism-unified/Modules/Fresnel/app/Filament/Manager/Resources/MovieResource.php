@@ -132,7 +132,7 @@ class MovieResource extends Resource
                                 
                             // Tableau des versions existantes pour l'édition
                             \Filament\Forms\Components\ViewField::make('versions_table')
-                                ->view('filament.forms.components.versions-table')
+->view('fresnel::filament.forms.components.versions-table')
                                 ->viewData(fn ($record) => [
                                     'versions' => $record ? $record->versions()->with(['movie'])->get() : collect(),
                                     'operation' => 'edit'
@@ -331,7 +331,7 @@ class MovieResource extends Resource
                     );
                     
                     // Mettre à jour la version existante avec la nomenclature
-                    $version = \App\Models\Version::where('movie_id', $record->id)
+                    $version = \Modules\Fresnel\app\Models\Version::where('movie_id', $record->id)
                         ->where('type', $versionData['type'] ?? 'Nouvelle version')
                         ->first();
                         
@@ -364,7 +364,7 @@ class MovieResource extends Resource
                     ]);
                     
                     // Créer une version par défaut en cas d'erreur
-                    \App\Models\Version::create([
+                    \Modules\Fresnel\app\Models\Version::create([
                         'movie_id' => $record->id,
                         'type' => 'VO',
                         'audio_lang' => 'original',
@@ -402,9 +402,9 @@ class MovieResource extends Resource
         $existingUser = User::where('email', $email)->first();
         
         if ($existingUser) {
-            // Si l'utilisateur existe mais n'est pas Source, le mettre à jour
-            if ($existingUser->role !== 'source') {
-                $existingUser->update(['role' => 'source']);
+            // Si l'utilisateur existe mais n'a pas le rôle Source, l'assigner
+            if (!$existingUser->hasRole('source')) {
+                $existingUser->assignRole('source');
             }
             
             return $existingUser;
@@ -417,9 +417,11 @@ class MovieResource extends Resource
             'name' => explode('@', $email)[0], // Nom basé sur la partie avant @
             'email' => $email,
             'password' => Hash::make($password),
-            'role' => 'source',
             'email_verified_at' => now(), // Auto-vérifier pour les Sources créées par Manager
         ]);
+        
+        // Assigner le rôle Source via Shield
+        $user->assignRole('source');
         
         // Envoyer email avec les identifiants via MailingService
         $mailingService = app(\App\Services\MailingService::class);
@@ -445,9 +447,9 @@ class MovieResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Manager\Resources\MovieResource\Pages\ListMovies::route('/'),
-            'create' => \App\Filament\Manager\Resources\MovieResource\Pages\CreateMovie::route('/create'),
-            'edit' => \App\Filament\Manager\Resources\MovieResource\Pages\EditMovie::route('/{record}/edit'),
+            'index' => \Modules\Fresnel\app\Filament\Manager\Resources\MovieResource\Pages\ListMovies::route('/'),
+            'create' => \Modules\Fresnel\app\Filament\Manager\Resources\MovieResource\Pages\CreateMovie::route('/create'),
+            'edit' => \Modules\Fresnel\app\Filament\Manager\Resources\MovieResource\Pages\EditMovie::route('/{record}/edit'),
         ];
     }
 }

@@ -6,7 +6,7 @@ use Modules\Fresnel\app\Filament\Resources\Festivals\Pages\CreateFestival;
 use Modules\Fresnel\app\Filament\Resources\Festivals\Pages\EditFestival;
 use Modules\Fresnel\app\Filament\Resources\Festivals\Pages\ListFestivals;
 use Modules\Fresnel\app\Filament\Resources\Festivals\Schemas\FestivalForm;
-use Modules\Fresnel\app\Filament\Resources\Festivals\Tables\FestivalsTable;
+use Modules\Fresnel\app\Filament\Resources\Festivals\Tables\FestivalTable;
 use Modules\Fresnel\app\Models\Festival;
 use BackedEnum;
 use UnitEnum;
@@ -43,7 +43,7 @@ class FestivalResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return FestivalsTable::configure($table);
+        return FestivalTable::configure($table);
     }
 
     public static function getRelations(): array

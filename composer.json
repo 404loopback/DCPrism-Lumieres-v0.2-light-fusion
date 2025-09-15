@@ -1,0 +1,68 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "dcprism/monorepo",
+    "type": "project",
+    "description": "DCPrism - Digital Cinema and Event Management Monorepo",
+    "keywords": ["laravel", "framework", "monorepo", "digital-cinema"],
+    "license": "proprietary",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./packages/*"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "dcprism/shared": "@dev",
+        "lumieres/shared-models": "@dev",
+        "lumieres/shared-services": "@dev",
+        "lumieres/shared-utils": "@dev",
+        "darkaonline/l5-swagger": "^9.0",
+        "filament/filament": "^4.0",
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.2",
+        "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "*",
+        "livewire/livewire": "^3.6",
+        "spatie/laravel-activitylog": "^4.10"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "laravel/pail": "^1.2.2",
+        "laravel/pint": "^1.24",
+        "laravel/sail": "^1.41",
+        "laravel/telescope": "*",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fresnel\\": "apps/fresnel/app/",
+            "Meniscus\\": "apps/meniscus/app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/",
+            "Fresnel\\Tests\\": "apps/fresnel/tests/",
+            "Meniscus\\Tests\\": "apps/meniscus/tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

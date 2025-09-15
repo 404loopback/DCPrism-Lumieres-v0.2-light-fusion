@@ -52,13 +52,13 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      * Register the Telescope gate.
      *
      * This gate determines who can access Telescope in non-local environments.
+     * Intégré avec Filament Shield - utilise la permission 'telescope.view'.
      */
     protected function gate(): void
     {
         Gate::define('viewTelescope', function ($user) {
-            return in_array($user->email, [
-                //
-            ]);
+            // Utiliser Shield pour gérer l'accès à Telescope
+            return $user->can('telescope.view');
         });
     }
 }

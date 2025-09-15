@@ -26,7 +26,7 @@ class SelectParameters extends Page implements HasTable
     use InteractsWithTable;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-plus-circle';
-    protected string $view = 'filament.manager.pages.select-parameters';
+    protected string $view = 'fresnel::filament.manager.pages.select-parameters';
     protected static ?string $title = 'Ajouter des Paramètres';
     protected static string|UnitEnum|null $navigationGroup = 'Configuration Festival';
     protected static ?int $navigationSort = 4;

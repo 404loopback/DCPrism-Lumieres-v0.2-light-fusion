@@ -98,7 +98,7 @@ class MovieForm
                             
                         // Tableau des versions existantes pour l'édition
                         \Filament\Forms\Components\ViewField::make('versions_table')
-                            ->view('filament.forms.components.versions-table')
+->view('fresnel::filament.forms.components.versions-table')
                             ->viewData(fn ($record) => [
                                 'versions' => $record ? $record->versions()->with(['movie'])->get() : collect(),
                                 'operation' => 'edit'

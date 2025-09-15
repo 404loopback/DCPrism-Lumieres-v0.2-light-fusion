@@ -19,7 +19,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Modules\Fresnel\app\Http\Middleware\FilamentRoleRedirect;
 
 class TechPanelProvider extends PanelProvider
 {
@@ -37,12 +36,12 @@ class TechPanelProvider extends PanelProvider
                 'primary' => Color::Orange,
                 'gray' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Tech/Resources'), for: 'App\Filament\Tech\Resources')
-            ->discoverPages(in: app_path('Filament/Tech/Pages'), for: 'App\Filament\Tech\Pages')
+            ->discoverResources(in: module_path('Fresnel', 'app/Filament/Tech/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Tech\\Resources')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Tech/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Tech\\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Tech/Widgets'), for: 'App\Filament\Tech\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Tech/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Tech\\Widgets')
             ->widgets([
                 // Widgets spécialisés pour la validation technique
                 TechnicalValidationWidget::class,
@@ -61,7 +60,7 @@ class TechPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                FilamentRoleRedirect::class,
+                'panel.access:panel.tech',
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }

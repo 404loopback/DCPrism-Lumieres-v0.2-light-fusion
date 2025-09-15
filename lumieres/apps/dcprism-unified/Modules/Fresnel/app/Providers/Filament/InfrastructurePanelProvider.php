@@ -52,6 +52,7 @@ class InfrastructurePanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                'panel.access:panel.infrastructure',
             ]);
     }
 }

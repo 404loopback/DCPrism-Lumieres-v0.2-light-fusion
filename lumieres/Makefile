@@ -13,18 +13,26 @@ help: ## Show this help message
 # Installation
 install: ## Install all dependencies (PHP + Node)
 	@echo "🚀 Installing dependencies..."
-	composer install
-	npm install
+	@echo "📦 Installing PHP dependencies in apps/dcprism-unified..."
+	cd apps/dcprism-unified && composer install
+	@echo "📦 Installing Node dependencies in apps/dcprism-unified..."
+	cd apps/dcprism-unified && npm install
+	@echo "📦 Installing PHP dependencies in packages..."
+	for dir in packages/*/; do \
+		if [ -f "$$dir/composer.json" ]; then \
+			echo "Installing in $$dir" && cd "$$dir" && composer install && cd ../..; \
+		fi; \
+	done
 
 # Development
 dev: ## Start development environment
 	@echo "🌟 Starting development environment..."
-	cd .. && docker-compose --profile dev up -d
+	docker-compose --profile dev up -d
 	npm run dev
 
 dev-stop: ## Stop development environment  
 	@echo "🛑 Stopping development environment..."
-	cd .. && docker-compose down
+	docker-compose down
 
 # Building
 build: ## Build all applications for production
@@ -73,15 +81,15 @@ fresh: ## Fresh install (clean + install)
 # Docker shortcuts
 up: ## Start all services
 	@echo "🚀 Starting all services..."
-	cd .. && docker-compose --profile dev up -d
+	docker-compose --profile dev up -d
 
 down: ## Stop all services
 	@echo "🛑 Stopping all services..."
-	cd .. && docker-compose down
+	docker-compose down
 
 logs: ## Show services logs
 	@echo "📋 Showing logs..."
-	cd .. && docker-compose logs -f
+	docker-compose logs -f
 
 # Application specific
 fresnel: ## Work with Fresnel app

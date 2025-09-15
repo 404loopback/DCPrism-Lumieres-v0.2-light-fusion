@@ -11,9 +11,9 @@ use Modules\Fresnel\app\Models\Movie;
 use Modules\Fresnel\app\Models\Version;
 use Modules\Fresnel\app\Models\Dcp;
 use Modules\Fresnel\app\Models\MovieMetadata;
-use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MoviesTable;
-use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionsTable;
-use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpsTable;
+use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MovieTable;
+use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
+use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
 use Modules\Fresnel\app\Filament\Resources\MovieMetadata\Tables\MovieMetadataTable;
 use Livewire\Attributes\On;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +39,7 @@ class FilmsPage extends Page implements HasTable
      */
     public function moviesTable(Table $table): Table
     {
-        return MoviesTable::configure(
+        return MovieTable::configure(
             $table->query(Movie::query())
         );
     }
@@ -49,7 +49,7 @@ class FilmsPage extends Page implements HasTable
      */
     public function versionsTable(Table $table): Table
     {
-        return VersionsTable::configure(
+        return VersionTable::configure(
             $table->query(Version::query())
         );
     }
@@ -59,7 +59,7 @@ class FilmsPage extends Page implements HasTable
      */
     public function dcpsTable(Table $table): Table
     {
-        return DcpsTable::configure(
+        return DcpTable::configure(
             $table->query(Dcp::query())
         );
     }

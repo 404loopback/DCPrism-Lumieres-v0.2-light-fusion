@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Fresnel\Transformers;
+namespace Modules\Fresnel\app\Transformers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

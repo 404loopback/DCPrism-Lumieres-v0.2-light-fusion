@@ -33,10 +33,10 @@ class Version extends Model
 
     public const TYPES = [
         'VO' => 'Version Originale',
-        'VOST' => 'VO Sous-titrée',
-        'DUB' => 'Doublage',
-        'VOSTF' => 'VO Sous-titrée Français',
-        'VF' => 'Version Française'
+        'DUB' => 'Version Dubbée',
+        'VOST' => 'Version Originale Sous-Titrée',
+        'DUBST' => 'Version Dubbée Sous-Titrée',
+        'MUTE' => 'Version Muette'
     ];
 
     public const FORMATS = [
@@ -130,7 +130,7 @@ class Version extends Model
      */
     public function scopeDubbed($query)
     {
-        return $query->whereIn('type', ['DUB', 'VF']);
+        return $query->whereIn('type', ['DUB', 'DUBST']);
     }
 
     /**
@@ -138,7 +138,7 @@ class Version extends Model
      */
     public function scopeSubtitled($query)
     {
-        return $query->whereIn('type', ['VOST', 'VOSTF']);
+        return $query->whereIn('type', ['VOST', 'DUBST']);
     }
 
     /**

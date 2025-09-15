@@ -190,6 +190,28 @@ class Nomenclature extends Model
     }
     
     /**
+     * Accesseur pour le titre d'affichage
+     */
+    public function getTitleAttribute(): string
+    {
+        $parts = [];
+        
+        if (!empty($this->prefix)) {
+            $parts[] = $this->prefix;
+        }
+        
+        if ($this->parameter) {
+            $parts[] = $this->parameter->name ?? 'Paramètre';
+        }
+        
+        if (!empty($this->suffix)) {
+            $parts[] = $this->suffix;
+        }
+        
+        return implode(' - ', array_filter($parts)) ?: "Nomenclature #{$this->id}";
+    }
+
+    /**
      * Évaluer une condition
      */
     private function evaluateCondition(array $condition, Movie $movie): bool

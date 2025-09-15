@@ -24,8 +24,10 @@ class RedirectByRole
                 'cinema' => '/cinema',
             ];
             
+            // Récupérer le rôle Shield de l'utilisateur
+            $userRole = $user->roles->first()?->name;
             // Récupérer le panel autorisé pour ce rôle
-            $authorizedPanel = $rolePanelMapping[$user->role] ?? null;
+            $authorizedPanel = $rolePanelMapping[$userRole] ?? null;
             
             if ($authorizedPanel && !str_starts_with($request->getPathInfo(), $authorizedPanel)) {
                 // Rediriger vers le panel autorisé si l'utilisateur tente d'accéder à un autre panel

@@ -1,0 +1,21 @@
+{
+    "name": "lumieres/shared-services",
+    "description": "Shared business logic services for Lumières applications",
+    "type": "library",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0",
+        "illuminate/validation": "^12.0",
+        "illuminate/http": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lumieres\\Shared\\Services\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lumieres\\Shared\\Services\\Tests\\": "tests/"
+        }
+    }
+}
