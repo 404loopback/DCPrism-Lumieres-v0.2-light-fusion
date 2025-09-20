@@ -10,22 +10,26 @@ class Role extends SpatieRole
     protected $fillable = [
         'name',
         'guard_name',
-        'display_name', 
+        'display_name',
         'description',
         'permissions',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
         'permissions' => 'array',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
     // Constantes des rôles DCPrism
     const ROLE_ADMIN = 'admin';
+
     const ROLE_SUPERVISOR = 'supervisor';
+
     const ROLE_SOURCE = 'source';
+
     const ROLE_CINEMA = 'cinema';
+
     const ROLE_VALIDATOR = 'validator';
 
     /**
@@ -54,7 +58,7 @@ class Role extends SpatieRole
             self::ROLE_SUPERVISOR => 'Superviseur',
             self::ROLE_SOURCE => 'Source/Producteur',
             self::ROLE_CINEMA => 'Cinéma',
-            self::ROLE_VALIDATOR => 'Validateur Technique'
+            self::ROLE_VALIDATOR => 'Validateur Technique',
         ];
     }
 }

@@ -2,6 +2,11 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Versions;
 
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 use Modules\Fresnel\app\Filament\Resources\Versions\Pages\CreateVersion;
 use Modules\Fresnel\app\Filament\Resources\Versions\Pages\EditVersion;
 use Modules\Fresnel\app\Filament\Resources\Versions\Pages\ListVersions;
@@ -10,12 +15,7 @@ use Modules\Fresnel\app\Filament\Resources\Versions\Schemas\VersionForm;
 use Modules\Fresnel\app\Filament\Resources\Versions\Schemas\VersionInfolist;
 use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
 use Modules\Fresnel\app\Models\Version;
-use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
 
 class VersionResource extends Resource
 {
@@ -24,18 +24,18 @@ class VersionResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 
     protected static ?string $recordTitleAttribute = 'type';
-    
+
     protected static ?string $navigationLabel = 'Versions';
-    
+
     protected static ?string $modelLabel = 'Version';
-    
+
     protected static ?string $pluralModelLabel = 'Versions';
-    
+
     protected static ?int $navigationSort = 21;
-    
+
     // Masquer de la navigation - accessible uniquement via FilmsPage
     protected static bool $shouldRegisterNavigation = false;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Configuration DCP';
 
     public static function form(Schema $schema): Schema

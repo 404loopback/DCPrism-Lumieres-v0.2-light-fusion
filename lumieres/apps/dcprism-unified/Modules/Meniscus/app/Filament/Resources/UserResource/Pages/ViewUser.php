@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\UserResource\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Modules\Meniscus\app\Filament\Resources\UserResource;
 
 class ViewUser extends ViewRecord
 {

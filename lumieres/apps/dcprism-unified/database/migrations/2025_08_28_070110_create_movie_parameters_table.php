@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('extraction_method', ['manual', 'auto', 'computed'])->default('manual');
             $table->json('metadata')->nullable(); // Métadonnées additionnelles
             $table->timestamps();
-            
+
             // Index pour optimiser les requêtes
             $table->unique(['movie_id', 'parameter_id']);
             $table->index(['status']);

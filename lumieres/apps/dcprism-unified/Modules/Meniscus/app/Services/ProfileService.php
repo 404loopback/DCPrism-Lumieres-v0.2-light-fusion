@@ -2,7 +2,6 @@
 
 namespace Modules\Meniscus\app\Services;
 
-use Modules\Meniscus\app\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileService extends BaseService
@@ -57,6 +56,7 @@ class ProfileService extends BaseService
     public function updateProfile($user, $data)
     {
         $user->update($data);
+
         return [
             'user' => $user,
             'profile' => $this->getFullProfile($user),
@@ -93,6 +93,7 @@ class ProfileService extends BaseService
     {
         $user->password = Hash::make($password);
         $user->save();
+
         return ['sessions_revoked' => 0];
     }
 

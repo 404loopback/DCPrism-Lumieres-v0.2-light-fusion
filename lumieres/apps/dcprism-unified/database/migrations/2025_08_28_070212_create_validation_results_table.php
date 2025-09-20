@@ -28,13 +28,13 @@ return new class extends Migration
             $table->timestamp('validated_at');
             $table->string('validator_version', 20)->nullable();
             $table->timestamps();
-            
+
             $table->index(['movie_id', 'status']);
             $table->index(['validation_type']);
             $table->index(['status']);
             $table->index(['severity']);
             $table->index(['validated_at']);
-            
+
             $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
             $table->foreign('parameter_id')->references('id')->on('parameters')->onDelete('set null');
         });

@@ -27,7 +27,7 @@ trait HasMetrics
             'value' => $value,
             'tags' => $tags,
             'timestamp' => now()->timestamp,
-            'component' => $this->getMetricsComponent()
+            'component' => $this->getMetricsComponent(),
         ];
     }
 
@@ -44,15 +44,15 @@ trait HasMetrics
      */
     protected function endTiming(string $name, array $tags = []): float
     {
-        if (!isset($this->metricsStartTimes[$name])) {
+        if (! isset($this->metricsStartTimes[$name])) {
             return 0.0;
         }
 
         $duration = (microtime(true) - $this->metricsStartTimes[$name]) * 1000; // in milliseconds
         $this->recordMetric("{$name}_duration_ms", round($duration, 2), $tags);
-        
+
         unset($this->metricsStartTimes[$name]);
-        
+
         return $duration;
     }
 
@@ -62,10 +62,11 @@ trait HasMetrics
     protected function timeExecution(string $name, callable $callback, array $tags = [])
     {
         $this->startTiming($name);
-        
+
         try {
             $result = $callback();
             $this->endTiming($name, array_merge($tags, ['status' => 'success']));
+
             return $result;
         } catch (\Exception $e) {
             $this->endTiming($name, array_merge($tags, ['status' => 'error']));
@@ -80,12 +81,12 @@ trait HasMetrics
     {
         $this->recordMetric('memory_usage_bytes', memory_get_usage(true), [
             'operation' => $operation,
-            'type' => 'current'
+            'type' => 'current',
         ]);
-        
+
         $this->recordMetric('memory_peak_bytes', memory_get_peak_usage(true), [
             'operation' => $operation,
-            'type' => 'peak'
+            'type' => 'peak',
         ]);
     }
 
@@ -94,7 +95,7 @@ trait HasMetrics
      */
     protected function recordDatabaseMetrics(): void
     {
-        if (!app()->environment(['local', 'testing'])) {
+        if (! app()->environment(['local', 'testing'])) {
             return;
         }
 
@@ -113,7 +114,7 @@ trait HasMetrics
     {
         $this->recordMetric('cache_operation', 1, [
             'key' => $key,
-            'result' => $hit ? 'hit' : 'miss'
+            'result' => $hit ? 'hit' : 'miss',
         ]);
     }
 
@@ -124,7 +125,7 @@ trait HasMetrics
     {
         $this->recordMetric('api_response', 1, [
             'status_code' => $statusCode,
-            'status_class' => $this->getStatusClass($statusCode)
+            'status_class' => $this->getStatusClass($statusCode),
         ]);
 
         if ($responseSize > 0) {
@@ -143,7 +144,7 @@ trait HasMetrics
     {
         $tags = [
             'operation' => $operation,
-            'file_extension' => pathinfo($filePath, PATHINFO_EXTENSION)
+            'file_extension' => pathinfo($filePath, PATHINFO_EXTENSION),
         ];
 
         $this->recordMetric('file_operation', 1, $tags);
@@ -164,7 +165,7 @@ trait HasMetrics
     {
         $tags = array_merge([
             'operation' => $operation,
-            'component' => $this->getMetricsComponent()
+            'component' => $this->getMetricsComponent(),
         ], $metadata);
 
         $this->recordMetric('dcp_operation', 1, $tags);
@@ -196,9 +197,9 @@ trait HasMetrics
             return;
         }
 
-        $cacheKey = "metrics:{$key}:" . now()->format('Y-m-d-H');
+        $cacheKey = "metrics:{$key}:".now()->format('Y-m-d-H');
         $existingMetrics = Cache::get($cacheKey, []);
-        
+
         Cache::put($cacheKey, array_merge($existingMetrics, $this->metrics), now()->addMinutes($ttlMinutes));
     }
 
@@ -216,15 +217,15 @@ trait HasMetrics
             'component' => $this->getMetricsComponent(),
             'time_range' => [
                 'start' => min(array_column($this->metrics, 'timestamp')),
-                'end' => max(array_column($this->metrics, 'timestamp'))
-            ]
+                'end' => max(array_column($this->metrics, 'timestamp')),
+            ],
         ];
 
         // Group by metric name
         $groupedMetrics = [];
         foreach ($this->metrics as $metric) {
             $name = $metric['name'];
-            if (!isset($groupedMetrics[$name])) {
+            if (! isset($groupedMetrics[$name])) {
                 $groupedMetrics[$name] = [];
             }
             $groupedMetrics[$name][] = $metric['value'];
@@ -238,12 +239,12 @@ trait HasMetrics
                     'sum' => array_sum($values),
                     'avg' => round(array_sum($values) / count($values), 2),
                     'min' => min($values),
-                    'max' => max($values)
+                    'max' => max($values),
                 ];
             } else {
                 $summary['metrics'][$name] = [
                     'count' => count($values),
-                    'values' => array_unique($values)
+                    'values' => array_unique($values),
                 ];
             }
         }
@@ -264,7 +265,7 @@ trait HasMetrics
      */
     protected function getStatusClass(int $statusCode): string
     {
-        return substr((string)$statusCode, 0, 1) . 'xx';
+        return substr((string) $statusCode, 0, 1).'xx';
     }
 
     /**
@@ -273,7 +274,7 @@ trait HasMetrics
     protected function recordSystemMetrics(): void
     {
         $this->recordMemoryUsage();
-        
+
         // CPU load average (Linux only)
         if (PHP_OS_FAMILY === 'Linux' && function_exists('sys_getloadavg')) {
             $load = sys_getloadavg();
@@ -281,11 +282,11 @@ trait HasMetrics
             $this->recordMetric('system_load_5min', $load[1] ?? 0);
             $this->recordMetric('system_load_15min', $load[2] ?? 0);
         }
-        
+
         // Disk usage
         $diskFree = disk_free_space(storage_path());
         $diskTotal = disk_total_space(storage_path());
-        
+
         if ($diskFree !== false && $diskTotal !== false) {
             $this->recordMetric('disk_free_bytes', $diskFree);
             $this->recordMetric('disk_usage_percent', round((($diskTotal - $diskFree) / $diskTotal) * 100, 2));
@@ -306,20 +307,20 @@ trait HasMetrics
     protected function compareToBaseline(string $operation, float $currentMs): array
     {
         $baseline = Cache::get("performance_baseline:{$operation}");
-        
-        if (!$baseline) {
+
+        if (! $baseline) {
             return ['status' => 'no_baseline'];
         }
-        
+
         $difference = $currentMs - $baseline;
         $percentChange = round(($difference / $baseline) * 100, 2);
-        
+
         return [
             'status' => $difference > 0 ? 'slower' : 'faster',
             'baseline_ms' => $baseline,
             'current_ms' => $currentMs,
             'difference_ms' => round($difference, 2),
-            'percent_change' => $percentChange
+            'percent_change' => $percentChange,
         ];
     }
 }

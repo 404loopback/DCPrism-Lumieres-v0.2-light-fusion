@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Movies\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Movies\MovieResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use Modules\Fresnel\app\Filament\Resources\Movies\MovieResource;
 
 class ViewMovie extends ViewRecord
 {

@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Versions\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Versions\VersionResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Fresnel\app\Filament\Resources\Versions\VersionResource;
 
 class CreateVersion extends CreateRecord
 {

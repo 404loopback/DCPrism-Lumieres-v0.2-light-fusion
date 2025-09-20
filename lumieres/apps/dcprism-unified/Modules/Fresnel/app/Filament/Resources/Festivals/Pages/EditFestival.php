@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Festivals\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource;
 
 class EditFestival extends EditRecord
 {

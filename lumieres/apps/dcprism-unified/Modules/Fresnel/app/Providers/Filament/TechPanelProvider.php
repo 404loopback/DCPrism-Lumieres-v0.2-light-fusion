@@ -11,14 +11,13 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
-use Modules\Fresnel\app\Filament\Tech\Widgets\TechnicalValidationWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Fresnel\app\Filament\Tech\Widgets\TechnicalValidationWidget;
 
 class TechPanelProvider extends PanelProvider
 {
@@ -55,7 +54,7 @@ class TechPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                DisableBladeIconComponents::class,
+                // DisableBladeIconComponents::class, // RETIRÉ POUR PERMETTRE L'AFFICHAGE DES ICÔNES
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([

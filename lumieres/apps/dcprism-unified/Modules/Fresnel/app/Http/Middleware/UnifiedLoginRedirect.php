@@ -18,7 +18,7 @@ class UnifiedLoginRedirect
         if ($request->is('fresnel/*/login')) {
             return redirect('/fresnel/login');
         }
-        
+
         // Si c'est une tentative de logout qui cherche une route login inexistante
         if ($request->is('fresnel/*') && $request->query('logout') !== null) {
             return redirect('/fresnel/login?logout=1');

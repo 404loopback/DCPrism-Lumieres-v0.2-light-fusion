@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
 
 class DcprismNotification extends Model
 {
     protected $table = 'dcprism_notifications';
-    
+
     protected $fillable = [
         'user_id',
         'type',
@@ -26,7 +25,7 @@ class DcprismNotification extends Model
         'festival_id',
         'movie_id',
         'dcp_id',
-        'created_by_user_id'
+        'created_by_user_id',
     ];
 
     protected $casts = [
@@ -34,7 +33,7 @@ class DcprismNotification extends Model
         'read_at' => 'datetime',
         'is_important' => 'boolean',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -44,58 +43,58 @@ class DcprismNotification extends Model
         'movie_uploaded' => [
             'label' => 'Film uploadé',
             'icon' => 'heroicon-o-film',
-            'color' => 'blue'
+            'color' => 'blue',
         ],
         'movie_validated' => [
             'label' => 'Film validé',
             'icon' => 'heroicon-o-check-badge',
-            'color' => 'green'
+            'color' => 'green',
         ],
         'movie_rejected' => [
             'label' => 'Film rejeté',
             'icon' => 'heroicon-o-x-circle',
-            'color' => 'red'
+            'color' => 'red',
         ],
         'dcp_ready' => [
             'label' => 'DCP prêt',
             'icon' => 'heroicon-o-play',
-            'color' => 'green'
+            'color' => 'green',
         ],
         'dcp_failed' => [
             'label' => 'DCP échoué',
             'icon' => 'heroicon-o-exclamation-circle',
-            'color' => 'red'
+            'color' => 'red',
         ],
         'festival_deadline' => [
             'label' => 'Deadline festival',
             'icon' => 'heroicon-o-calendar',
-            'color' => 'orange'
+            'color' => 'orange',
         ],
         'festival_assigned' => [
             'label' => 'Assigné au festival',
             'icon' => 'heroicon-o-trophy',
-            'color' => 'purple'
+            'color' => 'purple',
         ],
         'comment_received' => [
             'label' => 'Nouveau commentaire',
             'icon' => 'heroicon-o-chat-bubble-left',
-            'color' => 'blue'
+            'color' => 'blue',
         ],
         'status_changed' => [
             'label' => 'Statut modifié',
             'icon' => 'heroicon-o-arrow-path',
-            'color' => 'gray'
+            'color' => 'gray',
         ],
         'system_maintenance' => [
             'label' => 'Maintenance système',
             'icon' => 'heroicon-o-wrench-screwdriver',
-            'color' => 'yellow'
+            'color' => 'yellow',
         ],
         'account_created' => [
             'label' => 'Compte créé',
             'icon' => 'heroicon-o-user-plus',
-            'color' => 'green'
-        ]
+            'color' => 'green',
+        ],
     ];
 
     // Relations
@@ -159,18 +158,20 @@ class DcprismNotification extends Model
     public function markAsRead(): bool
     {
         $this->read_at = now();
+
         return $this->save();
     }
 
     public function markAsUnread(): bool
     {
         $this->read_at = null;
+
         return $this->save();
     }
 
     public function isRead(): bool
     {
-        return !is_null($this->read_at);
+        return ! is_null($this->read_at);
     }
 
     public function isUnread(): bool
@@ -183,7 +184,7 @@ class DcprismNotification extends Model
         return self::TYPES[$this->type] ?? [
             'label' => $this->type,
             'icon' => 'heroicon-o-bell',
-            'color' => 'gray'
+            'color' => 'gray',
         ];
     }
 
@@ -195,13 +196,13 @@ class DcprismNotification extends Model
     public function getFormattedDate(): string
     {
         if ($this->created_at->isToday()) {
-            return 'Aujourd\'hui à ' . $this->created_at->format('H:i');
+            return 'Aujourd\'hui à '.$this->created_at->format('H:i');
         }
-        
+
         if ($this->created_at->isYesterday()) {
-            return 'Hier à ' . $this->created_at->format('H:i');
+            return 'Hier à '.$this->created_at->format('H:i');
         }
-        
+
         return $this->created_at->format('d/m/Y à H:i');
     }
 
@@ -209,22 +210,22 @@ class DcprismNotification extends Model
     public static function createForUser(int $userId, array $data): self
     {
         $typeConfig = self::TYPES[$data['type']] ?? [];
-        
+
         return self::create(array_merge([
             'user_id' => $userId,
             'icon' => $typeConfig['icon'] ?? 'heroicon-o-bell',
-            'color' => $typeConfig['color'] ?? 'gray'
+            'color' => $typeConfig['color'] ?? 'gray',
         ], $data));
     }
 
     public static function createForUsers(array $userIds, array $data): \Illuminate\Support\Collection
     {
         $notifications = collect();
-        
+
         foreach ($userIds as $userId) {
             $notifications->push(self::createForUser($userId, $data));
         }
-        
+
         return $notifications;
     }
 

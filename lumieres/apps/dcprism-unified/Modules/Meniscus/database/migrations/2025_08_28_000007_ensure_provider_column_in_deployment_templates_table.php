@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('deployment_templates', function (Blueprint $table) {
             // Check if the 'provider' column exists, add it if it doesn't
-            if (!Schema::hasColumn('deployment_templates', 'provider')) {
+            if (! Schema::hasColumn('deployment_templates', 'provider')) {
                 $table->string('provider')->default('unknown')->index()->after('scenario');
             }
         });

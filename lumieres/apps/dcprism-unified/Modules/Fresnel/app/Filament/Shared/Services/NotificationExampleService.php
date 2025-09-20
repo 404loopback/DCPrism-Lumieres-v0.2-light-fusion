@@ -2,18 +2,17 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Services;
 
-use Modules\Fresnel\app\Filament\Shared\Concerns\HasNotifications;
-use App\Models\User;
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Notifications\TestNotification;
-use Modules\Fresnel\app\Notifications\JobCompletedNotification;
-use Modules\Fresnel\app\Notifications\JobFailedNotification;
-use Filament\Notifications\Notification;
+use Modules\Fresnel\app\Models\User;
 use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
+use Modules\Fresnel\app\Filament\Shared\Concerns\HasNotifications;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Notifications\JobCompletedNotification;
+use Modules\Fresnel\app\Notifications\TestNotification;
 
 /**
  * Service d'exemple pour démontrer l'utilisation du système de notifications
- * 
+ *
  * Cette classe montre comment utiliser les notifications Filament natives
  * avec l'architecture Shared de DCPrism
  */
@@ -40,7 +39,7 @@ class NotificationExampleService
     {
         // Notification de job terminé
         $this->notifyJobCompleted(
-            'Analyse DCP', 
+            'Analyse DCP',
             'Le fichier a été analysé avec succès',
             '/admin/movies/123'
         );
@@ -145,7 +144,7 @@ class NotificationExampleService
                 Action::make('view_list')
                     ->label('Voir la liste')
                     ->button()
-                    ->outlined()
+                    ->outlined(),
             ]
         );
     }
@@ -160,7 +159,7 @@ class NotificationExampleService
         if ($user) {
             $user->notify(new TestNotification([
                 'title' => 'Test du système',
-                'message' => 'Le système de notifications fonctionne parfaitement'
+                'message' => 'Le système de notifications fonctionne parfaitement',
             ]));
         }
     }
@@ -172,10 +171,12 @@ class NotificationExampleService
     {
         // Récupérer les utilisateurs d'un festival
         $festival = Festival::find(1);
-        
+
         if ($festival) {
             $managers = $festival->users()
-                ->where('role', 'manager')
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'manager');
+                })
                 ->where('is_active', true)
                 ->get();
 
@@ -183,7 +184,7 @@ class NotificationExampleService
                 $manager->notify(new JobCompletedNotification([
                     'movie' => (object) ['id' => 123, 'title' => 'Film de test'],
                     'job_type' => 'validation',
-                    'data' => []
+                    'data' => [],
                 ]));
             }
         }
@@ -207,32 +208,38 @@ class NotificationExampleService
                 Action::make('learn_more')
                     ->label('En savoir plus')
                     ->url('https://filamentphp.com/docs/notifications')
-                    ->openUrlInNewTab()
+                    ->openUrlInNewTab(),
             ])
             ->send();
     }
 
     /**
-     * Exemple : Notification conditionnelle basée sur les permissions
+     * Exemple : Notification conditionnelle basée sur les permissions Shield
      */
     public function sendConditionalNotification(): void
     {
-        // Vérifier les permissions avant d'envoyer
-        if ($this->hasManagementAccess()) {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return;
+        }
+        
+        // Vérifier les rôles Shield directement
+        if ($user->hasAnyRole(['admin', 'manager', 'supervisor'])) {
             $this->notifyWarning(
                 'Accès management détecté',
                 'Vous avez accès aux fonctions de gestion'
             );
         }
 
-        if ($this->hasTechAccess()) {
+        if ($user->hasAnyRole(['admin', 'tech'])) {
             $this->notifyInfo(
                 'Outils techniques disponibles',
                 'Vous pouvez accéder aux outils de diagnostic'
             );
         }
 
-        if ($this->isAdmin()) {
+        if ($user->hasAnyRole(['admin', 'super_admin'])) {
             $this->notifySuccess(
                 'Accès administrateur',
                 'Toutes les fonctionnalités sont disponibles'

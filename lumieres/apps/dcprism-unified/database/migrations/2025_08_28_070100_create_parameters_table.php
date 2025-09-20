@@ -18,6 +18,14 @@ return new class extends Migration
             $table->enum('type', ['string', 'int', 'bool', 'float', 'date', 'json'])->default('string');
             $table->json('possible_values')->nullable(); // Valeurs autorisées
             $table->text('description')->nullable();
+            // Colonnes UI pour les tooltips et l'affichage
+            $table->string('short_description', 100)->nullable()->comment('Description courte pour les tooltips');
+            $table->text('detailed_description')->nullable()->comment('Description détaillée avec exemples');
+            $table->string('example_value', 100)->nullable()->comment('Exemple de valeur pour ce paramètre');
+            $table->json('use_cases')->nullable()->comment('Cas d\'usage recommandés pour ce paramètre');
+            $table->string('icon', 50)->nullable()->comment('Icône Heroicon pour l\'interface');
+            $table->string('color', 20)->default('gray')->comment('Couleur pour l\'affichage (primary, success, warning, etc.)');
+            // Colonnes de logique métier
             $table->boolean('is_required')->default(false);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_system')->default(false);
@@ -30,7 +38,7 @@ return new class extends Migration
             $table->json('standard_compatibility')->nullable()->comment('Compatibilité avec les standards (Interop, SMPTE, etc.)');
             $table->json('technical_range')->nullable()->comment('Plage technique (min/max, unités, etc.)');
             $table->timestamps();
-            
+
             $table->index(['is_active']);
             $table->index(['category']);
             $table->index(['is_system', 'is_active']);

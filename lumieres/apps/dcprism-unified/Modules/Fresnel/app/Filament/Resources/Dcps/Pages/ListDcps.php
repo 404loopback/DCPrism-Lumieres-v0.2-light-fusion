@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Dcps\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource;
 
 class ListDcps extends ListRecords
 {

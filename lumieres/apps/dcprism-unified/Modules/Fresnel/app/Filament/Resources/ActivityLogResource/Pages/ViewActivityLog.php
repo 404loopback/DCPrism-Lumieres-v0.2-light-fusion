@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ActivityLogResource\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\ActivityLogResource;
 use Filament\Resources\Pages\ViewRecord;
+use Modules\Fresnel\app\Filament\Resources\ActivityLogResource;
 
 class ViewActivityLog extends ViewRecord
 {

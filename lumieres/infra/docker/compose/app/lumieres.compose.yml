@@ -11,9 +11,9 @@ services:
     container_name: lumieres-app
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    ports:
+    # ports:
       # - '8000:80'  # Port désactivé - Accès via Traefik uniquement
-      - '5175:5175'  # Vite dev server pour l'app unifiée
+      # - '5175:5175'  # Vite dev server lancé en local via Makefile
     environment:
       WWWUSER: '${WWWUSER:-1000}'
       LARAVEL_SAIL: 1
@@ -24,6 +24,7 @@ services:
       IGNITION_LOCAL_SITES_PATH: '${PWD}/apps/dcprism-unified'
     volumes:
       - '${PWD}/apps/dcprism-unified:/var/www'
+      - 'lumieres_node_modules:/var/www/node_modules'
     networks:
       - lumieres-network
     depends_on:
@@ -53,6 +54,7 @@ services:
       PGID: '${PGID:-1000}'
     volumes:
       - '${PWD}/apps/dcprism-unified:/var/www'
+      - 'lumieres_node_modules:/var/www/node_modules'
     networks:
       - lumieres-network
     depends_on:
@@ -78,6 +80,7 @@ services:
       PGID: '${PGID:-1000}'
     volumes:
       - '${PWD}/apps/dcprism-unified:/var/www'
+      - 'lumieres_node_modules:/var/www/node_modules'
     networks:
       - lumieres-network
     depends_on:
@@ -90,3 +93,7 @@ services:
     restart: unless-stopped
 
 # Le réseau sera défini dans le compose principal
+
+volumes:
+  lumieres_node_modules:
+    driver: local

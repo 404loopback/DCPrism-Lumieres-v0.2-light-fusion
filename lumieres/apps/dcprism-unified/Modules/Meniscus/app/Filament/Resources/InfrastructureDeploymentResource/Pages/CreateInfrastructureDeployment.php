@@ -2,10 +2,10 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource;
-use Modules\Meniscus\app\Models\InfrastructureDeployment;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
+use Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource;
+use Modules\Meniscus\app\Models\InfrastructureDeployment;
 
 class CreateInfrastructureDeployment extends CreateRecord
 {
@@ -15,7 +15,7 @@ class CreateInfrastructureDeployment extends CreateRecord
     {
         $data['user_id'] = Auth::id();
         $data['status'] = InfrastructureDeployment::STATUS_DRAFT;
-        
+
         return $data;
     }
 

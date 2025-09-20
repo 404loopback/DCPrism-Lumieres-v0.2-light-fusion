@@ -2,35 +2,32 @@
 
 namespace Modules\Fresnel\app\Filament\Tech\Resources;
 
-use Modules\Fresnel\app\Models\Dcp;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Festival;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Schemas\Schema;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Schemas\Schema;
+use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\BulkAction;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Modules\Fresnel\app\Models\Dcp;
+use Modules\Fresnel\app\Models\Movie;
 use UnitEnum;
-use BackedEnum;
 
 class DcpResource extends Resource
 {
@@ -39,13 +36,13 @@ class DcpResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
     protected static ?string $navigationLabel = 'Validation DCPs';
-    
+
     protected static ?string $modelLabel = 'DCP';
-    
+
     protected static ?string $pluralModelLabel = 'DCPs à Valider';
-    
+
     protected static ?int $navigationSort = 1;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Validation Technique';
 
     public static function form(Schema $schema): Schema
@@ -74,7 +71,7 @@ class DcpResource extends Resource
                         TextInput::make('file_size')
                             ->label('Taille du Fichier')
                             ->disabled()
-                            ->formatStateUsing(fn ($state) => $state ? number_format($state / (1024 * 1024 * 1024), 2) . ' GB' : 'Inconnu'),
+                            ->formatStateUsing(fn ($state) => $state ? number_format($state / (1024 * 1024 * 1024), 2).' GB' : 'Inconnu'),
 
                         DateTimePicker::make('uploaded_at')
                             ->label('Uploadé le')
@@ -169,7 +166,7 @@ class DcpResource extends Resource
 
                 TextColumn::make('file_size')
                     ->label('Taille')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state / (1024 * 1024 * 1024), 1) . ' GB' : '-')
+                    ->formatStateUsing(fn ($state) => $state ? number_format($state / (1024 * 1024 * 1024), 1).' GB' : '-')
                     ->sortable(),
 
                 TextColumn::make('movie.source_email')
@@ -193,12 +190,16 @@ class DcpResource extends Resource
                 BadgeColumn::make('priority')
                     ->label('Priorité')
                     ->formatStateUsing(function ($record) {
-                        $pendingCount = $record->movie?->festivals?->sum(fn ($festival) => 
-                            $festival->getStats()['pending_movies'] ?? 0
+                        $pendingCount = $record->movie?->festivals?->sum(fn ($festival) => $festival->getStats()['pending_movies'] ?? 0
                         );
-                        
-                        if ($pendingCount > 10) return 'Haute';
-                        if ($pendingCount > 5) return 'Moyenne';
+
+                        if ($pendingCount > 10) {
+                            return 'Haute';
+                        }
+                        if ($pendingCount > 5) {
+                            return 'Moyenne';
+                        }
+
                         return 'Normale';
                     })
                     ->colors([
@@ -238,18 +239,18 @@ class DcpResource extends Resource
                     ->modalHeading('Valider le DCP')
                     ->modalDescription('Confirmer que ce DCP est techniquement valide ?')
                     ->action(function (Dcp $record) {
-                        $record->markAsValid('DCP validé par technicien le ' . now()->format('d/m/Y H:i'));
-                        
+                        $record->markAsValid('DCP validé par technicien le '.now()->format('d/m/Y H:i'));
+
                         // Mettre à jour le statut du film si nécessaire
                         static::updateMovieStatus($record->movie);
-                        
+
                         Notification::make()
                             ->title('DCP validé avec succès')
                             ->body("Le DCP {$record->version?->generated_nomenclature} a été marqué comme valide.")
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Dcp $record) => !$record->is_valid),
+                    ->visible(fn (Dcp $record) => ! $record->is_valid),
 
                 Action::make('reject')
                     ->label('Rejeter')
@@ -266,7 +267,7 @@ class DcpResource extends Resource
                     ])
                     ->action(function (Dcp $record, array $data) {
                         $record->markAsInvalid($data['rejection_reason']);
-                        
+
                         Notification::make()
                             ->title('DCP rejeté')
                             ->body("Le DCP {$record->version?->generated_nomenclature} a été rejeté.")
@@ -288,15 +289,15 @@ class DcpResource extends Resource
                     ->modalDescription('Confirmer la validation de tous les DCPs sélectionnés ?')
                     ->action(function (Collection $records) {
                         $count = 0;
-                        
+
                         foreach ($records as $record) {
-                            if (!$record->is_valid) {
-                                $record->markAsValid('DCP validé en masse par technicien le ' . now()->format('d/m/Y H:i'));
+                            if (! $record->is_valid) {
+                                $record->markAsValid('DCP validé en masse par technicien le '.now()->format('d/m/Y H:i'));
                                 static::updateMovieStatus($record->movie);
                                 $count++;
                             }
                         }
-                        
+
                         Notification::make()
                             ->title('Validation en masse terminée')
                             ->body("{$count} DCPs ont été validés avec succès.")
@@ -322,7 +323,7 @@ class DcpResource extends Resource
         $totalDcps = $movie->dcps()->count();
         $validDcps = $movie->dcps()->where('is_valid', true)->count();
         $invalidDcps = $movie->dcps()->where('is_valid', false)->count();
-        
+
         if ($validDcps > 0 && $invalidDcps === 0) {
             // Tous les DCPs sont validés
             $movie->update([
@@ -343,17 +344,17 @@ class DcpResource extends Resource
     {
         $query = parent::getEloquentQuery()
             ->with(['movie.festivals', 'version', 'uploader']);
-            
+
         // Si le technicien est assigné à des festivals spécifiques
         $user = auth()->user();
         if ($user->festivals()->exists()) {
             $festivalIds = $user->festivals()->pluck('festivals.id');
-            
+
             $query->whereHas('movie.festivals', function (Builder $subQuery) use ($festivalIds) {
                 $subQuery->whereIn('festivals.id', $festivalIds);
             });
         }
-        
+
         return $query;
     }
 

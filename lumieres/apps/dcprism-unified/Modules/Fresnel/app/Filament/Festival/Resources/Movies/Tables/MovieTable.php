@@ -2,17 +2,24 @@
 
 namespace Modules\Fresnel\app\Filament\Festival\Resources\Movies\Tables;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Services\{BackblazeService, UnifiedNomenclatureService};
-use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction, Action};
-use Filament\Tables\Table;
-use Filament\Tables\Columns\{TextColumn, BadgeColumn, IconColumn};
-use Filament\Tables\Filters\{SelectFilter, Filter};
-use Filament\Support\Colors\Color;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Support\Colors\Color;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Services\BackblazeService;
+use Modules\Fresnel\app\Services\UnifiedNomenclatureService;
 
 class MovieTable
 {
@@ -28,7 +35,7 @@ class MovieTable
                     ->copyable()
                     ->copyableState(fn ($record) => $record->title)
                     ->tooltip('Cliquer pour copier le titre'),
-                    
+
                 BadgeColumn::make('status')
                     ->label('Statut')
                     ->colors([
@@ -50,33 +57,34 @@ class MovieTable
                         'danger' => 'error',
                     ])
                     ->formatStateUsing(fn ($state) => Movie::getStatuses()[$state] ?? $state),
-                    
+
                 TextColumn::make('format')
                     ->label('Format')
                     ->badge()
-                    ->color(fn ($state) => match($state) {
+                    ->color(fn ($state) => match ($state) {
                         'FTR' => 'success',
-                        'SHT' => 'info', 
+                        'SHT' => 'info',
                         'DOC' => 'warning',
                         'TRL' => 'gray',
                         default => 'gray'
                     }),
-                    
+
                 TextColumn::make('duration')
                     ->label('Durée')
                     ->formatStateUsing(fn ($state) => $state ? "{$state} min" : 'N/A')
                     ->sortable(),
-                    
+
                 TextColumn::make('year')
                     ->label('Année')
                     ->sortable(),
-                    
+
                 TextColumn::make('nomenclature')
                     ->label('Nomenclature')
                     ->getStateUsing(function ($record) {
                         try {
                             $nomenclatureService = app(UnifiedNomenclatureService::class);
                             $festival = Auth::user()?->festivals()?->first();
+
                             return $festival ? $nomenclatureService->generateMovieNomenclature($record, $festival) : 'N/A';
                         } catch (\Exception $e) {
                             return 'Erreur';
@@ -86,28 +94,28 @@ class MovieTable
                     ->copyable()
                     ->limit(30)
                     ->tooltip(fn ($state) => $state),
-                    
+
                 TextColumn::make('file_size')
                     ->label('Taille')
                     ->formatStateUsing(fn ($state) => self::formatFileSize($state))
                     ->sortable()
                     ->toggleable(),
-                    
+
                 TextColumn::make('source_email')
                     ->label('Source')
                     ->searchable()
                     ->toggleable()
                     ->limit(20),
-                    
+
                 TextColumn::make('created_at')
                     ->label('Créé le')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    
+
                 IconColumn::make('has_dcp')
                     ->label('DCP')
-                    ->getStateUsing(fn ($record) => !empty($record->backblaze_file_id))
+                    ->getStateUsing(fn ($record) => ! empty($record->backblaze_file_id))
                     ->boolean()
                     ->tooltip(fn ($state) => $state ? 'DCP uploadé' : 'Aucun DCP'),
             ])
@@ -117,7 +125,7 @@ class MovieTable
                     ->label('Statut')
                     ->options(Movie::getStatuses())
                     ->multiple(),
-                    
+
                 SelectFilter::make('format')
                     ->label('Format')
                     ->options([
@@ -129,15 +137,15 @@ class MovieTable
                         'RTG' => 'Rating',
                         'POL' => 'Policy',
                         'PSA' => 'PSA',
-                        'ADV' => 'Advertisement'
+                        'ADV' => 'Advertisement',
                     ])
                     ->multiple(),
-                    
+
                 Filter::make('has_dcp')
                     ->label('Avec DCP')
                     ->query(fn (Builder $query) => $query->whereNotNull('backblaze_file_id'))
                     ->toggle(),
-                    
+
                 Filter::make('created_this_week')
                     ->label('Créés cette semaine')
                     ->query(fn (Builder $query) => $query->where('created_at', '>=', now()->startOfWeek()))
@@ -146,7 +154,7 @@ class MovieTable
             ->recordActions([
                 EditAction::make()
                     ->color(Color::Blue),
-                    
+
                 Action::make('generate_nomenclature')
                     ->label('Nomenclature')
                     ->icon('heroicon-o-tag')
@@ -155,7 +163,7 @@ class MovieTable
                         self::generateNomenclatureAction($record);
                     })
                     ->tooltip('Générer/régénérer la nomenclature'),
-                    
+
                 Action::make('download_dcp')
                     ->label('Télécharger')
                     ->icon('heroicon-o-arrow-down-tray')
@@ -163,9 +171,9 @@ class MovieTable
                     ->action(function ($record) {
                         return self::downloadDcpAction($record);
                     })
-                    ->visible(fn ($record) => !empty($record->backblaze_file_id))
+                    ->visible(fn ($record) => ! empty($record->backblaze_file_id))
                     ->tooltip('Télécharger le DCP'),
-                    
+
                 Action::make('extract_parameters')
                     ->label('Extraire')
                     ->icon('heroicon-o-cog-6-tooth')
@@ -173,7 +181,7 @@ class MovieTable
                     ->action(function ($record) {
                         self::extractParametersAction($record);
                     })
-                    ->visible(fn ($record) => !empty($record->DCP_metadata))
+                    ->visible(fn ($record) => ! empty($record->DCP_metadata))
                     ->tooltip('Extraire paramètres DCP'),
             ])
             ->toolbarActions([
@@ -186,11 +194,11 @@ class MovieTable
                     })
                     ->requiresConfirmation()
                     ->modalDescription('Générer les nomenclatures pour tous les films de ce festival ?'),
-                    
+
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->requiresConfirmation(),
-                        
+
                     Action::make('bulk_extract_parameters')
                         ->label('Extraire paramètres')
                         ->icon('heroicon-o-cog-6-tooth')
@@ -205,7 +213,7 @@ class MovieTable
             ->poll('30s') // Actualisation auto pour les statuts d'upload
             ->striped();
     }
-    
+
     /**
      * Action pour générer la nomenclature d'un film
      */
@@ -214,29 +222,30 @@ class MovieTable
         try {
             $nomenclatureService = app(UnifiedNomenclatureService::class);
             $festival = Auth::user()?->festivals()?->first();
-            
-            if (!$festival) {
+
+            if (! $festival) {
                 Notification::make()
                     ->title('Erreur')
                     ->body('Aucun festival associé à votre compte')
                     ->danger()
                     ->send();
+
                 return;
             }
-            
+
             $nomenclature = $nomenclatureService->generateMovieNomenclature($record, $festival);
             $validation = $nomenclatureService->validateNomenclature($nomenclature, $festival);
-            
+
             Notification::make()
                 ->title('Nomenclature générée')
                 ->body(new HtmlString(
-                    "<div class='font-mono bg-gray-100 p-2 rounded mb-2'>{$nomenclature}</div>" .
+                    "<div class='font-mono bg-gray-100 p-2 rounded mb-2'>{$nomenclature}</div>".
                     "<div>Score de qualité: {$validation['score']}/100</div>"
                 ))
                 ->success()
                 ->duration(8000)
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de génération')
@@ -245,7 +254,7 @@ class MovieTable
                 ->send();
         }
     }
-    
+
     /**
      * Action pour télécharger un DCP
      */
@@ -253,20 +262,20 @@ class MovieTable
     {
         try {
             $backblazeService = app(BackblazeService::class);
-            
+
             return $backblazeService->download($record);
-            
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de téléchargement')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
-                
+
             return null;
         }
     }
-    
+
     /**
      * Action pour extraire les paramètres DCP
      */
@@ -274,13 +283,13 @@ class MovieTable
     {
         try {
             $nomenclatureService = app(UnifiedNomenclatureService::class);
-            
+
             $result = $nomenclatureService->extractParametersFromDcp($record);
-            
+
             if ($result['success']) {
                 $extractedCount = count($result['extracted_params']);
                 $paramsList = implode(', ', array_keys($result['extracted_params']));
-                
+
                 Notification::make()
                     ->title('Paramètres extraits avec succès')
                     ->body("$extractedCount paramètres extraits: $paramsList")
@@ -293,7 +302,7 @@ class MovieTable
                     ->warning()
                     ->send();
             }
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur d\'extraction')
@@ -302,7 +311,7 @@ class MovieTable
                 ->send();
         }
     }
-    
+
     /**
      * Action en lot pour générer les nomenclatures
      */
@@ -310,14 +319,14 @@ class MovieTable
     {
         try {
             $festival = Auth::user()?->festivals()?->first();
-            if (!$festival) {
+            if (! $festival) {
                 throw new \Exception('Aucun festival associé');
             }
-            
+
             $nomenclatureService = app(UnifiedNomenclatureService::class);
             $movies = $festival->movies;
             $generated = 0;
-            
+
             foreach ($movies as $movie) {
                 try {
                     $nomenclatureService->generateMovieNomenclature($movie, $festival);
@@ -327,13 +336,13 @@ class MovieTable
                     continue;
                 }
             }
-            
+
             Notification::make()
                 ->title('Nomenclatures générées')
                 ->body("$generated nomenclatures générées sur {$movies->count()} films")
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de génération en lot')
@@ -342,7 +351,7 @@ class MovieTable
                 ->send();
         }
     }
-    
+
     /**
      * Action en lot pour extraire les paramètres DCP
      */
@@ -352,26 +361,26 @@ class MovieTable
             $nomenclatureService = app(UnifiedNomenclatureService::class);
             $processed = 0;
             $extracted = 0;
-            
+
             foreach ($records as $record) {
                 if (empty($record->DCP_metadata)) {
                     continue;
                 }
-                
+
                 $processed++;
                 $result = $nomenclatureService->extractParametersFromDcp($record);
-                
+
                 if ($result['success']) {
                     $extracted += count($result['extracted_params']);
                 }
             }
-            
+
             Notification::make()
                 ->title('Extraction en lot terminée')
                 ->body("$processed films traités, $extracted paramètres extraits au total")
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur d\'extraction en lot')
@@ -380,21 +389,23 @@ class MovieTable
                 ->send();
         }
     }
-    
+
     /**
      * Formater la taille de fichier
      */
     private static function formatFileSize(?int $bytes): string
     {
-        if (!$bytes) return 'N/A';
-        
+        if (! $bytes) {
+            return 'N/A';
+        }
+
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
-        
+
         $bytes /= pow(1024, $pow);
-        
-        return round($bytes, 2) . ' ' . $units[$pow];
+
+        return round($bytes, 2).' '.$units[$pow];
     }
 }

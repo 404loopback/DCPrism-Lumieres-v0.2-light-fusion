@@ -16,11 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('festival_id');
             $table->timestamps();
-            
+
             $table->unique(['user_id', 'festival_id']);
             $table->index(['user_id']);
             $table->index(['festival_id']);
-            
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('festival_id')->references('id')->on('festivals')->onDelete('cascade');
         });

@@ -2,15 +2,14 @@
 
 namespace Modules\Fresnel\app\Http\Controllers\Api\V1;
 
-use Modules\Fresnel\app\Http\Controllers\Controller;
-use Modules\Fresnel\app\Http\Resources\V1\UserResource;
-use Modules\Fresnel\app\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
+use Modules\Fresnel\app\Http\Controllers\Controller;
+use Modules\Fresnel\app\Http\Resources\V1\UserResource;
+use Modules\Fresnel\app\Models\User;
 
 class AuthApiController extends Controller
 {
@@ -22,19 +21,25 @@ class AuthApiController extends Controller
      *     summary="User login",
      *     description="Authenticate user with email and password, returns access token",
      *     tags={"Authentication"},
+     *
      *     @OA\RequestBody(
      *         required=true,
+     *
      *         @OA\JsonContent(
      *             required={"email", "password"},
+     *
      *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
      *             @OA\Property(property="password", type="string", format="password", example="password123"),
      *             @OA\Property(property="device_name", type="string", example="iPhone 12", description="Optional device identifier")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Login successful",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Login successful"),
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="user", ref="#/components/schemas/User"),
@@ -45,15 +50,20 @@ class AuthApiController extends Controller
      *             )
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=422,
      *         description="Invalid credentials",
+     *
      *         @OA\JsonContent(ref="#/components/schemas/ValidationError")
      *     ),
+     *
      *     @OA\Response(
      *         response=429,
      *         description="Too many attempts",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Too many login attempts")
      *         )
      *     )
@@ -61,44 +71,45 @@ class AuthApiController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $key = 'api-login:' . $request->ip();
+        $key = 'api-login:'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
+
             return response()->json([
-                'message' => 'Too many login attempts. Please try again in ' . $seconds . ' seconds.',
+                'message' => 'Too many login attempts. Please try again in '.$seconds.' seconds.',
                 'errors' => [
-                    'email' => ['Too many failed attempts']
-                ]
+                    'email' => ['Too many failed attempts'],
+                ],
             ], 429);
         }
 
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'device_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-_\.]+$/']
+            'device_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-_\.]+$/'],
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             RateLimiter::hit($key);
 
             return response()->json([
                 'message' => 'The provided credentials are incorrect.',
                 'errors' => [
-                    'email' => ['The provided credentials are incorrect.']
-                ]
+                    'email' => ['The provided credentials are incorrect.'],
+                ],
             ], 422);
         }
 
         // Check if user is active
-        if (isset($user->is_active) && !$user->is_active) {
+        if (isset($user->is_active) && ! $user->is_active) {
             return response()->json([
                 'message' => 'Your account has been deactivated.',
                 'errors' => [
-                    'email' => ['Account deactivated']
-                ]
+                    'email' => ['Account deactivated'],
+                ],
             ], 403);
         }
 
@@ -111,7 +122,7 @@ class AuthApiController extends Controller
         // Create token with abilities based on user role
         $abilities = $this->getUserAbilities($user);
         $deviceName = $request->device_name ?? $request->userAgent() ?? 'Unknown Device';
-        
+
         $token = $user->createToken($deviceName, $abilities, now()->addDays(30));
 
         return response()->json([
@@ -122,7 +133,7 @@ class AuthApiController extends Controller
                 'token_type' => 'Bearer',
                 'expires_at' => $token->accessToken->expires_at?->toISOString(),
                 'abilities' => $abilities,
-            ]
+            ],
         ]);
     }
 
@@ -131,12 +142,13 @@ class AuthApiController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        $key = 'api-register:' . $request->ip();
+        $key = 'api-register:'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
+
             return response()->json([
-                'message' => 'Too many registration attempts. Please try again in ' . $seconds . ' seconds.'
+                'message' => 'Too many registration attempts. Please try again in '.$seconds.' seconds.',
             ], 429);
         }
 
@@ -144,7 +156,7 @@ class AuthApiController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'device_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-_\.]+$/']
+            'device_name' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-_\.]+$/'],
         ]);
 
         try {
@@ -162,7 +174,7 @@ class AuthApiController extends Controller
 
             $abilities = $this->getUserAbilities($user);
             $deviceName = $request->device_name ?? $request->userAgent() ?? 'Unknown Device';
-            
+
             $token = $user->createToken($deviceName, $abilities, now()->addDays(30));
 
             RateLimiter::clear($key);
@@ -175,17 +187,17 @@ class AuthApiController extends Controller
                     'token_type' => 'Bearer',
                     'expires_at' => $token->accessToken->expires_at?->toISOString(),
                     'abilities' => $abilities,
-                ]
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             RateLimiter::hit($key);
-            
+
             return response()->json([
                 'message' => 'Registration failed',
                 'errors' => [
-                    'general' => ['Unable to create account. Please try again.']
-                ]
+                    'general' => ['Unable to create account. Please try again.'],
+                ],
             ], 500);
         }
     }
@@ -201,7 +213,7 @@ class AuthApiController extends Controller
                 'abilities' => $request->user()->currentAccessToken()->abilities ?? [],
                 'token_name' => $request->user()->currentAccessToken()->name ?? null,
                 'last_used_at' => $request->user()->currentAccessToken()->last_used_at?->toISOString(),
-            ]
+            ],
         ]);
     }
 
@@ -213,7 +225,7 @@ class AuthApiController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 
@@ -224,13 +236,13 @@ class AuthApiController extends Controller
     {
         $user = $request->user();
         $currentToken = $user->currentAccessToken();
-        
+
         // Create new token with same abilities and name
         $abilities = $currentToken->abilities ?? $this->getUserAbilities($user);
         $deviceName = $currentToken->name ?? 'Unknown Device';
-        
+
         $newToken = $user->createToken($deviceName, $abilities, now()->addDays(30));
-        
+
         // Delete old token
         $currentToken->delete();
 
@@ -242,7 +254,7 @@ class AuthApiController extends Controller
                 'token_type' => 'Bearer',
                 'expires_at' => $newToken->accessToken->expires_at?->toISOString(),
                 'abilities' => $abilities,
-            ]
+            ],
         ]);
     }
 

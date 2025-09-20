@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Modules\Fresnel\app\Models\{Movie, Festival, Version, User};
 use Illuminate\Support\Facades\Log;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Version;
 
 class MovieSeeder extends Seeder
 {
@@ -36,14 +37,14 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 2020',
                     'aspect_ratio' => '2.39:1',
                     'duration_frames' => 205920,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['cannes'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'FTR', 'audio_lang' => 'fra'],
                     ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'eng'],
-                    ['type' => 'VOSTF', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'fra']
-                ]
+                    ['type' => 'VOSTF', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'fra'],
+                ],
             ],
             [
                 'title' => 'Shadows in the Night',
@@ -64,14 +65,14 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.85:1',
                     'duration_frames' => 169920,
-                    'encryption' => true
+                    'encryption' => true,
                 ],
                 'festivals' => ['cannes', 'berlinale'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'FTR', 'audio_lang' => 'eng'],
                     ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'eng', 'sub_lang' => 'fra'],
-                    ['type' => 'VF', 'format' => 'FTR', 'audio_lang' => 'fra']
-                ]
+                    ['type' => 'VF', 'format' => 'FTR', 'audio_lang' => 'fra'],
+                ],
             ],
             [
                 'title' => 'The Artist\'s Dilemma',
@@ -93,15 +94,15 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.66:1',
                     'duration_frames' => 145500,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['cannes'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'FTR', 'audio_lang' => 'fra'],
-                    ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'eng']
-                ]
+                    ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'eng'],
+                ],
             ],
-            
+
             // Courts métrages pour Clermont-Ferrand
             [
                 'title' => 'Fragments',
@@ -122,12 +123,12 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.85:1',
                     'duration_frames' => 33120,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['clermont-ferrand'],
                 'versions' => [
-                    ['type' => 'VO', 'format' => 'SHR', 'audio_lang' => 'zxx'] // zxx = no linguistic content
-                ]
+                    ['type' => 'VO', 'format' => 'SHR', 'audio_lang' => 'zxx'], // zxx = no linguistic content
+                ],
             ],
             [
                 'title' => 'La Dernière Danse',
@@ -149,13 +150,13 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.66:1',
                     'duration_frames' => 27000,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['clermont-ferrand'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'SHR', 'audio_lang' => 'fra'],
-                    ['type' => 'VOST', 'format' => 'SHR', 'audio_lang' => 'fra', 'sub_lang' => 'eng']
-                ]
+                    ['type' => 'VOST', 'format' => 'SHR', 'audio_lang' => 'fra', 'sub_lang' => 'eng'],
+                ],
             ],
             [
                 'title' => 'Urban Pulse',
@@ -176,16 +177,16 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.78:1',
                     'duration_frames' => 17280,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['clermont-ferrand', 'berlinale'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'SHR', 'audio_lang' => 'deu'],
                     ['type' => 'VOST', 'format' => 'SHR', 'audio_lang' => 'deu', 'sub_lang' => 'eng'],
-                    ['type' => 'VOSTF', 'format' => 'SHR', 'audio_lang' => 'deu', 'sub_lang' => 'fra']
-                ]
+                    ['type' => 'VOSTF', 'format' => 'SHR', 'audio_lang' => 'deu', 'sub_lang' => 'fra'],
+                ],
             ],
-            
+
             // Bandes-annonces et contenus spéciaux
             [
                 'title' => 'Bande-annonce - Epic Adventure',
@@ -205,13 +206,13 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 2020',
                     'aspect_ratio' => '2.39:1',
                     'duration_frames' => 4320,
-                    'encryption' => true
+                    'encryption' => true,
                 ],
                 'festivals' => ['cannes'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'TRL', 'audio_lang' => 'eng'],
-                    ['type' => 'VF', 'format' => 'TRL', 'audio_lang' => 'fra']
-                ]
+                    ['type' => 'VF', 'format' => 'TRL', 'audio_lang' => 'fra'],
+                ],
             ],
             [
                 'title' => 'Documentary: Life on Mars',
@@ -234,14 +235,14 @@ class MovieSeeder extends Seeder
                     'color_space' => 'Rec. 709',
                     'aspect_ratio' => '1.78:1',
                     'duration_frames' => 136800,
-                    'encryption' => false
+                    'encryption' => false,
                 ],
                 'festivals' => ['berlinale'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'FTR', 'audio_lang' => 'eng'],
                     ['type' => 'VF', 'format' => 'FTR', 'audio_lang' => 'fra'],
-                    ['type' => 'VOSTF', 'format' => 'FTR', 'audio_lang' => 'eng', 'sub_lang' => 'fra']
-                ]
+                    ['type' => 'VOSTF', 'format' => 'FTR', 'audio_lang' => 'eng', 'sub_lang' => 'fra'],
+                ],
             ],
             [
                 'title' => 'Midnight Express',
@@ -258,26 +259,26 @@ class MovieSeeder extends Seeder
                 'festivals' => ['cannes'],
                 'versions' => [
                     ['type' => 'VO', 'format' => 'FTR', 'audio_lang' => 'fra'],
-                    ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'eng']
-                ]
-            ]
+                    ['type' => 'VOST', 'format' => 'FTR', 'audio_lang' => 'fra', 'sub_lang' => 'eng'],
+                ],
+            ],
         ];
 
         // Récupérer les festivals existants
         $festivals = Festival::pluck('id', 'subdomain')->toArray();
-        
+
         foreach ($movies as $movieData) {
             // Extraire les données spéciales avant création
             $versions = $movieData['versions'] ?? [];
             $festivalSubdomains = $movieData['festivals'] ?? [];
             unset($movieData['versions'], $movieData['festivals']);
-            
+
             // Créer ou récupérer le film
             $movie = Movie::firstOrCreate(
                 ['title' => $movieData['title']],
                 $movieData
             );
-            
+
             // Associer le film aux festivals
             foreach ($festivalSubdomains as $subdomain) {
                 if (isset($festivals[$subdomain])) {
@@ -286,39 +287,39 @@ class MovieSeeder extends Seeder
                             'submission_status' => $this->getSubmissionStatus($movie->status),
                             'selected_versions' => json_encode(array_column($versions, 'type')),
                             'technical_notes' => $movie->technical_notes,
-                            'priority' => rand(1, 5)
-                        ]
+                            'priority' => rand(1, 5),
+                        ],
                     ]);
                 }
             }
-            
+
             // Créer les versions associées
             foreach ($versions as $versionData) {
                 $versionData['movie_id'] = $movie->id;
                 Version::firstOrCreate(
                     [
-                        'movie_id' => $movie->id, 
+                        'movie_id' => $movie->id,
                         'type' => $versionData['type'],
-                        'format' => $versionData['format']
+                        'format' => $versionData['format'],
                     ],
                     $versionData
                 );
             }
         }
-        
+
         Log::info('MovieSeeder completed', [
             'total_movies' => Movie::count(),
             'total_versions' => Version::count(),
-            'movies_with_festivals' => Movie::has('festivals')->count()
+            'movies_with_festivals' => Movie::has('festivals')->count(),
         ]);
     }
-    
+
     /**
      * Détermine le statut de soumission basé sur le statut du film
      */
     private function getSubmissionStatus(string $movieStatus): string
     {
-        return match($movieStatus) {
+        return match ($movieStatus) {
             'validated', 'distributed' => 'accepted',
             'rejected' => 'rejected',
             'in_review' => 'under_review',

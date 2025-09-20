@@ -2,10 +2,6 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\Jobs;
 
-use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\CreateJob;
-use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\EditJob;
-use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\ListJobs;
-use Modules\Meniscus\app\Models\Job;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -13,15 +9,19 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\CreateJob;
+use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\EditJob;
+use Modules\Meniscus\app\Filament\Resources\Jobs\Pages\ListJobs;
+use Modules\Meniscus\app\Models\Job;
 
 class JobResource extends Resource
 {
     protected static ?string $model = Job::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFilm;
-    
+
     protected static ?string $navigationLabel = 'DCP Jobs';
-    
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -89,6 +89,7 @@ class JobResource extends Resource
                     ])->columns(2),
             ]);
     }
+
     public static function table(Table $table): Table
     {
         return $table

@@ -70,8 +70,8 @@ class NomenclatureTemplateUsage extends Model
      * Créer un nouvel usage avec les données de contexte
      */
     public static function recordUsage(
-        int $templateId, 
-        ?int $userId = null, 
+        int $templateId,
+        ?int $userId = null,
         array $context = []
     ): self {
         return self::create([

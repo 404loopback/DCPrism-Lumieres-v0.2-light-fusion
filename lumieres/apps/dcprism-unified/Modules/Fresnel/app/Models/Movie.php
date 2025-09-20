@@ -3,19 +3,16 @@
 namespace Modules\Fresnel\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Movie extends Model
 {
     use LogsActivity;
+
     protected $fillable = [
         'title',
         'source_email',
@@ -38,39 +35,58 @@ class Movie extends Model
         'file_path',
         'file_size',
         'original_filename',
-        'uploaded_at'
+        'uploaded_at',
     ];
-    
+
     protected $casts = [
         'release_date' => 'date',
         'DCP_metadata' => 'array',
         'upload_progress' => 'integer',
         'validated_at' => 'datetime',
-        'uploaded_at' => 'datetime'
+        'uploaded_at' => 'datetime',
     ];
-    
+
     // Constantes des statuts - Workflow unifié DCPrism
     const STATUS_PENDING = 'pending';
+
     const STATUS_CREATED = 'created';
+
     const STATUS_FILM_CREATED = 'created'; // Alias pour STATUS_CREATED
+
     const STATUS_SOURCE_VALIDATED = 'source_validated';
+
     const STATUS_VERSIONS_VALIDATED = 'versions_validated';
+
     const STATUS_VERSIONS_REJECTED = 'versions_rejected';
+
     const STATUS_UPLOADING = 'uploading';
+
     const STATUS_UPLOAD_OK = 'upload_ok';
+
     const STATUS_UPLOADS_OK = 'upload_ok'; // Alias pour STATUS_UPLOAD_OK
+
     const STATUS_UPLOAD_ERROR = 'upload_error';
+
     const STATUS_IN_REVIEW = 'in_review';
+
     const STATUS_VALIDATED = 'validated';
+
     const STATUS_VALIDATION_OK = 'validated'; // Alias pour STATUS_VALIDATED
+
     const STATUS_VALIDATION_ERROR = 'validation_error';
+
     const STATUS_READY = 'ready';
+
     const STATUS_DISTRIBUTED = 'distributed';
+
     const STATUS_DISTRIBUTION_OK = 'distributed'; // Alias pour STATUS_DISTRIBUTED
+
     const STATUS_DISTRIBUTION_ERROR = 'distribution_error';
+
     const STATUS_REJECTED = 'rejected';
+
     const STATUS_ERROR = 'error';
-    
+
     /**
      * Configuration du logging d'activité
      */
@@ -80,14 +96,14 @@ class Movie extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
                 'created' => 'Film créé',
                 'updated' => 'Film modifié',
                 'deleted' => 'Film supprimé',
                 default => $eventName
             });
     }
-    
+
     /**
      * Récupérer tous les statuts disponibles
      */
@@ -109,20 +125,20 @@ class Movie extends Model
             self::STATUS_DISTRIBUTED => 'Distribué',
             self::STATUS_DISTRIBUTION_ERROR => 'Erreur de distribution',
             self::STATUS_REJECTED => 'Refusé',
-            self::STATUS_ERROR => 'Erreur'
+            self::STATUS_ERROR => 'Erreur',
         ];
     }
-    
+
     /**
      * Relation many-to-many avec les festivals
      */
     public function festivals(): BelongsToMany
     {
         return $this->belongsToMany(Festival::class, 'movie_festivals')
-                    ->withPivot(['submission_status', 'selected_versions', 'technical_notes', 'priority'])
-                    ->withTimestamps();
+            ->withPivot(['submission_status', 'selected_versions', 'technical_notes', 'priority'])
+            ->withTimestamps();
     }
-    
+
     /**
      * Relation avec les versions du film
      */
@@ -185,8 +201,8 @@ class Movie extends Model
     public function parameters(): BelongsToMany
     {
         return $this->belongsToMany(Parameter::class, 'movie_parameters')
-                    ->withPivot(['value', 'status', 'extraction_method', 'metadata'])
-                    ->withTimestamps();
+            ->withPivot(['value', 'status', 'extraction_method', 'metadata'])
+            ->withTimestamps();
     }
 
     /**
@@ -196,7 +212,7 @@ class Movie extends Model
     {
         return $this->hasMany(Upload::class);
     }
-    
+
     /**
      * Scope pour filtrer par source
      */
@@ -204,7 +220,7 @@ class Movie extends Model
     {
         return $query->where('source_email', $email);
     }
-    
+
     /**
      * Scope pour films avec versions validées
      */
@@ -291,10 +307,10 @@ class Movie extends Model
     public function getParameterValue(string $parameterName): ?string
     {
         $movieParameter = $this->movieParameters()
-                              ->whereHas('parameter', function($query) use ($parameterName) {
-                                  $query->where('name', $parameterName);
-                              })
-                              ->first();
+            ->whereHas('parameter', function ($query) use ($parameterName) {
+                $query->where('name', $parameterName);
+            })
+            ->first();
 
         return $movieParameter ? $movieParameter->value : null;
     }
@@ -305,28 +321,32 @@ class Movie extends Model
     public function generateNomenclature(int $festivalId): string
     {
         $nomenclatures = Nomenclature::where('festival_id', $festivalId)
-                                   ->with('parameter')
-                                   ->where('is_active', true)
-                                   ->orderBy('order_position')
-                                   ->get();
-        
+            ->with('parameter')
+            ->where('is_active', true)
+            ->orderBy('order_position')
+            ->get();
+
         if ($nomenclatures->isEmpty()) {
             return $this->title;
         }
 
         $parts = [];
-        
+
         foreach ($nomenclatures as $nomenclature) {
-            $parameterValue = $this->getParameterValue($nomenclature->parameter->name);
-            
-            if (!empty($parameterValue)) {
-                $part = ($nomenclature->prefix ?? '') . $parameterValue . ($nomenclature->suffix ?? '');
-                if (!empty($part)) {
+            $parameter = $nomenclature->resolveParameter();
+            if (!$parameter) {
+                continue;
+            }
+            $parameterValue = $this->getParameterValue($parameter->name);
+
+            if (! empty($parameterValue)) {
+                $part = ($nomenclature->prefix ?? '').$parameterValue.($nomenclature->suffix ?? '');
+                if (! empty($part)) {
                     $parts[] = $part;
                 }
             }
         }
 
-        return !empty($parts) ? implode('_', $parts) : $this->title;
+        return ! empty($parts) ? implode('_', $parts) : $this->title;
     }
 }

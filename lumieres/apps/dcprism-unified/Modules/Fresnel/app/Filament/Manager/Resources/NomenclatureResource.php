@@ -2,34 +2,31 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources;
 
-use Modules\Fresnel\app\Models\Nomenclature;
-use Modules\Fresnel\app\Models\Parameter;
-use Modules\Fresnel\app\Models\Festival;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables;
 use Filament\Tables\Columns\BooleanColumn;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ActionGroup;
-// use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\Builder;
+// use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Nomenclature;
+use Modules\Fresnel\app\Models\Parameter;
 use UnitEnum;
-use BackedEnum;
 
 class NomenclatureResource extends Resource
 {
@@ -38,15 +35,15 @@ class NomenclatureResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Nomenclature Festival';
-    
+
     protected static ?string $modelLabel = 'Nomenclature Festival';
-    
+
     protected static ?string $pluralModelLabel = 'Nomenclature Festival';
-    
+
     protected static ?int $navigationSort = 4;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Configuration Festival';
-    
+
     // protected static bool $shouldRegisterNavigation = false; // Masquer de la navigation
 
     public static function form(Schema $schema): Schema
@@ -57,12 +54,78 @@ class NomenclatureResource extends Resource
                     ->description('Définition de la nomenclature pour ce festival')
                     ->icon('heroicon-o-document-text')
                     ->schema([
-                        Select::make('parameter_id')
-                            ->label('Paramètre')
-                            ->options(Parameter::active()->pluck('name', 'id'))
+                        // En création : Sélecteur de paramètre
+                        Select::make('festival_parameter_id')
+                            ->label('Paramètre Festival')
+                            ->options(function () {
+                                $festivalId = Session::get('selected_festival_id');
+                                if (!$festivalId) {
+                                    return [];
+                                }
+                                return \Modules\Fresnel\app\Models\FestivalParameter::where('festival_id', $festivalId)
+                                    ->with('parameter')
+                                    ->get()
+                                    ->mapWithKeys(function ($fp) {
+                                        $label = $fp->parameter->name;
+                                        if ($fp->is_system) {
+                                            $label .= ' (Système)';
+                                        }
+                                        if (!$fp->is_visible_in_nomenclature) {
+                                            $label .= ' [Masqué]';
+                                        }
+                                        return [$fp->id => $label];
+                                    });
+                            })
                             ->required()
                             ->searchable()
-                            ->helperText('Paramètre utilisé dans la nomenclature'),
+                            ->helperText('Paramètre du festival utilisé dans la nomenclature')
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set) {
+                                if ($state) {
+                                    $fp = \Modules\Fresnel\app\Models\FestivalParameter::with('parameter')->find($state);
+                                    if ($fp) {
+                                        // Auto-remplir le parameter_id pour compatibilité
+                                        $set('parameter_id', $fp->parameter_id);
+                                        // Pré-remplir certains champs basés sur les valeurs du festival
+                                        if ($fp->custom_default_value) {
+                                            $set('default_value', $fp->custom_default_value);
+                                        }
+                                    }
+                                }
+                            })
+                            ->hiddenOn('edit'), // Masqué en mode édition
+                            
+                        // En édition : Affichage en lecture seule du paramètre
+                        \Filament\Forms\Components\Placeholder::make('parameter_info')
+                            ->label('Paramètre Festival')
+                            ->content(function ($record) {
+                                if (!$record) return 'Nouveau paramètre';
+                                $parameter = $record->resolveParameter();
+                                if (!$parameter) return 'Paramètre inconnu';
+                                
+                                // Icône et couleur du paramètre
+                                $icon = $parameter->icon ? "⚙️" : "🔧";
+                                $colorIcon = match($parameter->color ?? 'gray') {
+                                    'blue' => '🔵', 'green' => '🟢', 'purple' => '🟣',
+                                    'orange' => '🟠', 'yellow' => '🟡', 'red' => '🔴',
+                                    default => '⚪'
+                                };
+                                
+                                $badges = [];
+                                if ($record->festivalParameter?->is_system) {
+                                    $badges[] = '🔒 Système';
+                                }
+                                if ($record->festivalParameter && !$record->festivalParameter->is_visible_in_nomenclature) {
+                                    $badges[] = '👁️ Masqué';
+                                }
+                                
+                                $badgeText = $badges ? ' (' . implode(', ', $badges) . ')' : '';
+                                return $colorIcon . ' ' . $parameter->name . ' (' . $parameter->code . ')' . $badgeText;
+                            })
+                            ->visibleOn('edit'), // Visible seulement en mode édition
+                            
+                        // Champ caché pour maintenir la compatibilité
+                        \Filament\Forms\Components\Hidden::make('parameter_id'),
 
                         TextInput::make('order_position')
                             ->label('Position')
@@ -164,28 +227,53 @@ class NomenclatureResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\IconColumn::make('parameter_icon')
+                    ->label('')
+                    ->getStateUsing(function ($record) {
+                        $parameter = $record->festivalParameter?->parameter ?? $record->parameter;
+                        return $parameter?->icon;
+                    })
+                    ->icon(fn ($state): string => $state ? "heroicon-o-{$state}" : 'heroicon-o-cog')
+                    ->color(function ($record): string {
+                        $parameter = $record->festivalParameter?->parameter ?? $record->parameter;
+                        return $parameter?->color ?? 'gray';
+                    })
+                    ->tooltip(function ($record): string {
+                        $parameter = $record->festivalParameter?->parameter ?? $record->parameter;
+                        return $parameter?->short_description ?? $parameter?->name ?? 'Paramètre';
+                    })
+                    ->width('40px'),
+                    
                 TextColumn::make('order_position')
                     ->label('Position')
                     ->sortable()
-                    ->badge(),
+                    ->badge()
+                    ->color('primary'),
 
-                TextColumn::make('parameter.name')
+                TextColumn::make('festivalParameter.parameter.name')
                     ->label('Paramètre')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->formatStateUsing(function ($record) {
+                        $name = $record->festivalParameter?->parameter->name ?? $record->parameter?->name ?? 'N/A';
+                        $badges = [];
+                        if ($record->festivalParameter?->is_system) {
+                            $badges[] = '🔒 Système';
+                        }
+                        if ($record->festivalParameter && !$record->festivalParameter->is_visible_in_nomenclature) {
+                            $badges[] = '👁️ Masqué';
+                        }
+                        return $name . ($badges ? ' (' . implode(', ', $badges) . ')' : '');
+                    }),
 
                 TextColumn::make('parameter.code')
                     ->label('Code')
-                    ->badge(),
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return $record->festivalParameter?->parameter->code;
+                    }),
 
-                TextColumn::make('prefix')
-                    ->label('Préfixe')
-                    ->placeholder('-'),
-
-                TextColumn::make('suffix')
-                    ->label('Suffixe')
-                    ->placeholder('-'),
 
                 TextColumn::make('separator')
                     ->label('Séparateur')
@@ -193,7 +281,6 @@ class NomenclatureResource extends Resource
 
                 TextColumn::make('preview')
                     ->label('Aperçu')
-                    ->getStateUsing(fn ($record) => $record->getPreview())
                     ->badge()
                     ->color('success'),
 
@@ -221,7 +308,7 @@ class NomenclatureResource extends Resource
                         ->label('Éditer'),
                     DeleteAction::make()
                         ->label('Supprimer'),
-                ])
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -238,15 +325,22 @@ class NomenclatureResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
-            // Si aucun festival sélectionné, retourner une query vide
-            return parent::getEloquentQuery()->whereRaw('1 = 0');
+
+        if (! $festivalId) {
+            // Si aucun festival sélectionné, prendre le premier festival actif par ID
+            $defaultFestival = Festival::where('is_active', true)->orderBy('id')->first();
+            if ($defaultFestival) {
+                $festivalId = $defaultFestival->id;
+                Session::put('selected_festival_id', $festivalId);
+            } else {
+                // Aucun festival actif, retourner vide
+                return parent::getEloquentQuery()->whereRaw('1 = 0');
+            }
         }
-        
+
         return parent::getEloquentQuery()
             ->where('festival_id', $festivalId)
-            ->with(['parameter']);
+            ->with(['festivalParameter.parameter']); // Optimisé : plus besoin du fallback 'parameter'
     }
 
     /**
@@ -255,12 +349,28 @@ class NomenclatureResource extends Resource
     public static function mutateFormDataBeforeCreate(array $data): array
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             throw new \Exception('Aucun festival sélectionné. Veuillez d\'abord choisir un festival à administrer.');
         }
-        
+
         $data['festival_id'] = $festivalId;
+        return $data;
+    }
+    
+    /**
+     * Hook avant mise à jour : prévenir le changement de paramètre
+     */
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        // En mode édition, empêcher le changement de festival_parameter_id
+        if (request()->route()?->parameter('record')) {
+            $record = request()->route()->parameter('record');
+            if ($record && isset($data['festival_parameter_id']) && $record->festival_parameter_id) {
+                // Restaurer la valeur originale
+                $data['festival_parameter_id'] = $record->festival_parameter_id;
+            }
+        }
         
         return $data;
     }

@@ -10,18 +10,18 @@ class Cinemas extends Model
     protected $fillable = [
         'name',
         'address',
-        'city', 
+        'city',
         'postal_code',
         'country',
         'contact_email',
         'contact_phone',
-        'is_active'
+        'is_active',
     ];
-    
+
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
-    
+
     /**
      * Relation avec les screenings
      */
@@ -29,7 +29,7 @@ class Cinemas extends Model
     {
         return $this->hasMany(Screenings::class);
     }
-    
+
     /**
      * Scope pour les cinémas actifs
      */

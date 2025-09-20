@@ -4,15 +4,18 @@ namespace Modules\Meniscus\app\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 class DCPrismIntegration
 {
     private Client $apiClient;
+
     private array $config;
+
     private string $dcprismApiUrl;
+
     private string $dcprismApiKey;
 
     public function __construct(array $config = [])
@@ -27,10 +30,10 @@ class DCPrismIntegration
         $this->dcprismApiKey = config('services.dcprism.api_key');
 
         $this->apiClient = new Client([
-            'base_uri' => rtrim($this->dcprismApiUrl, '/') . '/',
+            'base_uri' => rtrim($this->dcprismApiUrl, '/').'/',
             'timeout' => $this->config['timeout'],
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->dcprismApiKey,
+                'Authorization' => 'Bearer '.$this->dcprismApiKey,
                 'Content-Type' => 'application/json',
                 'User-Agent' => 'DCParty/1.0',
             ],
@@ -59,8 +62,9 @@ class DCPrismIntegration
             if ($response->getStatusCode() === 200) {
                 Log::info('DCPrism job status updated successfully', [
                     'job_id' => $jobId,
-                    'status' => $status
+                    'status' => $status,
                 ]);
+
                 return true;
             }
 
@@ -71,8 +75,9 @@ class DCPrismIntegration
                 'job_id' => $jobId,
                 'status' => $status,
                 'error' => $e->getMessage(),
-                'response' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : null
+                'response' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : null,
             ]);
+
             return false;
         }
     }
@@ -83,23 +88,25 @@ class DCPrismIntegration
     public function getJobDetails(string $jobId): ?array
     {
         $cacheKey = "dcprism:job:{$jobId}";
-        
+
         return Cache::remember($cacheKey, $this->config['cache_ttl'], function () use ($jobId) {
             try {
                 $response = $this->apiClient->get("api/jobs/{$jobId}");
-                
+
                 if ($response->getStatusCode() === 200) {
                     $data = json_decode($response->getBody()->getContents(), true);
+
                     return $data['data'] ?? null;
                 }
-                
+
                 return null;
 
             } catch (RequestException $e) {
                 Log::error('Failed to retrieve job details from DCPrism', [
                     'job_id' => $jobId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
+
                 return null;
             }
         });
@@ -111,23 +118,25 @@ class DCPrismIntegration
     public function getFileMetadata(string $fileId): ?array
     {
         $cacheKey = "dcprism:file:{$fileId}";
-        
+
         return Cache::remember($cacheKey, $this->config['cache_ttl'], function () use ($fileId) {
             try {
                 $response = $this->apiClient->get("api/files/{$fileId}");
-                
+
                 if ($response->getStatusCode() === 200) {
                     $data = json_decode($response->getBody()->getContents(), true);
+
                     return $data['data'] ?? null;
                 }
-                
+
                 return null;
 
             } catch (RequestException $e) {
                 Log::error('Failed to retrieve file metadata from DCPrism', [
                     'file_id' => $fileId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
+
                 return null;
             }
         });
@@ -152,6 +161,7 @@ class DCPrismIntegration
 
             if ($response->getStatusCode() === 200) {
                 $data = json_decode($response->getBody()->getContents(), true);
+
                 return $data['signed_url'] ?? null;
             }
 
@@ -160,8 +170,9 @@ class DCPrismIntegration
         } catch (RequestException $e) {
             Log::error('Failed to get signed download URL from DCPrism', [
                 'file_id' => $fileId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -205,19 +216,19 @@ class DCPrismIntegration
 
             Log::info('Job data synced successfully', [
                 'job_id' => $jobId,
-                'status' => $jobData['status']
+                'status' => $jobData['status'],
             ]);
 
             return true;
 
         } catch (\Exception $e) {
             DB::rollback();
-            
+
             Log::error('Failed to sync job data', [
                 'job_id' => $jobId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return false;
         }
     }
@@ -235,7 +246,7 @@ class DCPrismIntegration
                     'user_id',
                     'priority',
                     'created_at',
-                    'job_parameters'
+                    'job_parameters',
                 ])
                 ->where('status', 'pending')
                 ->orderBy('priority', 'desc')
@@ -256,8 +267,9 @@ class DCPrismIntegration
 
         } catch (\Exception $e) {
             Log::error('Failed to retrieve pending jobs', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -286,9 +298,9 @@ class DCPrismIntegration
             Log::error('Failed to update user activity', [
                 'user_id' => $userId,
                 'activity' => $activity,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return false;
         }
     }
@@ -320,9 +332,9 @@ class DCPrismIntegration
         } catch (\Exception $e) {
             Log::error('Failed to retrieve user session', [
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return null;
         }
     }
@@ -347,8 +359,9 @@ class DCPrismIntegration
             if ($response->getStatusCode() === 201) {
                 Log::info('Webhook registered successfully with DCPrism', [
                     'event_type' => $eventType,
-                    'callback_url' => $callbackUrl
+                    'callback_url' => $callbackUrl,
                 ]);
+
                 return true;
             }
 
@@ -358,8 +371,9 @@ class DCPrismIntegration
             Log::error('Failed to register webhook with DCPrism', [
                 'event_type' => $eventType,
                 'callback_url' => $callbackUrl,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -371,10 +385,10 @@ class DCPrismIntegration
     {
         try {
             $response = $this->apiClient->get('api/health');
-            
+
             if ($response->getStatusCode() === 200) {
                 $data = json_decode($response->getBody()->getContents(), true);
-                
+
                 return [
                     'status' => 'connected',
                     'dcprism_version' => $data['version'] ?? 'unknown',
@@ -382,10 +396,10 @@ class DCPrismIntegration
                     'timestamp' => now()->toISOString(),
                 ];
             }
-            
+
             return [
                 'status' => 'error',
-                'message' => 'Unexpected response code: ' . $response->getStatusCode(),
+                'message' => 'Unexpected response code: '.$response->getStatusCode(),
                 'timestamp' => now()->toISOString(),
             ];
 
@@ -404,18 +418,18 @@ class DCPrismIntegration
     public function getHealthMetrics(): array
     {
         $cacheKey = 'dcprism:health_metrics';
-        
+
         return Cache::remember($cacheKey, 60, function () {
             try {
                 // Test API connection
                 $apiHealth = $this->testConnection();
-                
+
                 // Check database connectivity
                 $dbHealth = $this->testDatabaseConnection();
-                
+
                 // Check recent sync activity
                 $recentSyncs = $this->getRecentSyncActivity();
-                
+
                 return [
                     'api_connection' => $apiHealth,
                     'database_connection' => $dbHealth,
@@ -442,7 +456,7 @@ class DCPrismIntegration
     {
         try {
             $count = DB::table('job_queue')->count();
-            
+
             return [
                 'status' => 'connected',
                 'job_count' => $count,
@@ -478,7 +492,7 @@ class DCPrismIntegration
 
         } catch (\Exception $e) {
             return [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -493,7 +507,7 @@ class DCPrismIntegration
         } elseif ($apiHealth['status'] === 'connected' || $dbHealth['status'] === 'connected') {
             return 'degraded';
         }
-        
+
         return 'unhealthy';
     }
 }

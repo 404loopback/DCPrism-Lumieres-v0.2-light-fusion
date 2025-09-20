@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\Deployments\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\Deployments\DeploymentResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Modules\Meniscus\app\Filament\Resources\Deployments\DeploymentResource;
 
 class ManageDeployments extends ManageRecords
 {

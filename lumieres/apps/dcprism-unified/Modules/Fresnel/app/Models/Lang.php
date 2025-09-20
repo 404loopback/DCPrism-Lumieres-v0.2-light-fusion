@@ -12,10 +12,10 @@ class Lang extends Model
 
     protected $fillable = [
         'iso_639_1',
-        'iso_639_3', 
+        'iso_639_3',
         'name',
         'local_name',
-        'french_name'
+        'french_name',
     ];
 
     protected $casts = [
@@ -61,7 +61,7 @@ class Lang extends Model
     public function scopeByIso($query, string $iso)
     {
         return $query->where('iso_639_1', $iso)
-                    ->orWhere('iso_639_3', $iso);
+            ->orWhere('iso_639_3', $iso);
     }
 
     /**
@@ -70,15 +70,15 @@ class Lang extends Model
     public function getDisplayNameAttribute(): string
     {
         $parts = [$this->name];
-        
+
         if ($this->french_name && $this->french_name !== $this->name) {
             $parts[] = $this->french_name;
         }
-        
+
         if ($this->local_name && $this->local_name !== $this->name && $this->local_name !== $this->french_name) {
             $parts[] = $this->local_name;
         }
-        
+
         return implode(' / ', $parts);
     }
 }

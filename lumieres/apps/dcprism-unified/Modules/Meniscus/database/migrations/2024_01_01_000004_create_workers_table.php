@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('api_token', 64)->unique();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index(['status', 'type']);
             $table->index(['last_heartbeat']);
         });

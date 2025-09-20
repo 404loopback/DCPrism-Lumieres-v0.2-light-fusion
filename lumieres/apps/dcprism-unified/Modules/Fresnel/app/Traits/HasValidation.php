@@ -28,6 +28,7 @@ trait HasValidation
     {
         try {
             $this->validateData($data, $rules);
+
             return true;
         } catch (ValidationException $e) {
             return false;
@@ -40,6 +41,7 @@ trait HasValidation
     protected function getValidationErrors(array $data, array $rules): array
     {
         $validator = Validator::make($data, $rules);
+
         return $validator->errors()->toArray();
     }
 
@@ -49,11 +51,11 @@ trait HasValidation
     protected function validateFile($file, array $rules = []): bool
     {
         $defaultRules = [
-            'file' => 'required|file|max:' . (1024 * 1024 * 500), // 500MB default
+            'file' => 'required|file|max:'.(1024 * 1024 * 500), // 500MB default
         ];
 
         $rules = array_merge($defaultRules, $rules);
-        
+
         return $this->isValid(['file' => $file], $rules);
     }
 
@@ -74,7 +76,7 @@ trait HasValidation
      */
     protected function getDefaultRules(string $type = 'basic'): array
     {
-        return match($type) {
+        return match ($type) {
             'email' => ['email' => 'required|email|max:255'],
             'password' => ['password' => 'required|min:8|confirmed'],
             'name' => ['name' => 'required|string|max:255'],

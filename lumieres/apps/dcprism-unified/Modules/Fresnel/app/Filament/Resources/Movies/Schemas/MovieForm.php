@@ -2,23 +2,14 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Movies\Schemas;
 
-use Modules\Fresnel\app\Filament\Shared\Forms\Fields;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\KeyValue;
-use Modules\Fresnel\app\Models\Movie;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Models\Parameter;
-use Modules\Fresnel\app\Models\FestivalParameter;
-use Modules\Fresnel\app\Models\MovieParameter;
 use Modules\Fresnel\app\Models\Nomenclature;
-use Illuminate\Support\Facades\Session;
 
 class MovieForm
 {
@@ -55,7 +46,7 @@ class MovieForm
                                     ->default('Nouvelle version')
                                     ->helperText('Le nom sera généré automatiquement selon vos paramètres')
                                     ->columnSpanFull(),
-                                    
+
                                 // Langues de base
                                 Grid::make(2)
                                     ->schema([
@@ -66,7 +57,7 @@ class MovieForm
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 static::updateVersionName($set, $get);
                                             }),
-                                            
+
                                         TextInput::make('sub_lang')
                                             ->label('Sous-titres')
                                             ->placeholder('Ex: fr, en, none')
@@ -75,14 +66,14 @@ class MovieForm
                                                 static::updateVersionName($set, $get);
                                             }),
                                     ]),
-                                    
+
                                 Select::make('accessibility')
                                     ->label('Accessibilité')
                                     ->options([
                                         'none' => 'Aucune',
-                                        'audiodescription' => 'Audiodescription', 
+                                        'audiodescription' => 'Audiodescription',
                                         'subtitles_hard' => 'Sous-titres intégrés',
-                                        'both' => 'Audiodescription + Sous-titres'
+                                        'both' => 'Audiodescription + Sous-titres',
                                     ])
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -95,13 +86,13 @@ class MovieForm
                             ->cloneable()
                             ->deletable()
                             ->visible(fn ($operation) => $operation === 'create'),
-                            
+
                         // Tableau des versions existantes pour l'édition
                         \Filament\Forms\Components\ViewField::make('versions_table')
-->view('fresnel::filament.forms.components.versions-table')
+                            ->view('fresnel::filament.forms.components.versions-table')
                             ->viewData(fn ($record) => [
                                 'versions' => $record ? $record->versions()->with(['movie'])->get() : collect(),
-                                'operation' => 'edit'
+                                'operation' => 'edit',
                             ])
                             ->columnSpanFull()
                             ->visible(fn ($operation) => $operation === 'edit'),
@@ -124,7 +115,7 @@ class MovieForm
 
                 // Sections des paramètres du festival
                 ...static::getConditionalParametersSections(),
-                    
+
             ]);
     }
 
@@ -136,20 +127,20 @@ class MovieForm
         $audioLang = $get('audio_lang');
         $subLang = $get('sub_lang');
         $accessibility = $get('accessibility');
-        
+
         // Générer le nom de version selon la logique de nomenclature
         $versionName = static::generateVersionTypeName($audioLang, $subLang, $accessibility);
-        
+
         $set('type', $versionName);
     }
-    
+
     /**
      * Générer le nom de type de version selon les paramètres
      */
     protected static function generateVersionTypeName(?string $audioLang, ?string $subLang, ?string $accessibility): string
     {
         $parts = [];
-        
+
         // Langue audio
         if ($audioLang) {
             if ($audioLang === 'original') {
@@ -160,7 +151,7 @@ class MovieForm
                 $parts[] = strtoupper($audioLang);
             }
         }
-        
+
         // Sous-titres
         if ($subLang && $subLang !== 'none') {
             if ($subLang === 'fr') {
@@ -168,10 +159,10 @@ class MovieForm
             } elseif ($subLang === 'en') {
                 $parts[] = 'STEN';
             } else {
-                $parts[] = 'ST' . strtoupper($subLang);
+                $parts[] = 'ST'.strtoupper($subLang);
             }
         }
-        
+
         // Accessibilité
         if ($accessibility && $accessibility !== 'none') {
             switch ($accessibility) {
@@ -186,10 +177,10 @@ class MovieForm
                     break;
             }
         }
-        
-        return !empty($parts) ? implode('_', $parts) : 'Nouvelle version';
+
+        return ! empty($parts) ? implode('_', $parts) : 'Nouvelle version';
     }
-    
+
     /**
      * Obtenir les sections de paramètres conditionnelles
      */

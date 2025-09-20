@@ -2,21 +2,20 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Concerns;
 
-use Filament\Notifications\Notification;
+use Modules\Fresnel\app\Models\User;
 use Filament\Notifications\Actions\Action;
-use App\Models\User;
+use Filament\Notifications\Notification;
 use Modules\Fresnel\app\Models\Festival;
-use Illuminate\Support\Collection;
 
 /**
  * Trait pour gérer les notifications Filament natives
- * 
+ *
  * Utilise le système de notifications intégré de Filament 4.0.4
  * avec support des contextes de festival et des rôles utilisateur
  */
 trait HasNotifications
 {
-    use HasFestivalContext, HasRoleBasedAccess;
+    use HasFestivalContext;
 
     /**
      * Types de notifications prédéfinis avec leurs configurations
@@ -26,40 +25,40 @@ trait HasNotifications
         return [
             'success' => [
                 'icon' => 'heroicon-o-check-circle',
-                'color' => 'success'
+                'color' => 'success',
             ],
             'warning' => [
                 'icon' => 'heroicon-o-exclamation-triangle',
-                'color' => 'warning'
+                'color' => 'warning',
             ],
             'error' => [
                 'icon' => 'heroicon-o-x-circle',
-                'color' => 'danger'
+                'color' => 'danger',
             ],
             'info' => [
                 'icon' => 'heroicon-o-information-circle',
-                'color' => 'info'
+                'color' => 'info',
             ],
             'job_completed' => [
                 'icon' => 'heroicon-o-check-badge',
-                'color' => 'success'
+                'color' => 'success',
             ],
             'job_failed' => [
                 'icon' => 'heroicon-o-exclamation-circle',
-                'color' => 'danger'
+                'color' => 'danger',
             ],
             'movie_uploaded' => [
                 'icon' => 'heroicon-o-film',
-                'color' => 'info'
+                'color' => 'info',
             ],
             'dcp_ready' => [
                 'icon' => 'heroicon-o-play',
-                'color' => 'success'
+                'color' => 'success',
             ],
             'festival_announcement' => [
                 'icon' => 'heroicon-o-megaphone',
-                'color' => 'warning'
-            ]
+                'color' => 'warning',
+            ],
         ];
     }
 
@@ -101,16 +100,16 @@ trait HasNotifications
     protected function notifyJobCompleted(string $jobName, ?string $details = null, ?string $actionUrl = null): void
     {
         $notification = $this->buildNotification('job_completed', "Job terminé : {$jobName}", $details);
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('view')
                     ->label('Voir les détails')
                     ->url($actionUrl)
-                    ->button()
+                    ->button(),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -121,17 +120,17 @@ trait HasNotifications
     {
         $body = $error ? "Erreur : {$error}" : null;
         $notification = $this->buildNotification('job_failed', "Job échoué : {$jobName}", $body);
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('retry')
                     ->label('Relancer')
                     ->url($actionUrl)
                     ->button()
-                    ->color('warning')
+                    ->color('warning'),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -141,20 +140,20 @@ trait HasNotifications
     protected function notifyMovieUploaded(string $movieTitle, ?string $actionUrl = null): void
     {
         $notification = $this->buildNotification(
-            'movie_uploaded', 
-            'Nouveau film uploadé', 
+            'movie_uploaded',
+            'Nouveau film uploadé',
             "Le film \"{$movieTitle}\" a été téléchargé avec succès."
         );
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('view')
                     ->label('Voir le film')
                     ->url($actionUrl)
-                    ->button()
+                    ->button(),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -164,21 +163,21 @@ trait HasNotifications
     protected function notifyDcpReady(string $movieTitle, ?string $actionUrl = null): void
     {
         $notification = $this->buildNotification(
-            'dcp_ready', 
-            'DCP prêt pour distribution', 
+            'dcp_ready',
+            'DCP prêt pour distribution',
             "Le DCP pour \"{$movieTitle}\" est maintenant disponible."
         );
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('download')
                     ->label('Télécharger')
                     ->url($actionUrl)
                     ->button()
-                    ->color('success')
+                    ->color('success'),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -188,16 +187,16 @@ trait HasNotifications
     protected function notifyFestivalAnnouncement(string $title, string $message, ?string $actionUrl = null): void
     {
         $notification = $this->buildNotification('festival_announcement', $title, $message);
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('read_more')
                     ->label('En savoir plus')
                     ->url($actionUrl)
-                    ->button()
+                    ->button(),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -205,9 +204,9 @@ trait HasNotifications
      * Envoyer une notification personnalisée
      */
     protected function sendCustomNotification(
-        string $title, 
-        ?string $body = null, 
-        ?string $icon = null, 
+        string $title,
+        ?string $body = null,
+        ?string $icon = null,
         ?string $color = null,
         array $actions = []
     ): void {
@@ -215,15 +214,15 @@ trait HasNotifications
             ->title($title)
             ->icon($icon ?? 'heroicon-o-bell')
             ->color($color ?? 'info');
-            
+
         if ($body) {
             $notification->body($body);
         }
-        
-        if (!empty($actions)) {
+
+        if (! empty($actions)) {
             $notification->actions($actions);
         }
-        
+
         $notification->send();
     }
 
@@ -231,27 +230,27 @@ trait HasNotifications
      * Envoyer une notification basée sur le contexte festival
      */
     protected function sendFestivalNotification(
-        string $title, 
-        ?string $body = null, 
+        string $title,
+        ?string $body = null,
         ?string $type = 'info',
         ?string $actionUrl = null
     ): void {
         $festivalContext = $this->getFestivalContext();
         $festivalName = $festivalContext['name'] ?? 'Festival';
-        
+
         $fullTitle = "[{$festivalName}] {$title}";
-        
+
         $notification = $this->buildNotification($type, $fullTitle, $body);
-        
+
         if ($actionUrl) {
             $notification->actions([
                 Action::make('view')
                     ->label('Voir dans le festival')
                     ->url($actionUrl)
-                    ->button()
+                    ->button(),
             ]);
         }
-        
+
         $notification->send();
     }
 
@@ -265,19 +264,19 @@ trait HasNotifications
         ?User $recipient = null
     ): void {
         $recipient = $recipient ?? auth()->user();
-        
-        if (!$recipient) {
+
+        if (! $recipient) {
             return;
         }
 
         $notification = $this->buildNotification($type, $title, $body);
-        
+
         // Stocker en base de données
         $notification->sendToDatabase($recipient);
     }
 
     /**
-     * Notification pour tous les utilisateurs d'un rôle
+     * Notification pour tous les utilisateurs d'un rôle (Shield)
      */
     protected function notifyUsersByRole(
         string $role,
@@ -286,17 +285,20 @@ trait HasNotifications
         ?string $type = 'info',
         ?Festival $festival = null
     ): void {
-        $query = User::where('role', $role)->where('is_active', true);
-        
+        // Utiliser Shield pour trouver les utilisateurs par rôle
+        $query = User::whereHas('roles', function ($q) use ($role) {
+            $q->where('name', $role);
+        })->where('is_active', true);
+
         if ($festival) {
             $query->whereHas('festivals', function ($q) use ($festival) {
                 $q->where('festivals.id', $festival->id);
             });
         }
-        
+
         $users = $query->get();
         $notification = $this->buildNotification($type, $title, $body);
-        
+
         foreach ($users as $user) {
             $notification->sendToDatabase($user);
         }
@@ -326,16 +328,16 @@ trait HasNotifications
     {
         $types = $this->getNotificationTypes();
         $config = $types[$type] ?? $types['info'];
-        
+
         $notification = Notification::make()
             ->title($title)
             ->icon($config['icon'])
             ->color($config['color']);
-            
+
         if ($body) {
             $notification->body($body);
         }
-        
+
         return $notification;
     }
 
@@ -353,11 +355,11 @@ trait HasNotifications
     protected function getUnreadNotificationsCount(): int
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return 0;
         }
-        
+
         return $user->unreadNotifications()->count();
     }
 
@@ -367,7 +369,7 @@ trait HasNotifications
     protected function markAllNotificationsAsRead(): void
     {
         $user = auth()->user();
-        
+
         if ($user) {
             $user->unreadNotifications()->update(['read_at' => now()]);
         }

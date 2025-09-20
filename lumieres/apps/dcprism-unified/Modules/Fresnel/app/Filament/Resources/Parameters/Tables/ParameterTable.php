@@ -2,11 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Parameters\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Fresnel\app\Models\Parameter;
@@ -17,25 +16,36 @@ class ParameterTable
     {
         return $table
             ->columns([
+                Tables\Columns\IconColumn::make('icon')
+                    ->label('')
+                    ->icon(fn (Parameter $record): string => $record->icon ? "heroicon-o-{$record->icon}" : 'heroicon-o-cog')
+                    ->color(fn (Parameter $record): string => $record->color ?? 'gray')
+                    ->tooltip(fn (Parameter $record): string => $record->short_description ?? 'Paramètre')
+                    ->width('40px'),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn (Parameter $record): ?string => $record->short_description),
                 Tables\Columns\TextColumn::make('code')
                     ->label('Code')
                     ->searchable()
                     ->copyable(),
                 Tables\Columns\BadgeColumn::make('category')
                     ->label('Catégorie')
-                    ->colors([
-                        'primary' => 'video',
-                        'success' => 'audio',
-                        'warning' => 'accessibility',
-                        'info' => 'format',
-                        'secondary' => 'technical',
-                        'gray' => 'metadata',
-                        'purple' => 'management',
-                    ])
+                    ->color(function (Parameter $record): string {
+                        return match($record->category) {
+                            'technical' => 'primary',
+                            'video' => 'success', 
+                            'audio' => 'warning',
+                            'content' => 'gray',
+                            'accessibility' => 'danger',
+                            'format' => 'info',
+                            'metadata' => 'secondary',
+                            'management' => 'purple',
+                            default => 'gray'
+                        };
+                    })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'video' => 'Vidéo',
                         'audio' => 'Audio',
@@ -125,15 +135,15 @@ class ParameterTable
                     ->color('primary')
                     ->url(fn (Parameter $record) => route('filament.fresnel.resources.parameters.edit', ['record' => $record->id])),
                 DeleteAction::make()
-                    ->visible(fn ($record) => !$record->is_system),
+                    ->visible(fn ($record) => ! $record->is_system),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->deselectRecordsAfterCompletion()
                         ->action(function ($records) {
-                            $records->filter(fn ($record) => !$record->is_system)
-                                   ->each(fn ($record) => $record->delete());
+                            $records->filter(fn ($record) => ! $record->is_system)
+                                ->each(fn ($record) => $record->delete());
                         }),
                 ]),
             ])

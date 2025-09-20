@@ -2,9 +2,6 @@
 
 namespace Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs;
 
-use Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs\Pages\ManageOpenTofuConfigs;
-use Modules\Fresnel\app\Models\OpenTofuConfig;
-use Modules\Fresnel\app\Services\OpenTofuManager;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,15 +12,18 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs\Pages\ManageOpenTofuConfigs;
+use Modules\Fresnel\app\Models\OpenTofuConfig;
+use Modules\Fresnel\app\Services\OpenTofuManager;
 
 class OpenTofuConfigResource extends Resource
 {
     protected static ?string $model = OpenTofuConfig::class;
 
     // protected static ?string $navigationIcon = 'heroicon-o-code-bracket';
-    
+
     protected static ?string $navigationLabel = 'OpenTofu Configs';
-    
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
@@ -31,39 +31,39 @@ class OpenTofuConfigResource extends Resource
         $openTofuManager = app(OpenTofuManager::class);
         $providers = $openTofuManager->getAvailableProviders();
         $scenarios = $openTofuManager->getAvailableScenarios();
-        
+
         return $schema
             ->components([
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)
                     ->placeholder('e.g., Production DCP Environment'),
-                
+
                 Forms\Components\Select::make('scenario')
                     ->label('Deployment Scenario')
                     ->required()
-                    ->options(collect($scenarios)->mapWithKeys(fn($config, $key) => [$key => $config['name']]))
+                    ->options(collect($scenarios)->mapWithKeys(fn ($config, $key) => [$key => $config['name']]))
                     ->reactive(),
-                    
+
                 Forms\Components\Select::make('provider')
                     ->label('Cloud Provider')
                     ->required()
-                    ->options(collect($providers)->mapWithKeys(fn($config, $key) => [$key => $config['name']]))
+                    ->options(collect($providers)->mapWithKeys(fn ($config, $key) => [$key => $config['name']]))
                     ->reactive(),
-                
+
                 Forms\Components\Textarea::make('description')
                     ->label('Description')
                     ->rows(3),
-                
+
                 Forms\Components\TextInput::make('region')
                     ->label('Region')
                     ->placeholder('e.g., fra, us-east-1'),
-                
+
                 Forms\Components\TextInput::make('instance_count')
                     ->label('Instance Count')
                     ->numeric()
                     ->default(1),
-                
+
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
@@ -71,7 +71,7 @@ class OpenTofuConfigResource extends Resource
                         'planned' => 'Planned',
                         'deployed' => 'Deployed',
                         'failed' => 'Failed',
-                        'destroyed' => 'Destroyed'
+                        'destroyed' => 'Destroyed',
                     ])
                     ->default('created')
                     ->required(),
@@ -86,7 +86,7 @@ class OpenTofuConfigResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('semibold'),
-                
+
                 Tables\Columns\TextColumn::make('scenario')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -101,7 +101,7 @@ class OpenTofuConfigResource extends Resource
                         'high-performance-windows' => 'Windows Workstation',
                         default => $state,
                     }),
-                
+
                 Tables\Columns\TextColumn::make('provider')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -118,7 +118,7 @@ class OpenTofuConfigResource extends Resource
                         'gcp' => 'GCP',
                         default => $state,
                     }),
-                
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -131,7 +131,7 @@ class OpenTofuConfigResource extends Resource
                         'destroyed' => 'secondary',
                         default => 'gray',
                     }),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -178,7 +178,7 @@ class OpenTofuConfigResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->visible(fn (OpenTofuConfig $record) => in_array($record->status, ['created', 'failed'])),
-                
+
                 \Filament\Actions\Action::make('apply')
                     ->icon('heroicon-o-rocket-launch')
                     ->color('success')
@@ -206,7 +206,7 @@ class OpenTofuConfigResource extends Resource
                     ->modalHeading('Deploy Infrastructure')
                     ->modalDescription('This will deploy the infrastructure. Make sure you have reviewed the plan.')
                     ->visible(fn (OpenTofuConfig $record) => in_array($record->status, ['created', 'planned', 'failed'])),
-                
+
                 \Filament\Actions\Action::make('destroy')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
@@ -234,7 +234,7 @@ class OpenTofuConfigResource extends Resource
                     ->modalHeading('Destroy Infrastructure')
                     ->modalDescription('⚠️ This will permanently destroy all resources. This cannot be undone!')
                     ->visible(fn (OpenTofuConfig $record) => $record->status === 'deployed'),
-                
+
                 EditAction::make(),
                 DeleteAction::make(),
             ])
@@ -252,5 +252,4 @@ class OpenTofuConfigResource extends Resource
             'index' => ManageOpenTofuConfigs::route('/'),
         ];
     }
-    
 }

@@ -2,16 +2,16 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ValidationResults\Tables;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Parameter;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Parameter;
 
 class ValidationResultTable
 {
@@ -116,7 +116,7 @@ class ValidationResultTable
                         ->orderBy('title')
                         ->get()
                         ->mapWithKeys(fn ($movie) => [
-                            $movie->id => "{$movie->title} ({$movie->festival?->name})"
+                            $movie->id => "{$movie->title} ({$movie->festival?->name})",
                         ]))
                     ->searchable(),
                 Tables\Filters\SelectFilter::make('validation_type')
@@ -152,7 +152,7 @@ class ValidationResultTable
                         ->orderBy('name')
                         ->get()
                         ->mapWithKeys(fn ($param) => [
-                            $param->id => "{$param->category} - {$param->name}"
+                            $param->id => "{$param->category} - {$param->name}",
                         ]))
                     ->searchable(),
                 Tables\Filters\TernaryFilter::make('can_auto_fix')

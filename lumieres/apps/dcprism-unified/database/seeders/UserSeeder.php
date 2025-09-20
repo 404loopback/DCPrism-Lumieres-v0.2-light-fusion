@@ -9,10 +9,10 @@ use Spatie\Permission\Models\Role;
 
 /**
  * Seeder principal pour créer les utilisateurs avec les rôles Shield
- * 
+ *
  * Ce seeder crée les utilisateurs et leur assigne les rôles Shield.
  * Les rôles doivent être créés au préalable par ShieldSeeder.
- * 
+ *
  * NETTOYÉ : Plus de référence à la colonne 'role' legacy - 100% Shield
  */
 class UserSeeder extends Seeder
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
             // Séparer le rôle Shield des données utilisateur
             $shieldRole = $userData['shield_role'];
             unset($userData['shield_role']);
-            
+
             // Créer ou mettre à jour l'utilisateur
             $user = User::updateOrCreate(
                 ['email' => $userData['email']],
@@ -95,7 +95,7 @@ class UserSeeder extends Seeder
         $this->command->info('  🎦 Source: source@dcprism.local / password');
         $this->command->info('  🎭 Cinema: cinema@dcprism.local / password');
         $this->command->info('');
-        
+
         // Statistiques des rôles
         $this->command->info('📈 Rôles assignés:');
         $roleStats = User::join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')

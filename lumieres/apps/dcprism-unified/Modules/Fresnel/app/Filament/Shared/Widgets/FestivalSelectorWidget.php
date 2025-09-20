@@ -2,14 +2,13 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Widgets;
 
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Services\Context\FestivalContextService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Filament\Widgets\Widget;
-use Illuminate\Support\Facades\Auth;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Services\Context\FestivalContextService;
 
 /**
  * Widget FestivalSelector partagé
@@ -18,31 +17,36 @@ use Illuminate\Support\Facades\Auth;
 class FestivalSelectorWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
-    
-    protected int | string | array $columnSpan = [
+
+    protected int|string|array $columnSpan = [
         'default' => 'full',
         'md' => 1,
     ];
-    
+
     protected static ?int $sort = 1;
-    
+
     public ?int $selectedFestivalId = null;
-    
+
     protected FestivalContextService $festivalContext;
-    
+
     public function boot(): void
     {
         $this->festivalContext = app(FestivalContextService::class);
     }
-    
+
     // Configuration par panel (publiques pour accès depuis la vue)
     public string $sessionKey = 'selected_festival_id';
+
     public string $sessionNameKey = 'selected_festival_name';
+
     public string $label = 'Festival';
+
     public string $placeholder = 'Sélectionnez un festival';
+
     public string $viewPath = 'filament.shared.widgets.festival-selector-widget';
+
     public bool $shouldRedirect = false;
-    
+
     /**
      * Configuration pour les différents panels
      */
@@ -54,52 +58,52 @@ class FestivalSelectorWidget extends Widget implements HasForms
         $this->placeholder = $options['placeholder'] ?? $this->placeholder;
         $this->viewPath = $options['view_path'] ?? $this->viewPath;
         $this->shouldRedirect = $options['should_redirect'] ?? $this->shouldRedirect;
-        
+
         return $this;
     }
-    
+
     public function mount(): void
     {
         // Ensure dependency is available
-        if (!isset($this->festivalContext)) {
+        if (! isset($this->festivalContext)) {
             $this->boot();
         }
-        
+
         // Récupérer le festival sélectionné depuis le service
         $this->selectedFestivalId = $this->festivalContext->getCurrentFestivalId() ?: $this->getAvailableFestivals()->first()?->id;
-        
+
         // Sauvegarder dans le contexte si nécessaire
-        if ($this->selectedFestivalId && !$this->festivalContext->hasFestivalSelected()) {
+        if ($this->selectedFestivalId && ! $this->festivalContext->hasFestivalSelected()) {
             $this->festivalContext->setCurrentFestival($this->selectedFestivalId);
         }
-        
+
         // Remplir le formulaire
         $this->form->fill([
-            'selectedFestivalId' => $this->selectedFestivalId
+            'selectedFestivalId' => $this->selectedFestivalId,
         ]);
     }
-    
+
     public function form(Schema $form): Schema
     {
         return $form
             ->components([
                 Select::make('selectedFestivalId')
-                    ->label($this->label)
+                    ->hiddenLabel() // Pas de label affiché
                     ->options($this->getAvailableFestivals()->pluck('name', 'id'))
                     ->live()
                     ->afterStateUpdated(function ($state) {
                         $this->selectedFestivalId = $state;
-                        
+
                         // Utiliser le service de contexte
                         if ($state) {
                             $this->festivalContext->setCurrentFestival($state);
                         } else {
                             $this->festivalContext->clearCurrentFestival();
                         }
-                        
+
                         // Déclencher événement pour autres widgets
                         $this->dispatch('festival-changed', festivalId: $state);
-                        
+
                         // Redirection optionnelle (pour Manager)
                         if ($this->shouldRedirect) {
                             $this->redirect(request()->header('Referer') ?: '/');
@@ -110,23 +114,24 @@ class FestivalSelectorWidget extends Widget implements HasForms
                     ->preload(),
             ]);
     }
-    
+
     protected function getAvailableFestivals()
     {
         return $this->festivalContext->getAvailableFestivals();
     }
-    
+
     public function getSelectedFestival(): ?Festival
     {
         return $this->festivalContext->getCurrentFestival();
     }
-    
+
     public function getSelectedFestivalName(): string
     {
         $festival = $this->getSelectedFestival();
+
         return $festival ? $festival->name : 'Aucun festival sélectionné';
     }
-    
+
     public function render(): \Illuminate\Contracts\View\View
     {
         return view($this->viewPath);
@@ -142,14 +147,14 @@ class FestivalSelectorWidgetFactory
     {
         return [
             'session_key' => 'selected_festival_id',
-            'session_name_key' => 'selected_festival_name', 
-            'label' => 'Festival à administrer',
+            'session_name_key' => 'selected_festival_name',
+            'label' => '', // Pas de titre pour éviter la redondance
             'placeholder' => 'Sélectionnez un festival à administrer',
             'view_path' => 'filament.manager.widgets.festival-selector-widget',
-            'should_redirect' => true
+            'should_redirect' => true,
         ];
     }
-    
+
     public static function forSource(): array
     {
         return [
@@ -158,10 +163,10 @@ class FestivalSelectorWidgetFactory
             'label' => 'Festival actuel',
             'placeholder' => 'Sélectionnez un festival',
             'view_path' => 'filament.source.widgets.festival-selector-widget',
-            'should_redirect' => false
+            'should_redirect' => false,
         ];
     }
-    
+
     public static function forTech(): array
     {
         return [
@@ -170,7 +175,7 @@ class FestivalSelectorWidgetFactory
             'label' => 'Festival à valider',
             'placeholder' => 'Sélectionnez un festival',
             'view_path' => 'filament.tech.widgets.festival-selector-widget',
-            'should_redirect' => false
+            'should_redirect' => false,
         ];
     }
 }

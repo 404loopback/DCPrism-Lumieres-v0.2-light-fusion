@@ -2,11 +2,11 @@
 
 namespace Modules\Fresnel\app\Filament\Tech\Resources\DcpResource\Pages;
 
-use Modules\Fresnel\app\Filament\Tech\Resources\DcpResource;
-use Modules\Fresnel\app\Models\Dcp;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Modules\Fresnel\app\Filament\Tech\Resources\DcpResource;
+use Modules\Fresnel\app\Models\Dcp;
 
 class ListDcps extends ListRecords
 {
@@ -16,16 +16,16 @@ class ListDcps extends ListRecords
     {
         return 'Validation des DCPs';
     }
-    
+
     public function getSubheading(): ?string
     {
         $pendingCount = $this->getTableQuery()->where('status', Dcp::STATUS_UPLOADED)->count();
         $totalCount = $this->getTableQuery()->count();
-        
+
         if ($pendingCount > 0) {
             return "⏳ {$pendingCount} DCPs en attente de validation sur {$totalCount} total";
         }
-        
+
         return "✅ Tous les DCPs traités ({$totalCount} total)";
     }
 
@@ -44,14 +44,14 @@ class ListDcps extends ListRecords
                         ->where('status', Dcp::STATUS_UPLOADED)
                         ->where('is_valid', false)
                         ->get();
-                    
+
                     $count = 0;
                     foreach ($pendingDcps as $dcp) {
-                        $dcp->markAsValid('DCP validé en masse par technicien le ' . now()->format('d/m/Y H:i'));
+                        $dcp->markAsValid('DCP validé en masse par technicien le '.now()->format('d/m/Y H:i'));
                         DcpResource::updateMovieStatus($dcp->movie);
                         $count++;
                     }
-                    
+
                     $this->notify('success', "Validation terminée : {$count} DCPs validés");
                 })
                 ->visible(function () {
@@ -65,22 +65,22 @@ class ListDcps extends ListRecords
         return [
             'all' => Tab::make('Tous les DCPs')
                 ->badge(fn () => $this->getTableQuery()->count()),
-                
+
             'pending' => Tab::make('En Attente')
                 ->badge(fn () => $this->getTableQuery()->where('status', Dcp::STATUS_UPLOADED)->count())
                 ->badgeColor('warning')
                 ->modifyQueryUsing(fn ($query) => $query->where('status', Dcp::STATUS_UPLOADED)),
-                
+
             'processing' => Tab::make('En Traitement')
                 ->badge(fn () => $this->getTableQuery()->where('status', Dcp::STATUS_PROCESSING)->count())
                 ->badgeColor('info')
                 ->modifyQueryUsing(fn ($query) => $query->where('status', Dcp::STATUS_PROCESSING)),
-                
+
             'validated' => Tab::make('Validés')
                 ->badge(fn () => $this->getTableQuery()->where('is_valid', true)->count())
                 ->badgeColor('success')
                 ->modifyQueryUsing(fn ($query) => $query->where('is_valid', true)),
-                
+
             'rejected' => Tab::make('Rejetés')
                 ->badge(fn () => $this->getTableQuery()->where('is_valid', false)->where('status', Dcp::STATUS_INVALID)->count())
                 ->badgeColor('danger')

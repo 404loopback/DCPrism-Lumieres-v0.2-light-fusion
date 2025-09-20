@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs\Pages;
 
-use Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs\OpenTofuConfigResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Modules\Fresnel\app\Filament\Infrastructure\Resources\OpenTofuConfigs\OpenTofuConfigResource;
 
 class ManageOpenTofuConfigs extends ManageRecords
 {

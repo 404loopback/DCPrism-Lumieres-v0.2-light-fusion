@@ -2,11 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource;
-use Modules\Fresnel\app\Filament\Manager\Pages\SelectParameters;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Actions\Action;
+use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Manager\Pages\SelectParameters;
+use Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource;
 
 class ListFestivalParameters extends ListRecords
 {

@@ -2,23 +2,22 @@
 
 namespace Modules\Fresnel\app\Filament\Resources;
 
-use Modules\Fresnel\app\Filament\Resources\ActivityLogResource\Pages;
-use Spatie\Activitylog\Models\Activity;
+use BackedEnum;
+use Carbon\Carbon;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Actions\ViewAction;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
-use BackedEnum;
+use Modules\Fresnel\app\Filament\Resources\ActivityLogResource\Pages;
+use Spatie\Activitylog\Models\Activity;
 use UnitEnum;
 
 class ActivityLogResource extends Resource
@@ -26,15 +25,15 @@ class ActivityLogResource extends Resource
     protected static ?string $model = Activity::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
-    
+
     protected static ?string $navigationLabel = 'Logs d\'audit';
-    
+
     protected static ?string $modelLabel = 'Log d\'audit';
-    
+
     protected static ?string $pluralModelLabel = 'Logs d\'audit';
-    
+
     protected static ?int $navigationSort = 3;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Administration';
 
     public static function form(Schema $schema): Schema
@@ -141,11 +140,12 @@ class ActivityLogResource extends Resource
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['created_from'] ?? null) {
-                            $indicators[] = 'Du ' . Carbon::parse($data['created_from'])->format('d/m/Y');
+                            $indicators[] = 'Du '.Carbon::parse($data['created_from'])->format('d/m/Y');
                         }
                         if ($data['created_until'] ?? null) {
-                            $indicators[] = 'Au ' . Carbon::parse($data['created_until'])->format('d/m/Y');
+                            $indicators[] = 'Au '.Carbon::parse($data['created_until'])->format('d/m/Y');
                         }
+
                         return $indicators;
                     }),
             ])
@@ -172,17 +172,17 @@ class ActivityLogResource extends Resource
             'view' => Pages\ViewActivityLog::route('/{record}'),
         ];
     }
-    
+
     public static function canCreate(): bool
     {
         return false; // Les logs d'audit ne peuvent pas être créés manuellement
     }
-    
+
     public static function canEdit($record): bool
     {
         return false; // Les logs d'audit ne peuvent pas être modifiés
     }
-    
+
     public static function canDelete($record): bool
     {
         return false; // Les logs d'audit ne peuvent pas être supprimés individuellement

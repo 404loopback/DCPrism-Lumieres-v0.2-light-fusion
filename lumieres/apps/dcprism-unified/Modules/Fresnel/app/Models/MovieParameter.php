@@ -2,44 +2,48 @@
 
 namespace Modules\Fresnel\app\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use Carbon\Carbon;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class MovieParameter extends Model
 {
     use HasFactory, LogsActivity;
-    
+
     protected $fillable = [
         'movie_id',
         'parameter_id',
         'value',
         'status',
         'extraction_method',
-        'metadata'
+        'metadata',
     ];
-    
+
     protected $casts = [
         'metadata' => 'array',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
-    
+
     // Constantes pour les statuts
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_EXTRACTED = 'extracted';
+
     public const STATUS_VALIDATED = 'validated';
+
     public const STATUS_ERROR = 'error';
-    
+
     // Constantes pour les méthodes d'extraction
     public const EXTRACTION_MANUAL = 'manual';
+
     public const EXTRACTION_AUTO = 'auto';
+
     public const EXTRACTION_COMPUTED = 'computed';
-    
+
     /**
      * Configuration des logs d'activité
      */
@@ -49,14 +53,14 @@ class MovieParameter extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
                 'created' => 'Paramètre de film créé',
-                'updated' => 'Paramètre de film modifié', 
+                'updated' => 'Paramètre de film modifié',
                 'deleted' => 'Paramètre de film supprimé',
                 default => $eventName
             });
     }
-    
+
     /**
      * Relation avec le film
      */
@@ -64,7 +68,7 @@ class MovieParameter extends Model
     {
         return $this->belongsTo(Movie::class);
     }
-    
+
     /**
      * Relation avec le paramètre
      */
@@ -72,7 +76,7 @@ class MovieParameter extends Model
     {
         return $this->belongsTo(Parameter::class);
     }
-    
+
     /**
      * Récupérer tous les statuts disponibles
      */
@@ -82,10 +86,10 @@ class MovieParameter extends Model
             self::STATUS_PENDING => 'En attente',
             self::STATUS_EXTRACTED => 'Extrait',
             self::STATUS_VALIDATED => 'Validé',
-            self::STATUS_ERROR => 'Erreur'
+            self::STATUS_ERROR => 'Erreur',
         ];
     }
-    
+
     /**
      * Récupérer toutes les méthodes d'extraction disponibles
      */
@@ -94,10 +98,10 @@ class MovieParameter extends Model
         return [
             self::EXTRACTION_MANUAL => 'Manuel',
             self::EXTRACTION_AUTO => 'Automatique',
-            self::EXTRACTION_COMPUTED => 'Calculé'
+            self::EXTRACTION_COMPUTED => 'Calculé',
         ];
     }
-    
+
     /**
      * Scope pour filtrer par statut
      */
@@ -105,7 +109,7 @@ class MovieParameter extends Model
     {
         return $query->where('status', $status);
     }
-    
+
     /**
      * Scope pour filtrer par méthode d'extraction
      */
@@ -113,7 +117,7 @@ class MovieParameter extends Model
     {
         return $query->where('extraction_method', $method);
     }
-    
+
     /**
      * Scope pour les paramètres validés
      */
@@ -121,7 +125,7 @@ class MovieParameter extends Model
     {
         return $query->where('status', self::STATUS_VALIDATED);
     }
-    
+
     /**
      * Scope pour les paramètres en erreur
      */
@@ -129,7 +133,7 @@ class MovieParameter extends Model
     {
         return $query->where('status', self::STATUS_ERROR);
     }
-    
+
     /**
      * Marquer le paramètre comme extrait
      */
@@ -139,10 +143,10 @@ class MovieParameter extends Model
             'value' => $value,
             'status' => self::STATUS_EXTRACTED,
             'extraction_method' => $method,
-            'metadata' => $metadata
+            'metadata' => $metadata,
         ]);
     }
-    
+
     /**
      * Marquer le paramètre comme validé
      */
@@ -150,10 +154,10 @@ class MovieParameter extends Model
     {
         $this->update([
             'status' => self::STATUS_VALIDATED,
-            'metadata' => array_merge($this->metadata ?? [], $metadata ?? [])
+            'metadata' => array_merge($this->metadata ?? [], $metadata ?? []),
         ]);
     }
-    
+
     /**
      * Marquer le paramètre en erreur
      */
@@ -163,11 +167,11 @@ class MovieParameter extends Model
             'status' => self::STATUS_ERROR,
             'metadata' => array_merge($this->metadata ?? [], [
                 'error_message' => $errorMessage,
-                'error_date' => Carbon::now()->toDateTimeString()
-            ], $metadata ?? [])
+                'error_date' => Carbon::now()->toDateTimeString(),
+            ], $metadata ?? []),
         ]);
     }
-    
+
     /**
      * Vérifier si le paramètre est validé
      */
@@ -175,7 +179,7 @@ class MovieParameter extends Model
     {
         return $this->status === self::STATUS_VALIDATED;
     }
-    
+
     /**
      * Vérifier si le paramètre a une erreur
      */
@@ -183,7 +187,7 @@ class MovieParameter extends Model
     {
         return $this->status === self::STATUS_ERROR;
     }
-    
+
     /**
      * Obtenir le message d'erreur s'il y en a un
      */
@@ -191,7 +195,7 @@ class MovieParameter extends Model
     {
         return $this->metadata['error_message'] ?? null;
     }
-    
+
     /**
      * Obtenir la valeur formatée selon le type de paramètre
      */
@@ -200,12 +204,12 @@ class MovieParameter extends Model
         if (empty($this->value)) {
             return 'N/A';
         }
-        
+
         // Si le paramètre a une unité, l'ajouter
         if ($this->parameter && $this->parameter->unit) {
-            return $this->value . ' ' . $this->parameter->unit;
+            return $this->value.' '.$this->parameter->unit;
         }
-        
+
         return (string) $this->value;
     }
 }

@@ -2,27 +2,21 @@
 
 namespace Modules\Fresnel\app\Filament\Source\Resources;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Version;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Fieldset;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\Fresnel\app\Models\Movie;
 use UnitEnum;
-use BackedEnum;
 
 class MovieResource extends Resource
 {
@@ -31,13 +25,13 @@ class MovieResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-film';
 
     protected static ?string $navigationLabel = 'Mes Films';
-    
+
     protected static ?string $modelLabel = 'Film';
-    
+
     protected static ?string $pluralModelLabel = 'Mes Films';
-    
+
     protected static ?int $navigationSort = 1;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Upload DCP';
 
     public static function form(Schema $schema): Schema
@@ -170,8 +164,8 @@ class MovieResource extends Resource
                     ->icon('heroicon-o-cloud-arrow-up')
                     ->color('primary')
                     ->url(fn (Movie $record) => route('filament.source.resources.movies.manage-dcps', $record))
-                    ->visible(fn (Movie $record) => !in_array($record->status, [Movie::STATUS_VALIDATED, Movie::STATUS_REJECTED])),
-                    
+                    ->visible(fn (Movie $record) => ! in_array($record->status, [Movie::STATUS_VALIDATED, Movie::STATUS_REJECTED])),
+
                 ViewAction::make()
                     ->label('Détails'),
             ])

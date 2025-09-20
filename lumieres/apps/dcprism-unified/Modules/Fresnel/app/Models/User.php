@@ -3,21 +3,26 @@
 namespace Modules\Fresnel\app\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\\Database\\Factories\\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, LogsActivity, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable;
+    
+    /**
+     * Guard utilisé pour les permissions Spatie
+     */
+    protected $guard_name = 'web';
 
     /**
      * The attributes that are mass assignable.
@@ -57,7 +62,7 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
-    
+
     /**
      * Configuration du logging d'activité
      */
@@ -67,14 +72,13 @@ class User extends Authenticatable implements FilamentUser
             ->logOnly(['name', 'email', 'email_verified_at'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
                 'created' => 'Utilisateur créé',
                 'updated' => 'Profil utilisateur modifié',
                 'deleted' => 'Utilisateur supprimé',
                 default => $eventName
             });
     }
-
 
     /**
      * Festivals assigned to the user
@@ -83,7 +87,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(Festival::class, 'user_festivals')->withTimestamps();
     }
-    
+
     /**
      * Détermine si l'utilisateur peut accéder à un panel Filament donné
      * Compatible avec Shield - utilise les rôles Spatie
@@ -92,7 +96,7 @@ class User extends Authenticatable implements FilamentUser
     {
         // En environnement local, on peut bypasser la vérification d'email
         // En production, vérifier que l'email est vérifié
-        if (!app()->isLocal() && !$this->email_verified_at) {
+        if (! app()->isLocal() && ! $this->email_verified_at) {
             return false;
         }
 
@@ -105,7 +109,7 @@ class User extends Authenticatable implements FilamentUser
         $rolePanelAccess = [
             'admin' => ['fresnel', 'meniscus'], // Admin peut accéder à Fresnel ET Meniscus
             'tech' => ['tech'],
-            'manager' => ['manager'], 
+            'manager' => ['manager'],
             'supervisor' => ['manager'], // Supervisor utilise le panel manager
             'source' => ['source'],
             'cinema' => ['cinema'],
@@ -120,7 +124,7 @@ class User extends Authenticatable implements FilamentUser
 
         return false;
     }
-    
+
     /**
      * Vérifier si l'utilisateur peut accéder à un festival donné
      * Compatible avec Shield
@@ -131,7 +135,7 @@ class User extends Authenticatable implements FilamentUser
         if ($this->hasRole(['super_admin', 'admin'])) {
             return true;
         }
-        
+
         // Tous les autres utilisateurs (y compris superviseurs) doivent être assignés au festival
         return $this->festivals()->where('id', $festivalId)->exists();
     }

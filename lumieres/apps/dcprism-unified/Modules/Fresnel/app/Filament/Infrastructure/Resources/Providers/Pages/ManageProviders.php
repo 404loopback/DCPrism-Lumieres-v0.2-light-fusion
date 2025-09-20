@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Infrastructure\Resources\Providers\Pages;
 
-use Modules\Fresnel\app\Filament\Infrastructure\Resources\Providers\ProviderResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Modules\Fresnel\app\Filament\Infrastructure\Resources\Providers\ProviderResource;
 
 class ManageProviders extends ManageRecords
 {

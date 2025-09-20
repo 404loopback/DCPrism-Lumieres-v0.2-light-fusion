@@ -2,56 +2,50 @@
 
 namespace Modules\Fresnel\app\Filament\Source\Resources\MovieResource\Pages;
 
-use Modules\Fresnel\app\Filament\Source\Resources\MovieResource;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Dcp;
-use Modules\Fresnel\app\Models\Lang;
-use Filament\Resources\Pages\Page;
+use BackedEnum;
 use Filament\Actions;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use BackedEnum;
+use Modules\Fresnel\app\Filament\Source\Resources\MovieResource;
+use Modules\Fresnel\app\Models\Dcp;
+use Modules\Fresnel\app\Models\Lang;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Version;
 
 class ManageDcps extends Page
 {
     protected static string $resource = MovieResource::class;
-    
+
     protected string $view = 'filament.source.pages.manage-dcps';
-    
-    
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cloud-arrow-up';
-    
+
     public Movie $record;
-    
+
     public ?array $data = [];
 
     public function mount(Movie $record): void
     {
         $this->record = $record;
-        
+
         // Vérifier que la Source a accès à ce film
         if ($record->source_email !== auth()->user()->email) {
             abort(403, 'Accès refusé à ce film');
         }
     }
 
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return "Gestion DCPs - {$this->record->title}";
     }
-    
-    public function getSubheading(): string | Htmlable | null
+
+    public function getSubheading(): string|Htmlable|null
     {
         return 'Uploadez les versions DCP demandées pour ce film';
     }
@@ -62,11 +56,11 @@ class ManageDcps extends Page
     public function getExpectedVersions(): array
     {
         $expectedVersions = $this->record->expected_versions ?? [];
-        
+
         if (empty($expectedVersions)) {
             return [];
         }
-        
+
         return array_map(function ($versionType) {
             return [
                 'type' => $versionType,
@@ -90,7 +84,7 @@ class ManageDcps extends Page
             'VOSTF' => 'VO Sous-titrée Français',
             'DUB' => 'Version Doublée',
         ];
-        
+
         return $labels[$type] ?? $type;
     }
 
@@ -144,13 +138,14 @@ class ManageDcps extends Page
                 $existingVersion = $this->record->versions()
                     ->where('type', $data['type'])
                     ->first();
-                    
+
                 if ($existingVersion) {
                     Notification::make()
                         ->title('Version déjà existante')
                         ->body("Une version {$data['type']} existe déjà pour ce film")
                         ->warning()
                         ->send();
+
                     return;
                 }
 
@@ -212,13 +207,14 @@ class ManageDcps extends Page
             ])
             ->action(function (array $data) {
                 $version = Version::find($data['version_id']);
-                
-                if (!$version || $version->movie_id !== $this->record->id) {
+
+                if (! $version || $version->movie_id !== $this->record->id) {
                     Notification::make()
                         ->title('Erreur')
                         ->body('Version invalide')
                         ->danger()
                         ->send();
+
                     return;
                 }
 

@@ -14,7 +14,7 @@ class DashboardService
             'total_users' => 0,
             'active_users' => 0,
             'total_providers' => 0,
-            'active_providers' => 0
+            'active_providers' => 0,
         ];
     }
 
@@ -30,7 +30,7 @@ class DashboardService
             'running' => 0,
             'completed' => 0,
             'failed' => 0,
-            'cancelled' => 0
+            'cancelled' => 0,
         ];
     }
 
@@ -42,8 +42,8 @@ class DashboardService
             'resources' => [
                 'cpu_usage' => 0,
                 'memory_usage' => 0,
-                'disk_usage' => 0
-            ]
+                'disk_usage' => 0,
+            ],
         ];
     }
 
@@ -57,7 +57,7 @@ class DashboardService
         return [
             'avg_job_duration' => 0,
             'success_rate' => 0,
-            'throughput' => 0
+            'throughput' => 0,
         ];
     }
 }

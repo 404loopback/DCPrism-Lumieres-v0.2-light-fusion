@@ -12,9 +12,9 @@ class Lang extends Model
 
     protected $fillable = [
         'iso_639_1',
-        'iso_639_3', 
+        'iso_639_3',
         'name',
-        'local_name'
+        'local_name',
     ];
 
     protected $casts = [
@@ -60,7 +60,7 @@ class Lang extends Model
     public function scopeByIso($query, string $iso)
     {
         return $query->where('iso_639_1', $iso)
-                    ->orWhere('iso_639_3', $iso);
+            ->orWhere('iso_639_3', $iso);
     }
 
     /**

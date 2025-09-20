@@ -3,7 +3,6 @@
 namespace Modules\Fresnel\app\Traits;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 trait HasCaching
 {
@@ -32,7 +31,7 @@ trait HasCaching
      */
     protected function cacheRemember(string $key, callable $callback, ?int $ttl = null): mixed
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return $callback();
         }
 
@@ -47,7 +46,7 @@ trait HasCaching
      */
     protected function cacheRememberWithTags(string $key, callable $callback, array $tags = [], ?int $ttl = null): mixed
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return $callback();
         }
 
@@ -67,7 +66,7 @@ trait HasCaching
      */
     protected function cacheStore(string $key, mixed $value, ?int $ttl = null): void
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return;
         }
 
@@ -82,7 +81,7 @@ trait HasCaching
      */
     protected function cacheStoreWithTags(string $key, mixed $value, array $tags = [], ?int $ttl = null): void
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return;
         }
 
@@ -92,6 +91,7 @@ trait HasCaching
 
         if (empty($allTags)) {
             Cache::put($cacheKey, $value, now()->addMinutes($ttl));
+
             return;
         }
 
@@ -103,7 +103,7 @@ trait HasCaching
      */
     protected function cacheGet(string $key, mixed $default = null): mixed
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return $default;
         }
 
@@ -115,7 +115,7 @@ trait HasCaching
      */
     protected function cacheHas(string $key): bool
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return false;
         }
 
@@ -127,7 +127,7 @@ trait HasCaching
      */
     protected function cacheForget(string $key): void
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return;
         }
 
@@ -139,7 +139,7 @@ trait HasCaching
      */
     protected function cacheFlushTags(array $tags = []): void
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return;
         }
 
@@ -158,6 +158,7 @@ trait HasCaching
     protected function buildCacheKey(string $key): string
     {
         $prefix = $this->cachePrefix ?? $this->getCachePrefix();
+
         return "{$prefix}:{$key}";
     }
 
@@ -175,8 +176,8 @@ trait HasCaching
     protected function cacheMethod(string $method, array $args = [], ?int $ttl = null): mixed
     {
         $key = $this->buildMethodCacheKey($method, $args);
-        
-        return $this->cacheRemember($key, function() use ($method, $args) {
+
+        return $this->cacheRemember($key, function () use ($method, $args) {
             return $this->{$method}(...$args);
         }, $ttl);
     }
@@ -187,8 +188,8 @@ trait HasCaching
     protected function cacheQuery(string $query, array $bindings = [], ?int $ttl = null): mixed
     {
         $key = $this->buildQueryCacheKey($query, $bindings);
-        
-        return $this->cacheRemember($key, function() use ($query, $bindings) {
+
+        return $this->cacheRemember($key, function () use ($query, $bindings) {
             return \DB::select($query, $bindings);
         }, $ttl);
     }
@@ -199,14 +200,14 @@ trait HasCaching
     protected function cacheModel(string $model, array $constraints = [], ?int $ttl = null): mixed
     {
         $key = $this->buildModelCacheKey($model, $constraints);
-        
-        return $this->cacheRememberWithTags($key, function() use ($model, $constraints) {
+
+        return $this->cacheRememberWithTags($key, function () use ($model, $constraints) {
             $query = app($model)->newQuery();
-            
+
             foreach ($constraints as $field => $value) {
                 $query->where($field, $value);
             }
-            
+
             return $query->get();
         }, ["model:{$model}"], $ttl);
     }
@@ -217,6 +218,7 @@ trait HasCaching
     protected function buildMethodCacheKey(string $method, array $args): string
     {
         $argsHash = md5(serialize($args));
+
         return "method:{$method}:{$argsHash}";
     }
 
@@ -225,7 +227,8 @@ trait HasCaching
      */
     protected function buildQueryCacheKey(string $query, array $bindings): string
     {
-        $queryHash = md5($query . serialize($bindings));
+        $queryHash = md5($query.serialize($bindings));
+
         return "query:{$queryHash}";
     }
 
@@ -236,6 +239,7 @@ trait HasCaching
     {
         $constraintsHash = md5(serialize($constraints));
         $modelName = class_basename($model);
+
         return "model:{$modelName}:{$constraintsHash}";
     }
 
@@ -244,14 +248,14 @@ trait HasCaching
      */
     protected function cacheFile(string $filePath, ?int $ttl = null): mixed
     {
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return null;
         }
 
         $fileHash = md5_file($filePath);
-        $key = "file:" . basename($filePath) . ":{$fileHash}";
-        
-        return $this->cacheRemember($key, function() use ($filePath) {
+        $key = 'file:'.basename($filePath).":{$fileHash}";
+
+        return $this->cacheRemember($key, function () use ($filePath) {
             return file_get_contents($filePath);
         }, $ttl);
     }
@@ -261,9 +265,9 @@ trait HasCaching
      */
     protected function cacheApiResponse(string $url, array $headers = [], ?int $ttl = null): mixed
     {
-        $key = "api:" . md5($url . serialize($headers));
-        
-        return $this->cacheRememberWithTags($key, function() use ($url, $headers) {
+        $key = 'api:'.md5($url.serialize($headers));
+
+        return $this->cacheRememberWithTags($key, function () {
             // This would be implemented with your HTTP client
             // return Http::withHeaders($headers)->get($url)->json();
             return null;
@@ -275,11 +279,12 @@ trait HasCaching
      */
     protected function cacheIncrement(string $key, int $increment = 1): int
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return 0;
         }
 
         $cacheKey = $this->buildCacheKey($key);
+
         return Cache::increment($cacheKey, $increment);
     }
 
@@ -288,11 +293,12 @@ trait HasCaching
      */
     protected function cacheDecrement(string $key, int $decrement = 1): int
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return 0;
         }
 
         $cacheKey = $this->buildCacheKey($key);
+
         return Cache::decrement($cacheKey, $decrement);
     }
 
@@ -301,11 +307,12 @@ trait HasCaching
      */
     protected function cacheLock(string $key, int $seconds = 60): ?\Illuminate\Cache\Lock
     {
-        if (!$this->cachingEnabled) {
+        if (! $this->cachingEnabled) {
             return null;
         }
 
         $lockKey = $this->buildCacheKey("lock:{$key}");
+
         return Cache::lock($lockKey, $seconds);
     }
 
@@ -315,8 +322,8 @@ trait HasCaching
     protected function cacheWithLock(string $key, callable $callback, int $lockSeconds = 60): mixed
     {
         $lock = $this->cacheLock($key, $lockSeconds);
-        
-        if (!$lock || !$lock->get()) {
+
+        if (! $lock || ! $lock->get()) {
             throw new \RuntimeException("Could not acquire cache lock for key: {$key}");
         }
 
@@ -333,6 +340,7 @@ trait HasCaching
     public function setCachePrefix(string $prefix): self
     {
         $this->cachePrefix = $prefix;
+
         return $this;
     }
 
@@ -342,6 +350,7 @@ trait HasCaching
     public function setCacheTags(array $tags): self
     {
         $this->cacheTags = $tags;
+
         return $this;
     }
 
@@ -351,6 +360,7 @@ trait HasCaching
     public function addCacheTag(string $tag): self
     {
         $this->cacheTags[] = $tag;
+
         return $this;
     }
 
@@ -360,6 +370,7 @@ trait HasCaching
     public function setCachingEnabled(bool $enabled): self
     {
         $this->cachingEnabled = $enabled;
+
         return $this;
     }
 
@@ -369,6 +380,7 @@ trait HasCaching
     public function setDefaultCacheTtl(int $minutes): self
     {
         $this->defaultCacheTtl = $minutes;
+
         return $this;
     }
 
@@ -383,7 +395,7 @@ trait HasCaching
             'enabled' => $this->cachingEnabled,
             'default_ttl' => $this->defaultCacheTtl,
             'prefix' => $this->cachePrefix ?? $this->getCachePrefix(),
-            'tags' => $this->cacheTags
+            'tags' => $this->cacheTags,
         ];
     }
 }

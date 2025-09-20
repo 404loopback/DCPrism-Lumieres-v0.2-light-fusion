@@ -3,7 +3,6 @@
 namespace Modules\Fresnel\app\Filament\Source\Widgets;
 
 use Modules\Fresnel\app\Filament\Shared\Widgets\FestivalSelectorWidget as BaseFestivalSelectorWidget;
-use Modules\Fresnel\app\Filament\Shared\Widgets\FestivalSelectorWidgetFactory;
 
 /**
  * Widget FestivalSelector pour le panel Source
@@ -23,11 +22,10 @@ class FestivalSelectorWidget extends BaseFestivalSelectorWidget
             'label' => 'Festival actuel',
             'placeholder' => 'Sélectionnez un festival',
             'view_path' => 'filament.source.widgets.festival-selector-widget',
-            'should_redirect' => false
+            'should_redirect' => false,
         ]);
-        
+
         // Appeler le mount parent
         parent::mount();
     }
-    
 }

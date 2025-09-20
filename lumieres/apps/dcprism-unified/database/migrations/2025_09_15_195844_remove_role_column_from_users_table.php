@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Supprime la colonne 'role' legacy car nous utilisons maintenant
      * exclusivement Shield/Spatie avec le trait HasRoles.
      */
@@ -22,7 +22,7 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     * 
+     *
      * Recrée la colonne role en cas de rollback.
      */
     public function down(): void

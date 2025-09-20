@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name'); // Nom en anglais
             $table->string('local_name')->nullable(); // Nom dans la langue locale
             $table->timestamps();
-            
+
             $table->index(['iso_639_1']);
             $table->index(['name']);
         });

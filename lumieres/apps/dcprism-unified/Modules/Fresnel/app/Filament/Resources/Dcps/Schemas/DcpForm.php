@@ -2,16 +2,16 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Dcps\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Modules\Fresnel\app\Models\Dcp;
 
 class DcpForm
@@ -30,35 +30,34 @@ class DcpForm
                                     ->searchable()
                                     ->preload()
                                     ->required(),
-                                    
+
                                 Select::make('version_id')
                                     ->label('Version')
                                     ->relationship('version', 'type')
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => 
-                                        $record->type . ' - ' . $record->audio_lang
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->type.' - '.$record->audio_lang
                                     )
                                     ->searchable()
                                     ->preload(),
                             ]),
-                            
+
                         Grid::make(3)
                             ->schema([
                                 Toggle::make('is_ov')
                                     ->label('Version originale')
                                     ->default(false),
-                                    
+
                                 Select::make('status')
                                     ->label('Statut')
                                     ->options(Dcp::STATUSES)
                                     ->default(Dcp::STATUS_UPLOADED)
                                     ->required(),
-                                    
+
                                 Toggle::make('is_valid')
                                     ->label('Validé')
                                     ->default(false),
                             ]),
                     ]),
-                    
+
                 Section::make('Configuration linguistique')
                     ->schema([
                         Grid::make(2)
@@ -69,7 +68,7 @@ class DcpForm
                                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                                     ->searchable()
                                     ->preload(),
-                                    
+
                                 Select::make('subtitle_lang')
                                     ->label('Langue sous-titres')
                                     ->relationship('subtitleLanguage', 'name')
@@ -78,7 +77,7 @@ class DcpForm
                                     ->preload(),
                             ]),
                     ]),
-                    
+
                 Section::make('Fichier et stockage')
                     ->schema([
                         Grid::make(2)
@@ -89,7 +88,7 @@ class DcpForm
                                     ->disabled()
                                     ->dehydrated()
                                     ->helperText('Généré automatiquement après upload'),
-                                    
+
                                 TextInput::make('file_size')
                                     ->label('Taille du fichier (bytes)')
                                     ->numeric()
@@ -97,7 +96,7 @@ class DcpForm
                                     ->disabled()
                                     ->dehydrated(),
                             ]),
-                            
+
                         FileUpload::make('file_upload')
                             ->label('Upload DCP')
                             ->disk('local')
@@ -114,7 +113,7 @@ class DcpForm
                                 }
                             })
                             ->reactive(),
-                            
+
                         TextInput::make('file_path')
                             ->label('Chemin Backblaze')
                             ->disabled()
@@ -122,7 +121,7 @@ class DcpForm
                             ->helperText('Généré automatiquement après upload'),
                     ])
                     ->collapsible(),
-                    
+
                 Section::make('Métadonnées techniques')
                     ->schema([
                         KeyValue::make('technical_metadata')
@@ -135,7 +134,7 @@ class DcpForm
                     ])
                     ->collapsible()
                     ->collapsed(),
-                    
+
                 Section::make('Validation')
                     ->schema([
                         Grid::make(2)
@@ -145,16 +144,16 @@ class DcpForm
                                     ->relationship('uploader', 'name')
                                     ->searchable()
                                     ->preload(),
-                                    
+
                                 DateTimePicker::make('uploaded_at')
                                     ->label('Uploadé le')
                                     ->timezone('Europe/Brussels'),
                             ]),
-                            
+
                         DateTimePicker::make('validated_at')
                             ->label('Validé le')
                             ->timezone('Europe/Brussels'),
-                            
+
                         Textarea::make('validation_notes')
                             ->label('Notes de validation')
                             ->rows(4)

@@ -3,16 +3,15 @@
 namespace Modules\Fresnel\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Festival extends Model
 {
     use LogsActivity;
+
     protected $fillable = [
         'name',
         'subdomain',
@@ -34,9 +33,9 @@ class Festival extends Model
         'nomenclature_template',
         'technical_requirements',
         'contact_phone',
-        'website'
+        'website',
     ];
-    
+
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
@@ -46,9 +45,9 @@ class Festival extends Model
         'storage_info' => 'json',
         'storage_last_tested_at' => 'datetime',
         'accepted_formats' => 'json',
-        'technical_requirements' => 'json'
+        'technical_requirements' => 'json',
     ];
-    
+
     /**
      * Configuration du logging d'activité
      */
@@ -58,33 +57,33 @@ class Festival extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
                 'created' => 'Festival créé',
                 'updated' => 'Festival modifié',
                 'deleted' => 'Festival supprimé',
                 default => $eventName
             });
     }
-    
+
     /**
      * Relation many-to-many avec les movies
      */
     public function movies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'movie_festivals')
-                    ->withPivot(['submission_status', 'selected_versions', 'technical_notes', 'priority'])
-                    ->withTimestamps();
+            ->withPivot(['submission_status', 'selected_versions', 'technical_notes', 'priority'])
+            ->withTimestamps();
     }
-    
+
     /**
      * Relation avec les utilisateurs assignés
      */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_festivals')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
-    
+
     /**
      * Relation avec les nomenclatures du festival (génération noms fichiers)
      */
@@ -92,7 +91,7 @@ class Festival extends Model
     {
         return $this->hasMany(Nomenclature::class);
     }
-    
+
     /**
      * Relation avec festival_parameters (configuration générale paramètres)
      */
@@ -107,16 +106,16 @@ class Festival extends Model
     public function parameters(): BelongsToMany
     {
         return $this->belongsToMany(Parameter::class, 'festival_parameters')
-                    ->withPivot([
-                        'is_enabled', 
-                        'custom_default_value', 
-                        'custom_formatting_rules',
-                        'display_order',
-                        'festival_specific_notes'
-                    ])
-                    ->withTimestamps();
+            ->withPivot([
+                'is_enabled',
+                'custom_default_value',
+                'custom_formatting_rules',
+                'display_order',
+                'festival_specific_notes',
+            ])
+            ->withTimestamps();
     }
-    
+
     /**
      * Relation avec les paramètres activés seulement
      */
@@ -124,17 +123,17 @@ class Festival extends Model
     {
         return $this->parameters()->wherePivot('is_enabled', true);
     }
-    
+
     /**
      * Relation avec les paramètres système (obligatoires)
      */
     public function systemParameters(): BelongsToMany
     {
         return $this->parameters()
-                    ->where('parameters.is_system', true)
-                    ->where('parameters.is_active', true);
+            ->where('parameters.is_system', true)
+            ->where('parameters.is_active', true);
     }
-    
+
     /**
      * Scope pour les festivals actifs
      */
@@ -149,19 +148,19 @@ class Festival extends Model
     public function scopeAcceptingSubmissions($query)
     {
         return $query->where('accept_submissions', true)
-                     ->where('submission_deadline', '>', now());
+            ->where('submission_deadline', '>', now());
     }
-    
+
     /**
      * Obtenir la nomenclature active ordonnée pour ce festival
      */
     public function getActiveNomenclature()
     {
         return $this->nomenclatures()
-                   ->with('parameter')
-                   ->where('is_active', true)
-                   ->orderBy('order_position')
-                   ->get();
+            ->with('parameter')
+            ->where('is_active', true)
+            ->orderBy('order_position')
+            ->get();
     }
 
     /**
@@ -170,11 +169,11 @@ class Festival extends Model
     public function getNomenclatureParameter(string $parameterName): ?Nomenclature
     {
         return $this->nomenclatures()
-                   ->whereHas('parameter', function($query) use ($parameterName) {
-                       $query->where('name', $parameterName);
-                   })
-                   ->where('is_active', true)
-                   ->first();
+            ->whereHas('parameter', function ($query) use ($parameterName) {
+                $query->where('name', $parameterName);
+            })
+            ->where('is_active', true)
+            ->first();
     }
 
     /**
@@ -194,6 +193,7 @@ class Festival extends Model
         ]);
 
         $nomenclature->save();
+
         return $nomenclature;
     }
 
@@ -239,7 +239,7 @@ class Festival extends Model
             'pending_movies' => $this->movies()->whereIn('status', [
                 Movie::STATUS_UPLOAD_OK,
                 Movie::STATUS_IN_REVIEW,
-                Movie::STATUS_TESTED
+                Movie::STATUS_TESTED,
             ])->count(),
             'total_users' => $this->users()->count(),
             'days_until_deadline' => $this->submission_deadline ? now()->diffInDays($this->submission_deadline, false) : null,

@@ -14,21 +14,21 @@ return new class extends Migration
         Schema::create('infrastructure_deployments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            
+
             // Basic deployment info
             $table->string('name');
             $table->text('description')->nullable();
             $table->enum('scenario', [
                 'backend-automation',
-                'manual-testing'
+                'manual-testing',
             ])->default('backend-automation');
             $table->enum('environment', [
                 'development',
-                'staging', 
-                'production'
+                'staging',
+                'production',
             ])->default('development');
             $table->string('project_name')->default('dcparty');
-            
+
             // Status and lifecycle
             $table->enum('status', [
                 'draft',
@@ -37,30 +37,30 @@ return new class extends Migration
                 'deployed',
                 'failed',
                 'destroying',
-                'destroyed'
+                'destroyed',
             ])->default('draft');
-            
+
             // Terraform data (JSON columns)
             $table->json('terraform_config')->nullable();
             $table->json('terraform_state')->nullable();
             $table->json('terraform_outputs')->nullable();
-            
+
             // Provider configuration
             $table->json('provider_config')->nullable();
-            
+
             // Logs and monitoring
             $table->json('deployment_logs')->nullable();
             $table->json('resource_details')->nullable();
-            
+
             // Cost estimation
             $table->decimal('estimated_cost', 10, 2)->nullable();
-            
+
             // Timestamps
             $table->timestamp('deployed_at')->nullable();
             $table->timestamp('destroyed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index(['user_id', 'status']);
             $table->index(['scenario', 'environment']);

@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\Jobs\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\Jobs\JobResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Meniscus\app\Filament\Resources\Jobs\JobResource;
 
 class EditJob extends EditRecord
 {

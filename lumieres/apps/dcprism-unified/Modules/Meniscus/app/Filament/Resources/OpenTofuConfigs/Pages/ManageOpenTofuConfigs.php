@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\OpenTofuConfigs\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\OpenTofuConfigs\OpenTofuConfigResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Modules\Meniscus\app\Filament\Resources\OpenTofuConfigs\OpenTofuConfigResource;
 
 class ManageOpenTofuConfigs extends ManageRecords
 {

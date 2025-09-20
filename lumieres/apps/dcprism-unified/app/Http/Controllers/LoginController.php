@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
@@ -35,10 +35,10 @@ class LoginController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $request->session()->regenerate();
-            
+
             // Mettre à jour la dernière connexion
             Auth::user()->update(['last_login_at' => now()]);
-            
+
             return $this->redirectToPanel();
         }
 
@@ -53,10 +53,10 @@ class LoginController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect()->route('login')->with('success', 'Vous avez été déconnecté avec succès.');
     }
 
@@ -66,11 +66,11 @@ class LoginController extends Controller
     private function redirectToPanel(): RedirectResponse
     {
         $user = Auth::user();
-        
+
         // Mappage des rôles vers leurs panels Filament
         $rolePanelMapping = [
             'admin' => '/fresnel/admin',
-            'tech' => '/fresnel/tech', 
+            'tech' => '/fresnel/tech',
             'manager' => '/fresnel/manager',
             'supervisor' => '/fresnel/manager', // superviseurs → panel manager
             'source' => '/fresnel/source',

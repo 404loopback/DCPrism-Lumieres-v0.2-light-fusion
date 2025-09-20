@@ -2,8 +2,10 @@
 
 namespace Modules\Fresnel\app\Services\Nomenclature;
 
-use Modules\Fresnel\app\Models\{Movie, Parameter, MovieParameter};
 use Illuminate\Support\Facades\Log;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\MovieParameter;
+use Modules\Fresnel\app\Models\Parameter;
 
 /**
  * Service for extracting parameter values from movies and DCP metadata
@@ -39,7 +41,7 @@ class ParameterExtractor
      */
     private function getDirectMovieProperty(Movie $movie, string $parameterName): mixed
     {
-        return match($parameterName) {
+        return match ($parameterName) {
             'title' => $movie->title,
             'year' => $movie->year,
             'duration' => $movie->duration,
@@ -60,24 +62,24 @@ class ParameterExtractor
             return [
                 'success' => false,
                 'message' => 'No DCP metadata available',
-                'extracted_params' => []
+                'extracted_params' => [],
             ];
         }
 
-        $metadata = is_string($movie->DCP_metadata) 
-            ? json_decode($movie->DCP_metadata, true) 
+        $metadata = is_string($movie->DCP_metadata)
+            ? json_decode($movie->DCP_metadata, true)
             : $movie->DCP_metadata;
 
-        if (!$metadata) {
+        if (! $metadata) {
             return [
                 'success' => false,
                 'message' => 'Invalid DCP metadata format',
-                'extracted_params' => []
+                'extracted_params' => [],
             ];
         }
 
         $extractedParams = [];
-        
+
         // Extract common parameters
         $extractedParams = array_merge($extractedParams, [
             'resolution' => $this->extractResolution($metadata),
@@ -88,18 +90,18 @@ class ParameterExtractor
         ]);
 
         // Remove null values
-        $extractedParams = array_filter($extractedParams, fn($value) => $value !== null);
+        $extractedParams = array_filter($extractedParams, fn ($value) => $value !== null);
 
         Log::info('[ParameterExtractor] Extracted parameters from DCP metadata', [
             'movie_id' => $movie->id,
             'extracted_count' => count($extractedParams),
-            'parameters' => array_keys($extractedParams)
+            'parameters' => array_keys($extractedParams),
         ]);
 
         return [
             'success' => true,
             'message' => 'Parameters extracted successfully',
-            'extracted_params' => $extractedParams
+            'extracted_params' => $extractedParams,
         ];
     }
 
@@ -113,11 +115,12 @@ class ParameterExtractor
                 ->orWhere('key', $parameterName)
                 ->first();
 
-            if (!$parameter) {
+            if (! $parameter) {
                 Log::debug('[ParameterExtractor] Parameter not found, skipping', [
                     'parameter_name' => $parameterName,
-                    'movie_id' => $movie->id
+                    'movie_id' => $movie->id,
                 ]);
+
                 continue;
             }
 
@@ -130,14 +133,14 @@ class ParameterExtractor
                     'value' => $value,
                     'status' => MovieParameter::STATUS_VALIDATED,
                     'extraction_method' => MovieParameter::EXTRACTION_AUTOMATIC,
-                    'extracted_at' => now()
+                    'extracted_at' => now(),
                 ]
             );
         }
 
         Log::info('[ParameterExtractor] Stored extracted parameters', [
             'movie_id' => $movie->id,
-            'stored_count' => count($extractedParams)
+            'stored_count' => count($extractedParams),
         ]);
     }
 
@@ -147,7 +150,7 @@ class ParameterExtractor
     private function extractResolution(array $metadata): ?string
     {
         if (isset($metadata['video']['width'], $metadata['video']['height'])) {
-            return $metadata['video']['width'] . 'x' . $metadata['video']['height'];
+            return $metadata['video']['width'].'x'.$metadata['video']['height'];
         }
 
         if (isset($metadata['resolution'])) {
@@ -162,8 +165,8 @@ class ParameterExtractor
      */
     private function extractFrameRate(array $metadata): ?string
     {
-        return $metadata['video']['frame_rate'] ?? 
-               $metadata['frame_rate'] ?? 
+        return $metadata['video']['frame_rate'] ??
+               $metadata['frame_rate'] ??
                null;
     }
 
@@ -172,8 +175,8 @@ class ParameterExtractor
      */
     private function extractAudioChannels(array $metadata): ?int
     {
-        return $metadata['audio']['channels'] ?? 
-               $metadata['channels'] ?? 
+        return $metadata['audio']['channels'] ??
+               $metadata['channels'] ??
                null;
     }
 
@@ -182,11 +185,11 @@ class ParameterExtractor
      */
     private function extractDuration(array $metadata): ?int
     {
-        $duration = $metadata['duration'] ?? 
-                   $metadata['video']['duration'] ?? 
+        $duration = $metadata['duration'] ??
+                   $metadata['video']['duration'] ??
                    null;
 
-        return $duration ? (int)$duration : null;
+        return $duration ? (int) $duration : null;
     }
 
     /**
@@ -194,8 +197,8 @@ class ParameterExtractor
      */
     private function extractAspectRatio(array $metadata): ?string
     {
-        return $metadata['video']['aspect_ratio'] ?? 
-               $metadata['aspect_ratio'] ?? 
+        return $metadata['video']['aspect_ratio'] ??
+               $metadata['aspect_ratio'] ??
                null;
     }
 }

@@ -22,7 +22,7 @@ class Version extends Model
         'ov_id',
         'vf_ids',
         'generated_nomenclature',
-        'format'
+        'format',
     ];
 
     protected $casts = [
@@ -36,7 +36,7 @@ class Version extends Model
         'DUB' => 'Version Dubbée',
         'VOST' => 'Version Originale Sous-Titrée',
         'DUBST' => 'Version Dubbée Sous-Titrée',
-        'MUTE' => 'Version Muette'
+        'MUTE' => 'Version Muette',
     ];
 
     public const FORMATS = [
@@ -113,8 +113,8 @@ class Version extends Model
     public function screenings(): BelongsToMany
     {
         return $this->belongsToMany(Screenings::class, 'versions_screenings', 'version_id', 'screening_id')
-                    ->withPivot(['notes'])
-                    ->withTimestamps();
+            ->withPivot(['notes'])
+            ->withTimestamps();
     }
 
     /**
@@ -169,7 +169,7 @@ class Version extends Model
         ];
 
         if ($this->sub_lang) {
-            $parts[] = 'ST' . $this->sub_lang;
+            $parts[] = 'ST'.$this->sub_lang;
         }
 
         if ($this->accessibility) {

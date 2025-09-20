@@ -12,7 +12,7 @@ class FilamentAuthenticate
     public function handle(Request $request, Closure $next): Response
     {
         // Vérifier si l'utilisateur est connecté avec le guard web
-        if (!Auth::guard('web')->check()) {
+        if (! Auth::guard('web')->check()) {
             // Rediriger vers la page de login Fresnel
             return redirect('/fresnel/login');
         }

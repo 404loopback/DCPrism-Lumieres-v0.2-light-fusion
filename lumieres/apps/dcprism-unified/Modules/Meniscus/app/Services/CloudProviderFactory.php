@@ -2,11 +2,11 @@
 
 namespace Modules\Meniscus\app\Services;
 
-use App\Services\Providers\VultrProvider;
+use App\Contracts\CloudProviderInterface;
 use App\Services\Providers\AwsProvider;
 use App\Services\Providers\AzureProvider;
 use App\Services\Providers\GcpProvider;
-use App\Contracts\CloudProviderInterface;
+use App\Services\Providers\VultrProvider;
 use InvalidArgumentException;
 
 class CloudProviderFactory
@@ -26,7 +26,7 @@ class CloudProviderFactory
      */
     public function create(string $provider, array $config = []): CloudProviderInterface
     {
-        if (!array_key_exists($provider, self::PROVIDERS)) {
+        if (! array_key_exists($provider, self::PROVIDERS)) {
             throw new InvalidArgumentException("Unsupported cloud provider: {$provider}");
         }
 
@@ -85,22 +85,22 @@ class CloudProviderFactory
     {
         $providers = $this->getAvailableProviders();
         $priorities = $this->getProviderPriorities();
-        
+
         // Default criteria
         $defaultCriteria = [
             'region' => 'us-east-1',
             'cost_optimization' => true,
             'availability_check' => true,
         ];
-        
+
         $criteria = array_merge($defaultCriteria, $criteria);
-        
+
         // Filter providers based on availability
         $availableProviders = [];
         foreach ($providers as $provider) {
             try {
                 $providerInstance = $this->create($provider);
-                if ($criteria['availability_check'] && 
+                if ($criteria['availability_check'] &&
                     $providerInstance->checkAvailability($criteria['region'])) {
                     $availableProviders[$provider] = $priorities[$provider] ?? 999;
                 }
@@ -109,14 +109,14 @@ class CloudProviderFactory
                 continue;
             }
         }
-        
+
         if (empty($availableProviders)) {
             throw new \RuntimeException('No cloud providers available');
         }
-        
+
         // Sort by priority (lower number = higher priority)
         asort($availableProviders);
-        
+
         return array_key_first($availableProviders);
     }
 }

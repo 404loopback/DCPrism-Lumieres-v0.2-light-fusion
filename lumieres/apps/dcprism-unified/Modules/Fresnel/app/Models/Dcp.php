@@ -26,7 +26,7 @@ class Dcp extends Model
         'file_size',
         'technical_metadata',
         'validation_notes',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -41,9 +41,13 @@ class Dcp extends Model
     ];
 
     public const STATUS_UPLOADED = 'uploaded';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_VALID = 'valid';
+
     public const STATUS_INVALID = 'invalid';
+
     public const STATUS_ERROR = 'error';
 
     public const STATUSES = [
@@ -51,7 +55,7 @@ class Dcp extends Model
         self::STATUS_PROCESSING => 'En traitement',
         self::STATUS_VALID => 'Valide',
         self::STATUS_INVALID => 'Invalide',
-        self::STATUS_ERROR => 'Erreur'
+        self::STATUS_ERROR => 'Erreur',
     ];
 
     /**
@@ -121,25 +125,25 @@ class Dcp extends Model
     /**
      * Marque ce DCP comme valide
      */
-    public function markAsValid(string $notes = null): void
+    public function markAsValid(?string $notes = null): void
     {
         $this->update([
             'is_valid' => true,
             'status' => self::STATUS_VALID,
             'validated_at' => now(),
-            'validation_notes' => $notes
+            'validation_notes' => $notes,
         ]);
     }
 
     /**
      * Marque ce DCP comme invalide
      */
-    public function markAsInvalid(string $notes = null): void
+    public function markAsInvalid(?string $notes = null): void
     {
         $this->update([
             'is_valid' => false,
             'status' => self::STATUS_INVALID,
-            'validation_notes' => $notes
+            'validation_notes' => $notes,
         ]);
     }
 
@@ -148,20 +152,20 @@ class Dcp extends Model
      */
     public function getFormattedFileSizeAttribute(): string
     {
-        if (!$this->file_size) {
+        if (! $this->file_size) {
             return 'Inconnu';
         }
 
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = $this->file_size;
         $i = 0;
-        
+
         while ($bytes >= 1024 && $i < count($units) - 1) {
             $bytes /= 1024;
             $i++;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($bytes, 2).' '.$units[$i];
     }
 
     /**
@@ -179,13 +183,13 @@ class Dcp extends Model
     {
         if ($this->backblaze_file_id) {
             // Logique pour générer l'URL Backblaze
-            return config('backblaze.download_base_url') . '/' . $this->backblaze_file_id;
+            return config('backblaze.download_base_url').'/'.$this->backblaze_file_id;
         }
-        
+
         if ($this->file_path && Storage::exists($this->file_path)) {
             return Storage::url($this->file_path);
         }
-        
+
         return null;
     }
 
@@ -195,13 +199,13 @@ class Dcp extends Model
     public function getTechnicalInfoAttribute(): array
     {
         $metadata = $this->technical_metadata ?? [];
-        
+
         return [
             'resolution' => $metadata['resolution'] ?? 'Inconnue',
             'frame_rate' => $metadata['frame_rate'] ?? 'Inconnue',
             'duration' => $metadata['duration'] ?? 'Inconnue',
             'audio_channels' => $metadata['audio_channels'] ?? 'Inconnue',
-            'compression' => $metadata['compression'] ?? 'Inconnue'
+            'compression' => $metadata['compression'] ?? 'Inconnue',
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\UserResource\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\UserResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Meniscus\app\Filament\Resources\UserResource;
 
 class CreateUser extends CreateRecord
 {

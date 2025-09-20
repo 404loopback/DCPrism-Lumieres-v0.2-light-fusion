@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Modules\Fresnel\app\Models\Festival;
 
@@ -34,8 +33,8 @@ class FestivalSeeder extends Seeder
                     'resolution' => '2K minimum, 4K accepté',
                     'format' => 'DCP SMPTE',
                     'audio' => '5.1 ou 7.1 surround',
-                    'subtitles' => 'Français et Anglais obligatoires'
-                ]
+                    'subtitles' => 'Français et Anglais obligatoires',
+                ],
             ],
             [
                 'name' => 'Festival du Film de Berlin (Berlinale)',
@@ -73,9 +72,9 @@ class FestivalSeeder extends Seeder
                 'technical_requirements' => [
                     'duration' => 'Maximum 30 minutes',
                     'format' => 'DCP ou ProRes',
-                    'subtitles' => 'Anglais recommandés'
-                ]
-            ]
+                    'subtitles' => 'Anglais recommandés',
+                ],
+            ],
         ];
 
         foreach ($festivals as $festivalData) {

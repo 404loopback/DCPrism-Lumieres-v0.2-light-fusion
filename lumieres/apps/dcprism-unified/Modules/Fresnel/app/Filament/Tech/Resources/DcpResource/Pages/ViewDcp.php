@@ -2,10 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Tech\Resources\DcpResource\Pages;
 
-use Modules\Fresnel\app\Filament\Tech\Resources\DcpResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Forms\Components\Textarea;
+use Filament\Resources\Pages\ViewRecord;
+use Modules\Fresnel\app\Filament\Tech\Resources\DcpResource;
 
 class ViewDcp extends ViewRecord
 {
@@ -22,12 +22,12 @@ class ViewDcp extends ViewRecord
                 ->modalHeading('Valider le DCP')
                 ->modalDescription('Confirmer que ce DCP est techniquement valide ?')
                 ->action(function () {
-                    $this->record->markAsValid('DCP validé par technicien le ' . now()->format('d/m/Y H:i'));
+                    $this->record->markAsValid('DCP validé par technicien le '.now()->format('d/m/Y H:i'));
                     DcpResource::updateMovieStatus($this->record->movie);
-                    
+
                     $this->notify('success', 'DCP validé avec succès');
                 })
-                ->visible(fn () => !$this->record->is_valid),
+                ->visible(fn () => ! $this->record->is_valid),
 
             Actions\Action::make('reject')
                 ->label('Rejeter ce DCP')
@@ -42,7 +42,7 @@ class ViewDcp extends ViewRecord
                 ])
                 ->action(function (array $data) {
                     $this->record->markAsInvalid($data['rejection_reason']);
-                    
+
                     $this->notify('warning', 'DCP rejeté');
                 })
                 ->visible(fn () => $this->record->status !== 'invalid'),

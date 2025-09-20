@@ -30,7 +30,7 @@ class UserResource extends JsonResource
             'is_active' => $this->is_active ?? true,
             'last_seen_at' => $this->last_seen_at?->toISOString(),
             'created_at' => $this->created_at->toISOString(),
-            
+
             // Hide sensitive information
             'email_verified_at' => $this->when(
                 $request->user()?->id === $this->id,

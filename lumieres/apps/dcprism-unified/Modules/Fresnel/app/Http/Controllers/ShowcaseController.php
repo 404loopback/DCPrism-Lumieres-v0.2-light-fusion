@@ -2,14 +2,14 @@
 
 namespace Modules\Fresnel\app\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Models\User;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\View\View;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\User;
 
 class ShowcaseController extends Controller
 {
@@ -19,7 +19,7 @@ class ShowcaseController extends Controller
     public function home(): View
     {
         $stats = $this->getStats();
-        
+
         return view('showcase.home', compact('stats'));
     }
 
@@ -62,14 +62,14 @@ class ShowcaseController extends Controller
         try {
             // Ici vous pouvez ajouter la logique d'envoi d'email
             // Mail::to(config('mail.admin_email'))->send(new ContactMessage($validated));
-            
+
             Log::info('Contact form submission', $validated);
-            
+
             return redirect()->route('showcase.contact')
                 ->with('success', 'Votre message a été envoyé avec succès! Nous vous recontacterons bientôt.');
         } catch (\Exception $e) {
-            Log::error('Contact form error: ' . $e->getMessage());
-            
+            Log::error('Contact form error: '.$e->getMessage());
+
             return redirect()->route('showcase.contact')
                 ->with('error', 'Une erreur est survenue lors de l\'envoi de votre message. Veuillez réessayer.');
         }
@@ -104,15 +104,15 @@ class ShowcaseController extends Controller
     private function getStorageStats(): string
     {
         $totalSize = Movie::sum('file_size') ?? 0;
-        
+
         if ($totalSize >= 1024 * 1024 * 1024 * 1024) {
-            return number_format($totalSize / (1024 * 1024 * 1024 * 1024), 1) . ' TB';
+            return number_format($totalSize / (1024 * 1024 * 1024 * 1024), 1).' TB';
         } elseif ($totalSize >= 1024 * 1024 * 1024) {
-            return number_format($totalSize / (1024 * 1024 * 1024), 1) . ' GB';
+            return number_format($totalSize / (1024 * 1024 * 1024), 1).' GB';
         } elseif ($totalSize >= 1024 * 1024) {
-            return number_format($totalSize / (1024 * 1024), 1) . ' MB';
+            return number_format($totalSize / (1024 * 1024), 1).' MB';
         } else {
-            return number_format($totalSize / 1024, 1) . ' KB';
+            return number_format($totalSize / 1024, 1).' KB';
         }
     }
 }

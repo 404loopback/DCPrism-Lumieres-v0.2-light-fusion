@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Parameter extends Model
 {
     use LogsActivity;
-    
+
     protected $fillable = [
         'name',
         'code',
@@ -26,35 +26,47 @@ class Parameter extends Model
         'default_value',
         'category',
     ];
-    
+
     protected $casts = [
         'possible_values' => 'array',
         'validation_rules' => 'array',
         'is_active' => 'boolean',
         'is_system' => 'boolean',
     ];
-    
+
     // Constantes des types
     const TYPE_STRING = 'string';
+
     const TYPE_INT = 'int';
+
     const TYPE_BOOL = 'bool';
+
     const TYPE_FLOAT = 'float';
+
     const TYPE_DATE = 'date';
+
     const TYPE_JSON = 'json';
-    
+
     // Constantes des sources d'extraction
     const SOURCE_DCP = 'DCP';
+
     const SOURCE_METADATA = 'metadata';
+
     const SOURCE_MANUAL = 'manual';
+
     const SOURCE_AUTO = 'auto';
-    
+
     // Constantes des catégories
     const CATEGORY_AUDIO = 'audio';
+
     const CATEGORY_VIDEO = 'video';
+
     const CATEGORY_SUBTITLE = 'subtitle';
+
     const CATEGORY_CONTENT = 'content';
+
     const CATEGORY_TECHNICAL = 'technical';
-    
+
     /**
      * Configuration du logging d'activité
      */
@@ -64,14 +76,14 @@ class Parameter extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
                 'created' => 'Paramètre créé',
                 'updated' => 'Paramètre modifié',
                 'deleted' => 'Paramètre supprimé',
                 default => $eventName
             });
     }
-    
+
     /**
      * Relation avec les nomenclatures des festivals (ancienne)
      */
@@ -79,7 +91,7 @@ class Parameter extends Model
     {
         return $this->hasMany(Nomenclature::class);
     }
-    
+
     /**
      * Relation avec festival_parameters (nouvelle)
      */
@@ -87,33 +99,33 @@ class Parameter extends Model
     {
         return $this->hasMany(FestivalParameter::class);
     }
-    
+
     /**
      * Relation many-to-many avec les festivals via festival_parameters
      */
     public function festivals(): BelongsToMany
     {
         return $this->belongsToMany(Festival::class, 'festival_parameters')
-                    ->withPivot([
-                        'is_enabled', 
-                        'custom_default_value', 
-                        'custom_formatting_rules',
-                        'display_order',
-                        'festival_specific_notes'
-                    ])
-                    ->withTimestamps();
+            ->withPivot([
+                'is_enabled',
+                'custom_default_value',
+                'custom_formatting_rules',
+                'display_order',
+                'festival_specific_notes',
+            ])
+            ->withTimestamps();
     }
-    
+
     /**
      * Relation many-to-many avec les films via movie_parameters
      */
     public function movies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'movie_parameters')
-                    ->withPivot(['value', 'status', 'extraction_method', 'metadata'])
-                    ->withTimestamps();
+            ->withPivot(['value', 'status', 'extraction_method', 'metadata'])
+            ->withTimestamps();
     }
-    
+
     /**
      * Scope pour les paramètres actifs
      */
@@ -121,7 +133,7 @@ class Parameter extends Model
     {
         return $query->where('is_active', true);
     }
-    
+
     /**
      * Scope pour filtrer par catégorie
      */
@@ -129,7 +141,7 @@ class Parameter extends Model
     {
         return $query->where('category', $category);
     }
-    
+
     /**
      * Scope pour les paramètres système
      */
@@ -137,7 +149,7 @@ class Parameter extends Model
     {
         return $query->where('is_system', true);
     }
-    
+
     /**
      * Scope pour les paramètres disponibles pour sélection par les managers
      * Les paramètres système sont toujours disponibles, les autres doivent être activés
@@ -146,10 +158,10 @@ class Parameter extends Model
     {
         return $query->where(function ($query) {
             $query->where('is_system', true)
-                  ->orWhere('is_active', true);
+                ->orWhere('is_active', true);
         });
     }
-    
+
     /**
      * Scope pour les paramètres non-système (modifiables)
      */
@@ -157,7 +169,7 @@ class Parameter extends Model
     {
         return $query->where('is_system', false);
     }
-    
+
     /**
      * Obtenir tous les types disponibles
      */
@@ -169,10 +181,10 @@ class Parameter extends Model
             self::TYPE_BOOL => 'Booléen',
             self::TYPE_FLOAT => 'Nombre décimal',
             self::TYPE_DATE => 'Date',
-            self::TYPE_JSON => 'JSON'
+            self::TYPE_JSON => 'JSON',
         ];
     }
-    
+
     /**
      * Obtenir toutes les catégories disponibles
      */
@@ -186,7 +198,7 @@ class Parameter extends Model
                 return [$category => ucfirst($category)];
             })
             ->toArray();
-        
+
         // Catégories par défaut (au cas où la DB serait vide)
         $defaultCategories = [
             self::CATEGORY_AUDIO => 'Audio',
@@ -195,13 +207,13 @@ class Parameter extends Model
             self::CATEGORY_CONTENT => 'Contenu',
             self::CATEGORY_TECHNICAL => 'Technique',
             'metadata' => 'Metadata',
-            'accessibility' => 'Accessibility'
+            'accessibility' => 'Accessibility',
         ];
-        
+
         // Fusionner les catégories par défaut avec celles de la DB
         return array_merge($defaultCategories, $dbCategories);
     }
-    
+
     /**
      * Obtenir toutes les sources d'extraction disponibles
      */
@@ -211,34 +223,34 @@ class Parameter extends Model
             self::SOURCE_DCP => 'Extraction DCP',
             self::SOURCE_METADATA => 'Métadonnées',
             self::SOURCE_MANUAL => 'Saisie manuelle',
-            self::SOURCE_AUTO => 'Automatique'
+            self::SOURCE_AUTO => 'Automatique',
         ];
     }
-    
+
     /**
      * Valider une valeur selon les règles du paramètre
      */
     public function validateValue($value): bool
     {
         // Vérifier le type
-        if (!$this->validateType($value)) {
+        if (! $this->validateType($value)) {
             return false;
         }
-        
+
         // Vérifier les valeurs possibles
-        if (!empty($this->possible_values) && !in_array($value, $this->possible_values)) {
+        if (! empty($this->possible_values) && ! in_array($value, $this->possible_values)) {
             return false;
         }
-        
+
         // Appliquer les règles de validation personnalisées
-        if (!empty($this->validation_rules)) {
+        if (! empty($this->validation_rules)) {
             // Logique de validation personnalisée basée sur les règles
             return $this->applyValidationRules($value);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Valider le type d'une valeur
      */
@@ -254,29 +266,30 @@ class Parameter extends Model
             default => true
         };
     }
-    
+
     /**
      * Vérifier si une valeur est une date valide
      */
     private function isValidDate($value): bool
     {
-        return $value instanceof \DateTime || 
+        return $value instanceof \DateTime ||
                (is_string($value) && strtotime($value) !== false);
     }
-    
+
     /**
      * Vérifier si une valeur est du JSON valide
      */
     private function isValidJson($value): bool
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
-        
+
         json_decode($value);
+
         return json_last_error() === JSON_ERROR_NONE;
     }
-    
+
     /**
      * Appliquer les règles de validation personnalisées
      */

@@ -2,19 +2,18 @@
 
 namespace Modules\Fresnel\app\Filament\Widgets;
 
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Database\Eloquent\Builder;
 use Modules\Fresnel\app\Models\Movie;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 
 class LatestMovies extends TableWidget
 {
     protected static ?string $heading = 'Films Récents';
-    
-    protected int | string | array $columnSpan = 'full';
-    
+
+    protected int|string|array $columnSpan = 'full';
+
     public function table(Table $table): Table
     {
         return $table
@@ -30,20 +29,20 @@ class LatestMovies extends TableWidget
                     ->limit(40)
                     ->weight('semibold')
                     ->url(fn (Movie $record): string => route('filament.fresnel.resources.movies.view', $record)),
-                    
+
                 TextColumn::make('source_email')
                     ->label('Source')
                     ->limit(25)
                     ->copyable(),
-                    
+
                 BadgeColumn::make('format')
                     ->label('Format')
                     ->colors([
                         'primary' => 'FTR',
-                        'success' => 'SHR', 
+                        'success' => 'SHR',
                         'warning' => 'TRL',
                     ]),
-                    
+
                 BadgeColumn::make('status')
                     ->label('Statut')
                     ->colors([
@@ -55,7 +54,7 @@ class LatestMovies extends TableWidget
                         'danger' => Movie::STATUS_REJECTED,
                     ])
                     ->formatStateUsing(fn (string $state): string => Movie::getStatuses()[$state] ?? $state),
-                    
+
                 TextColumn::make('created_at')
                     ->label('Ajouté')
                     ->since()

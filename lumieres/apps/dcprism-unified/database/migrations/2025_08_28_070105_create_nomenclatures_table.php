@@ -25,11 +25,11 @@ return new class extends Migration
             $table->json('formatting_rules')->nullable(); // Règles formatage complexes
             $table->json('conditional_rules')->nullable(); // Règles conditionnelles
             $table->timestamps();
-            
+
             $table->unique(['festival_id', 'parameter_id']);
             $table->unique(['festival_id', 'order_position']);
             $table->index(['is_active']);
-            
+
             $table->foreign('festival_id')->references('id')->on('festivals')->onDelete('cascade');
             $table->foreign('parameter_id')->references('id')->on('parameters')->onDelete('cascade');
         });

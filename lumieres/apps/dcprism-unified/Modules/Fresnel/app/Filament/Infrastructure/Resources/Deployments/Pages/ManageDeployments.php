@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments\Pages;
 
-use Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments\DeploymentResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments\DeploymentResource;
 
 class ManageDeployments extends ManageRecords
 {

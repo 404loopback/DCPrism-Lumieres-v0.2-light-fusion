@@ -4,9 +4,9 @@ namespace Modules\Fresnel\app\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Modules\Fresnel\app\Services\AuditService;
 use Illuminate\Support\Facades\Auth;
+use Modules\Fresnel\app\Services\AuditService;
+use Symfony\Component\HttpFoundation\Response;
 
 class LogAdminActions
 {
@@ -22,18 +22,18 @@ class LogAdminActions
         $response = $next($request);
 
         // Ne logger que les requêtes POST, PUT, PATCH, DELETE (actions de modification)
-        if (!in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        if (! in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
             return $response;
         }
 
         // Ne logger que si l'utilisateur est authentifié
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $response;
         }
 
         // Construire la description de l'action
         $action = $this->buildActionDescription($request);
-        
+
         if ($action) {
             $this->auditService->logAdminAction($action, null, [
                 'method' => $request->method(),
@@ -53,7 +53,7 @@ class LogAdminActions
     protected function buildActionDescription(Request $request): ?string
     {
         $route = $request->route();
-        if (!$route) {
+        if (! $route) {
             return null;
         }
 
@@ -73,7 +73,7 @@ class LogAdminActions
      */
     protected function getCreateActionDescription(?string $routeName): ?string
     {
-        if (!$routeName) {
+        if (! $routeName) {
             return 'Création d\'élément';
         }
 
@@ -92,7 +92,7 @@ class LogAdminActions
      */
     protected function getUpdateActionDescription(?string $routeName): ?string
     {
-        if (!$routeName) {
+        if (! $routeName) {
             return 'Modification d\'élément';
         }
 
@@ -111,7 +111,7 @@ class LogAdminActions
      */
     protected function getDeleteActionDescription(?string $routeName): ?string
     {
-        if (!$routeName) {
+        if (! $routeName) {
             return 'Suppression d\'élément';
         }
 
@@ -131,7 +131,7 @@ class LogAdminActions
     protected function filterSensitiveData(array $data): array
     {
         $sensitiveFields = ['password', 'password_confirmation', 'token', 'api_key', 'secret'];
-        
+
         foreach ($sensitiveFields as $field) {
             if (isset($data[$field])) {
                 $data[$field] = '[REDACTED]';

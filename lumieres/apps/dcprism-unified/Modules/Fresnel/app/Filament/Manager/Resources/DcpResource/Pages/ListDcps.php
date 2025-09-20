@@ -2,10 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\DcpResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\DcpResource;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Actions;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Filament\Manager\Resources\DcpResource;
 use Modules\Fresnel\app\Models\Dcp;
 
 class ListDcps extends ListRecords
@@ -20,7 +20,7 @@ class ListDcps extends ListRecords
                 ->icon('heroicon-o-chart-bar')
                 ->color('info')
                 ->modalHeading('Statistiques des DCPs')
-->modalContent(view('fresnel::filament.modals.dcp-stats', $this->getDcpStatsData()))
+                ->modalContent(view('fresnel::filament.modals.dcp-stats', $this->getDcpStatsData()))
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Fermer'),
             Actions\Action::make('bulk_validate')
@@ -46,12 +46,13 @@ class ListDcps extends ListRecords
     public function getTitle(): string
     {
         $festivalId = Session::get('selected_festival_id');
-        
+
         if ($festivalId) {
             $festival = \Modules\Fresnel\app\Models\Festival::find($festivalId);
+
             return $festival ? "DCPs - {$festival->name}" : 'DCPs';
         }
-        
+
         return 'DCPs';
     }
 
@@ -71,16 +72,16 @@ class ListDcps extends ListRecords
     public function getSubheading(): ?string
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return 'Aucun festival sélectionné. Veuillez retourner au dashboard et choisir un festival à administrer.';
         }
-        
+
         $query = $this->getTableQuery();
         $total = $query->count();
         $validated = $query->where('is_valid', true)->count();
         $pending = $query->where('status', Dcp::STATUS_UPLOADED)->where('is_valid', false)->count();
-        
+
         return "Gestion des DCPs - Total: {$total}, Validés: {$validated}, En attente: {$pending}";
     }
 
@@ -90,16 +91,17 @@ class ListDcps extends ListRecords
     protected function getDcpStats()
     {
         $data = $this->getDcpStatsData();
+
         return view('fresnel::filament.modals.dcp-stats', $data);
     }
-    
+
     /**
      * Get DCP statistics data
      */
     protected function getDcpStatsData(): array
     {
         $query = $this->getTableQuery();
-        
+
         $stats = [
             'total' => $query->count(),
             'valid' => $query->where('is_valid', true)->count(),
@@ -119,7 +121,7 @@ class ListDcps extends ListRecords
 
         return [
             'stats' => $stats,
-            'versionStats' => $versionStats
+            'versionStats' => $versionStats,
         ];
     }
 
@@ -161,7 +163,7 @@ class ListDcps extends ListRecords
     public function mount(): void
     {
         parent::mount();
-        
+
         // Pas de redirection forcée, on laisse getEloquentQuery() gérer le cas où il n'y a pas de festival
     }
 }

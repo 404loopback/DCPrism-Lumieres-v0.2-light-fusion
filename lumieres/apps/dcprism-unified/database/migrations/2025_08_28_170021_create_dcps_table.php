@@ -29,7 +29,7 @@ return new class extends Migration
             $table->text('validation_notes')->nullable(); // Notes de validation
             $table->enum('status', ['uploaded', 'processing', 'valid', 'invalid', 'error'])->default('uploaded');
             $table->timestamps();
-            
+
             $table->index(['movie_id']);
             $table->index(['version_id']);
             $table->index(['uploaded_by']);

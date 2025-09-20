@@ -8,7 +8,7 @@ class Job extends Model
 {
     protected $fillable = [
         'title',
-        'description', 
+        'description',
         'status',
         'progress',
         'source_file_path',
@@ -20,10 +20,10 @@ class Job extends Model
         'completed_at',
         'estimated_completion',
     ];
-    
+
     protected $casts = [
         'started_at' => 'datetime',
-        'completed_at' => 'datetime', 
+        'completed_at' => 'datetime',
         'estimated_completion' => 'datetime',
     ];
 }

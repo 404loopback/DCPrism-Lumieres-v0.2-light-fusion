@@ -9,7 +9,7 @@ class ParameterSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Paramètres basés sur les normes SMPTE pour DCP (Digital Cinema Packages)
      * Organisés selon les catégories métier du système DCPrism
      */
@@ -29,7 +29,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required', 'max:255']
+                'validation_rules' => ['required', 'max:255'],
             ],
             [
                 'name' => 'Titre Original',
@@ -40,7 +40,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['max:255']
+                'validation_rules' => ['max:255'],
             ],
             [
                 'name' => 'Année de Production',
@@ -51,7 +51,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['integer', 'min:1900', 'max:2100']
+                'validation_rules' => ['integer', 'min:1900', 'max:2100'],
             ],
             [
                 'name' => 'Genre',
@@ -62,7 +62,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['Action', 'Comédie', 'Drame', 'Horreur', 'Romance', 'Science-Fiction', 'Thriller', 'Documentaire', 'Animation', 'Famille'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_MANUAL
+                'extraction_source' => Parameter::SOURCE_MANUAL,
             ],
             [
                 'name' => 'Réalisateur',
@@ -73,7 +73,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['max:255']
+                'validation_rules' => ['max:255'],
             ],
             [
                 'name' => 'Producteur',
@@ -84,7 +84,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['max:255']
+                'validation_rules' => ['max:255'],
             ],
             [
                 'name' => 'Pays d\'Origine',
@@ -94,7 +94,7 @@ class ParameterSeeder extends Seeder
                 'description' => 'Pays de production principale du film',
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_METADATA
+                'extraction_source' => Parameter::SOURCE_METADATA,
             ],
             [
                 'name' => 'Classification',
@@ -105,8 +105,8 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['Tous publics', '-12', '-16', '-18', 'G', 'PG', 'PG-13', 'R', 'NC-17'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_MANUAL
-            ]
+                'extraction_source' => Parameter::SOURCE_MANUAL,
+            ],
         ];
 
         // === CATÉGORIE: VIDEO (Paramètres vidéo SMPTE) ===
@@ -121,7 +121,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required']
+                'validation_rules' => ['required'],
             ],
             [
                 'name' => 'Ratio d\'Aspect',
@@ -133,7 +133,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required']
+                'validation_rules' => ['required'],
             ],
             [
                 'name' => 'Fréquence d\'Images',
@@ -145,7 +145,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required']
+                'validation_rules' => ['required'],
             ],
             [
                 'name' => 'Profil Couleur',
@@ -156,7 +156,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['DCI-P3', 'Rec.709', 'Rec.2020', 'XYZ', 'ACES'],
                 'is_system' => true,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Encodage Vidéo',
@@ -167,7 +167,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['JPEG2000', 'H.264', 'H.265', 'ProRes'],
                 'is_system' => true,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Débit Vidéo Maximum',
@@ -178,7 +178,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['integer', 'min:1', 'max:1000']
+                'validation_rules' => ['integer', 'min:1', 'max:1000'],
             ],
             [
                 'name' => 'Profondeur de Couleur',
@@ -189,7 +189,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['8-bit', '10-bit', '12-bit', '16-bit'],
                 'is_system' => true,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Mode d\'Entrelacement',
@@ -200,8 +200,8 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['Progressive', 'Interlaced', 'PsF (Progressive segmented Frame)'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
-            ]
+                'extraction_source' => Parameter::SOURCE_DCP,
+            ],
         ];
 
         // === CATÉGORIE: AUDIO (Paramètres audio SMPTE) ===
@@ -215,7 +215,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required', 'size:2']
+                'validation_rules' => ['required', 'size:2'],
             ],
             [
                 'name' => 'Configuration Audio',
@@ -227,7 +227,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required']
+                'validation_rules' => ['required'],
             ],
             [
                 'name' => 'Fréquence d\'Échantillonnage',
@@ -239,7 +239,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'default_value' => '48000'
+                'default_value' => '48000',
             ],
             [
                 'name' => 'Résolution Audio',
@@ -251,7 +251,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'default_value' => '24-bit'
+                'default_value' => '24-bit',
             ],
             [
                 'name' => 'Encodage Audio',
@@ -262,7 +262,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['PCM', 'Dolby Digital', 'DTS', 'Dolby Atmos', 'PCM Uncompressed'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Niveau de Référence',
@@ -274,7 +274,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'default_value' => '-20 dBFS'
+                'default_value' => '-20 dBFS',
             ],
             [
                 'name' => 'Mixage Audio',
@@ -285,8 +285,8 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['Standard', 'Immersif (Atmos)', 'Binaural', 'Ambisonique'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_MANUAL
-            ]
+                'extraction_source' => Parameter::SOURCE_MANUAL,
+            ],
         ];
 
         // === CATÉGORIE: SUBTITLE (Sous-titres) ===
@@ -300,7 +300,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['size:2']
+                'validation_rules' => ['size:2'],
             ],
             [
                 'name' => 'Type de Sous-titres',
@@ -311,7 +311,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['Burned-in', 'Open Caption', 'Closed Caption', 'Subtitle', 'Forced Narrative'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Format des Sous-titres',
@@ -322,7 +322,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['SMPTE-TT', 'Interop Subtitle', 'SRT', 'ASS', 'VTT'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Position des Sous-titres',
@@ -334,8 +334,8 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_MANUAL,
-                'default_value' => 'Bottom'
-            ]
+                'default_value' => 'Bottom',
+            ],
         ];
 
         // === CATÉGORIE: TECHNICAL (Paramètres techniques DCP) ===
@@ -349,7 +349,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['required', 'regex:/^\\d{2}:\\d{2}:\\d{2}$/']
+                'validation_rules' => ['required', 'regex:/^\\d{2}:\\d{2}:\\d{2}$/'],
             ],
             [
                 'name' => 'UUID du Package',
@@ -360,7 +360,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['uuid']
+                'validation_rules' => ['uuid'],
             ],
             [
                 'name' => 'Version SMPTE',
@@ -371,7 +371,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['SMPTE (2007-2014)', 'Interop (2005)', 'SMPTE ST 429-2', 'SMPTE ST 2067-21'],
                 'is_system' => true,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Taille du Package',
@@ -382,7 +382,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['numeric', 'min:0']
+                'validation_rules' => ['numeric', 'min:0'],
             ],
             [
                 'name' => 'Nombre de Bobines',
@@ -393,7 +393,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'validation_rules' => ['integer', 'min:1', 'max:100']
+                'validation_rules' => ['integer', 'min:1', 'max:100'],
             ],
             [
                 'name' => 'Type de Chiffrement',
@@ -404,7 +404,7 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['None', 'AES-128-CBC', 'AES-256-CBC', 'KDM Protected'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Standard de Projection',
@@ -415,8 +415,8 @@ class ParameterSeeder extends Seeder
                 'possible_values' => ['DCI Compliant', 'SMPTE Compliant', 'Interop', 'Custom'],
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
-            ]
+                'extraction_source' => Parameter::SOURCE_DCP,
+            ],
         ];
 
         // === CATÉGORIE: ACCESSIBILITY (Accessibilité) ===
@@ -430,7 +430,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'default_value' => false
+                'default_value' => false,
             ],
             [
                 'name' => 'Sous-titres Malentendants',
@@ -441,7 +441,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_DCP,
-                'default_value' => false
+                'default_value' => false,
             ],
             [
                 'name' => 'Langue des Signes',
@@ -452,7 +452,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_MANUAL,
-                'default_value' => false
+                'default_value' => false,
             ],
             [
                 'name' => 'Contraste Élevé',
@@ -463,8 +463,8 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_MANUAL,
-                'default_value' => false
-            ]
+                'default_value' => false,
+            ],
         ];
 
         // === CATÉGORIE: METADATA (Métadonnées de gestion) ===
@@ -478,7 +478,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['max:255']
+                'validation_rules' => ['max:255'],
             ],
             [
                 'name' => 'Date de Création DCP',
@@ -488,7 +488,7 @@ class ParameterSeeder extends Seeder
                 'description' => 'Date de création du package DCP',
                 'is_system' => true,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_DCP
+                'extraction_source' => Parameter::SOURCE_DCP,
             ],
             [
                 'name' => 'Créateur du DCP',
@@ -499,7 +499,7 @@ class ParameterSeeder extends Seeder
                 'is_system' => false,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_METADATA,
-                'validation_rules' => ['max:255']
+                'validation_rules' => ['max:255'],
             ],
             [
                 'name' => 'Version du DCP',
@@ -509,7 +509,7 @@ class ParameterSeeder extends Seeder
                 'description' => 'Numéro de version du DCP',
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_METADATA
+                'extraction_source' => Parameter::SOURCE_METADATA,
             ],
             [
                 'name' => 'Commentaires Techniques',
@@ -519,7 +519,7 @@ class ParameterSeeder extends Seeder
                 'description' => 'Notes techniques ou commentaires sur le DCP',
                 'is_system' => false,
                 'is_active' => true,
-                'extraction_source' => Parameter::SOURCE_MANUAL
+                'extraction_source' => Parameter::SOURCE_MANUAL,
             ],
             [
                 'name' => 'Statut de Validation',
@@ -531,8 +531,8 @@ class ParameterSeeder extends Seeder
                 'is_system' => true,
                 'is_active' => true,
                 'extraction_source' => Parameter::SOURCE_AUTO,
-                'default_value' => 'Pending'
-            ]
+                'default_value' => 'Pending',
+            ],
         ];
 
         // Fusionner tous les paramètres
@@ -551,14 +551,14 @@ class ParameterSeeder extends Seeder
             Parameter::create($parameterData);
         }
 
-        $this->command->info('✅ ' . count($allParameters) . ' paramètres SMPTE créés avec succès !');
+        $this->command->info('✅ '.count($allParameters).' paramètres SMPTE créés avec succès !');
         $this->command->info('📊 Répartition par catégorie :');
-        $this->command->info('   • Content: ' . count($contentParameters));
-        $this->command->info('   • Video: ' . count($videoParameters));
-        $this->command->info('   • Audio: ' . count($audioParameters));
-        $this->command->info('   • Subtitle: ' . count($subtitleParameters));
-        $this->command->info('   • Technical: ' . count($technicalParameters));
-        $this->command->info('   • Accessibility: ' . count($accessibilityParameters));
-        $this->command->info('   • Metadata: ' . count($metadataParameters));
+        $this->command->info('   • Content: '.count($contentParameters));
+        $this->command->info('   • Video: '.count($videoParameters));
+        $this->command->info('   • Audio: '.count($audioParameters));
+        $this->command->info('   • Subtitle: '.count($subtitleParameters));
+        $this->command->info('   • Technical: '.count($technicalParameters));
+        $this->command->info('   • Accessibility: '.count($accessibilityParameters));
+        $this->command->info('   • Metadata: '.count($metadataParameters));
     }
 }

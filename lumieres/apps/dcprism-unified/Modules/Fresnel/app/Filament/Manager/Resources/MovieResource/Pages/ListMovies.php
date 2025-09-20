@@ -2,14 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\MovieResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\MovieResource;
-use Modules\Fresnel\app\Filament\Manager\Widgets\MoviesCardsWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Database\Eloquent\Builder;
-use Modules\Fresnel\app\Models\Movie;
-use Filament\Notifications\Notification;
+use Modules\Fresnel\app\Filament\Manager\Resources\MovieResource;
 
 class ListMovies extends ListRecords
 {
@@ -19,8 +15,8 @@ class ListMovies extends ListRecords
     {
         $festivalId = Session::get('selected_festival_id');
         $festivalName = Session::get('selected_festival_name');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return [
                 Actions\Action::make('select_festival')
                     ->label('Sélectionner un Festival')
@@ -29,12 +25,12 @@ class ListMovies extends ListRecords
                     ->url('/panel/manager'),
             ];
         }
-        
+
         return [
             Actions\CreateAction::make()
                 ->label('Nouveau Film')
                 ->createAnother(false),
-                
+
             Actions\Action::make('festival_info')
                 ->label("Festival: {$festivalName}")
                 ->icon('heroicon-o-information-circle')
@@ -43,27 +39,26 @@ class ListMovies extends ListRecords
                 ->outlined(),
         ];
     }
-    
+
     public function getTitle(): string
     {
         $festivalName = Session::get('selected_festival_name');
-        
+
         if ($festivalName) {
             return "Films - {$festivalName}";
         }
-        
+
         return 'Films';
     }
-    
+
     public function getSubheading(): ?string
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return '⚠️ Veuillez d\'abord sélectionner un festival à administrer';
         }
-        
+
         return 'Gestion des films pour ce festival';
     }
-    
 }

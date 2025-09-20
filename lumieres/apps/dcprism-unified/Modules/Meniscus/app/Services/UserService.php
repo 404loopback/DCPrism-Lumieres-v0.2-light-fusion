@@ -26,8 +26,10 @@ class UserService
         $user = User::find($id);
         if ($user) {
             $user->update($data);
+
             return $user;
         }
+
         return null;
     }
 
@@ -37,6 +39,7 @@ class UserService
         if ($user) {
             return $user->delete();
         }
+
         return false;
     }
 
@@ -66,7 +69,7 @@ class UserService
             'total_jobs' => 0,
             'completed_jobs' => 0,
             'failed_jobs' => 0,
-            'last_login' => null
+            'last_login' => null,
         ];
     }
 }

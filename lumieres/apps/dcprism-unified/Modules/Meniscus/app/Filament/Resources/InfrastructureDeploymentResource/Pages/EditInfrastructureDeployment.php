@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource;
 
 class EditInfrastructureDeployment extends EditRecord
 {

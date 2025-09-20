@@ -2,16 +2,18 @@
 
 /**
  * OpenAPI Schemas for DCPrism API
- * 
+ *
  * @OA\Schema(
  *     schema="ApiResponse",
+ *
  *     @OA\Property(property="message", type="string", description="Response message"),
  *     @OA\Property(property="data", type="object", description="Response data"),
  *     @OA\Property(property="errors", type="object", description="Validation errors", nullable=true),
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="PaginationMeta",
+ *
  *     @OA\Property(property="current_page", type="integer", description="Current page number"),
  *     @OA\Property(property="last_page", type="integer", description="Last page number"),
  *     @OA\Property(property="per_page", type="integer", description="Items per page"),
@@ -20,20 +22,24 @@
  *     @OA\Property(property="to", type="integer", description="Last item number", nullable=true),
  *     @OA\Property(property="has_more_pages", type="boolean", description="Has more pages")
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="ValidationError",
+ *
  *     @OA\Property(property="message", type="string", description="Error message"),
  *     @OA\Property(property="errors", type="object", description="Field validation errors",
+ *
  *         @OA\AdditionalProperties(
  *             type="array",
+ *
  *             @OA\Items(type="string")
  *         )
  *     )
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="User",
+ *
  *     @OA\Property(property="id", type="integer", description="User ID"),
  *     @OA\Property(property="name", type="string", description="User name"),
  *     @OA\Property(property="email", type="string", description="User email (conditional)"),
@@ -43,9 +49,10 @@
  *     @OA\Property(property="last_seen_at", type="string", format="date-time", description="Last seen timestamp", nullable=true),
  *     @OA\Property(property="created_at", type="string", format="date-time", description="Creation timestamp")
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="Movie",
+ *
  *     @OA\Property(property="id", type="integer", description="Movie ID"),
  *     @OA\Property(property="title", type="string", description="Movie title"),
  *     @OA\Property(property="original_title", type="string", description="Original movie title", nullable=true),
@@ -83,9 +90,10 @@
  *     @OA\Property(property="updated_at", type="string", format="date-time", description="Update timestamp"),
  *     @OA\Property(property="links", type="object", description="API resource links")
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="Festival",
+ *
  *     @OA\Property(property="id", type="integer", description="Festival ID"),
  *     @OA\Property(property="name", type="string", description="Festival name"),
  *     @OA\Property(property="edition", type="string", description="Festival edition", nullable=true),
@@ -125,9 +133,10 @@
  *     @OA\Property(property="updated_at", type="string", format="date-time", description="Update timestamp"),
  *     @OA\Property(property="links", type="object", description="API resource links")
  * )
- * 
+ *
  * @OA\Schema(
  *     schema="Job",
+ *
  *     @OA\Property(property="id", type="integer", description="Job ID"),
  *     @OA\Property(property="job_id", type="string", description="Queue job ID", nullable=true),
  *     @OA\Property(property="job_class", type="string", description="Job class name"),

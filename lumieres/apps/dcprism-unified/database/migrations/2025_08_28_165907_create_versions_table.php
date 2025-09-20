@@ -23,12 +23,12 @@ return new class extends Migration
             $table->string('generated_nomenclature')->nullable(); // Nomenclature générée automatiquement
             $table->enum('format', ['FTR', 'SHR', 'EPS', 'TST', 'TRL', 'RTG', 'POL', 'PSA', 'ADV'])->default('FTR');
             $table->timestamps();
-            
+
             $table->index(['movie_id']);
             $table->index(['type', 'audio_lang']);
             $table->index(['ov_id']);
             $table->index(['generated_nomenclature']);
-            
+
             $table->foreign('ov_id')->references('id')->on('versions')->onDelete('set null');
         });
     }

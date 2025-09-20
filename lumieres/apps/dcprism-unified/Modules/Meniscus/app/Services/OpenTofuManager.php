@@ -5,26 +5,28 @@ namespace Modules\Meniscus\app\Services;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class OpenTofuManager
 {
     private string $workingDir;
+
     private string $configsPath;
+
     private array $availableProviders;
+
     private array $availableScenarios;
 
     public function __construct()
     {
         $this->workingDir = storage_path('app/opentofu');
-        $this->configsPath = $this->workingDir . '/configs';
-        
+        $this->configsPath = $this->workingDir.'/configs';
+
         // Ensure directories exist
-        if (!File::exists($this->workingDir)) {
+        if (! File::exists($this->workingDir)) {
             File::makeDirectory($this->workingDir, 0755, true);
         }
-        if (!File::exists($this->configsPath)) {
+        if (! File::exists($this->configsPath)) {
             File::makeDirectory($this->configsPath, 0755, true);
         }
 
@@ -32,41 +34,41 @@ class OpenTofuManager
             'vultr' => [
                 'name' => 'Vultr',
                 'resources' => ['vultr_instance', 'vultr_ssh_key', 'vultr_vpc', 'vultr_firewall_group'],
-                'required_vars' => ['vultr_api_key', 'vultr_region']
+                'required_vars' => ['vultr_api_key', 'vultr_region'],
             ],
             'aws' => [
                 'name' => 'Amazon Web Services',
                 'resources' => ['aws_instance', 'aws_key_pair', 'aws_vpc', 'aws_security_group'],
-                'required_vars' => ['aws_access_key', 'aws_secret_key', 'aws_region']
+                'required_vars' => ['aws_access_key', 'aws_secret_key', 'aws_region'],
             ],
             'azure' => [
                 'name' => 'Microsoft Azure',
                 'resources' => ['azurerm_linux_virtual_machine', 'azurerm_resource_group'],
-                'required_vars' => ['azure_subscription_id', 'azure_client_id']
+                'required_vars' => ['azure_subscription_id', 'azure_client_id'],
             ],
             'gcp' => [
                 'name' => 'Google Cloud Platform',
                 'resources' => ['google_compute_instance', 'google_compute_network'],
-                'required_vars' => ['gcp_project', 'gcp_region']
-            ]
+                'required_vars' => ['gcp_project', 'gcp_region'],
+            ],
         ];
 
         $this->availableScenarios = [
             'backend-automation' => [
                 'name' => 'Backend Automation',
                 'description' => 'Master permanent + Workers dynamiques pour DCP processing',
-                'template' => 'backend-automation.tf.tpl'
+                'template' => 'backend-automation.tf.tpl',
             ],
             'manual-testing' => [
                 'name' => 'Manual Testing',
                 'description' => 'Machine puissante avec GUI pour tests manuels',
-                'template' => 'manual-testing.tf.tpl'
+                'template' => 'manual-testing.tf.tpl',
             ],
             'high-performance-windows' => [
                 'name' => 'High-Performance Windows',
                 'description' => 'Machine Windows avec maximum CPU cores',
-                'template' => 'windows-workstation.tf.tpl'
-            ]
+                'template' => 'windows-workstation.tf.tpl',
+            ],
         ];
     }
 
@@ -93,23 +95,23 @@ class OpenTofuManager
     {
         try {
             $configId = uniqid('config_');
-            $configPath = $this->configsPath . '/' . $configId;
-            
+            $configPath = $this->configsPath.'/'.$configId;
+
             // Create configuration directory
             File::makeDirectory($configPath, 0755, true);
-            
+
             // Generate main.tf from template
             $mainTf = $this->generateMainTf($scenario, $provider, $variables);
-            File::put($configPath . '/main.tf', $mainTf);
-            
+            File::put($configPath.'/main.tf', $mainTf);
+
             // Generate variables.tf
             $variablesTf = $this->generateVariablesTf($provider, $variables);
-            File::put($configPath . '/variables.tf', $variablesTf);
-            
+            File::put($configPath.'/variables.tf', $variablesTf);
+
             // Generate terraform.tfvars
             $tfvars = $this->generateTfVars($variables);
-            File::put($configPath . '/terraform.tfvars', $tfvars);
-            
+            File::put($configPath.'/terraform.tfvars', $tfvars);
+
             // Store configuration metadata
             $metadata = [
                 'id' => $configId,
@@ -119,29 +121,29 @@ class OpenTofuManager
                 'variables' => $variables,
                 'created_at' => now()->toISOString(),
                 'status' => 'draft',
-                'path' => $configPath
+                'path' => $configPath,
             ];
-            
-            File::put($configPath . '/metadata.json', json_encode($metadata, JSON_PRETTY_PRINT));
-            
+
+            File::put($configPath.'/metadata.json', json_encode($metadata, JSON_PRETTY_PRINT));
+
             Log::info('OpenTofu configuration created', [
                 'config_id' => $configId,
                 'name' => $name,
                 'scenario' => $scenario,
-                'provider' => $provider
+                'provider' => $provider,
             ]);
-            
+
             return $metadata;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to create OpenTofu configuration', [
                 'name' => $name,
                 'scenario' => $scenario,
                 'provider' => $provider,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
-            throw new \RuntimeException('Failed to create configuration: ' . $e->getMessage());
+
+            throw new \RuntimeException('Failed to create configuration: '.$e->getMessage());
         }
     }
 
@@ -151,27 +153,27 @@ class OpenTofuManager
     public function listConfigurations(): array
     {
         $configurations = [];
-        
-        if (!File::exists($this->configsPath)) {
+
+        if (! File::exists($this->configsPath)) {
             return $configurations;
         }
-        
+
         $configDirs = File::directories($this->configsPath);
-        
+
         foreach ($configDirs as $configDir) {
-            $metadataFile = $configDir . '/metadata.json';
-            
+            $metadataFile = $configDir.'/metadata.json';
+
             if (File::exists($metadataFile)) {
                 $metadata = json_decode(File::get($metadataFile), true);
                 $configurations[] = $metadata;
             }
         }
-        
+
         // Sort by created_at desc
-        usort($configurations, function($a, $b) {
+        usort($configurations, function ($a, $b) {
             return strtotime($b['created_at']) - strtotime($a['created_at']);
         });
-        
+
         return $configurations;
     }
 
@@ -180,26 +182,26 @@ class OpenTofuManager
      */
     public function getConfiguration(string $configId): ?array
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        $metadataFile = $configPath . '/metadata.json';
-        
-        if (!File::exists($metadataFile)) {
+        $configPath = $this->configsPath.'/'.$configId;
+        $metadataFile = $configPath.'/metadata.json';
+
+        if (! File::exists($metadataFile)) {
             return null;
         }
-        
+
         $metadata = json_decode(File::get($metadataFile), true);
-        
+
         // Add file contents
         $metadata['files'] = [];
-        
+
         $files = ['main.tf', 'variables.tf', 'terraform.tfvars'];
         foreach ($files as $file) {
-            $filePath = $configPath . '/' . $file;
+            $filePath = $configPath.'/'.$file;
             if (File::exists($filePath)) {
                 $metadata['files'][$file] = File::get($filePath);
             }
         }
-        
+
         return $metadata;
     }
 
@@ -209,37 +211,37 @@ class OpenTofuManager
     public function updateConfiguration(string $configId, array $files): bool
     {
         try {
-            $configPath = $this->configsPath . '/' . $configId;
-            
-            if (!File::exists($configPath)) {
+            $configPath = $this->configsPath.'/'.$configId;
+
+            if (! File::exists($configPath)) {
                 throw new \RuntimeException('Configuration not found');
             }
-            
+
             // Update files
             foreach ($files as $filename => $content) {
                 if (in_array($filename, ['main.tf', 'variables.tf', 'terraform.tfvars'])) {
-                    File::put($configPath . '/' . $filename, $content);
+                    File::put($configPath.'/'.$filename, $content);
                 }
             }
-            
+
             // Update metadata
-            $metadataFile = $configPath . '/metadata.json';
+            $metadataFile = $configPath.'/metadata.json';
             if (File::exists($metadataFile)) {
                 $metadata = json_decode(File::get($metadataFile), true);
                 $metadata['updated_at'] = now()->toISOString();
                 File::put($metadataFile, json_encode($metadata, JSON_PRETTY_PRINT));
             }
-            
+
             Log::info('OpenTofu configuration updated', ['config_id' => $configId]);
-            
+
             return true;
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to update OpenTofu configuration', [
                 'config_id' => $configId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return false;
         }
     }
@@ -249,45 +251,45 @@ class OpenTofuManager
      */
     public function validateConfiguration(string $configId): array
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        
+        $configPath = $this->configsPath.'/'.$configId;
+
         try {
             // Run tofu validate
             $result = Process::path($configPath)
                 ->timeout(60)
                 ->run('tofu init -backend=false');
-            
-            if (!$result->successful()) {
+
+            if (! $result->successful()) {
                 return [
                     'valid' => false,
-                    'errors' => ['Init failed: ' . $result->errorOutput()],
-                    'output' => $result->output()
+                    'errors' => ['Init failed: '.$result->errorOutput()],
+                    'output' => $result->output(),
                 ];
             }
-            
+
             $result = Process::path($configPath)
                 ->timeout(60)
                 ->run('tofu validate');
-            
+
             if ($result->successful()) {
                 return [
                     'valid' => true,
                     'errors' => [],
-                    'output' => $result->output()
+                    'output' => $result->output(),
                 ];
             } else {
                 return [
                     'valid' => false,
-                    'errors' => ['Validation failed: ' . $result->errorOutput()],
-                    'output' => $result->output()
+                    'errors' => ['Validation failed: '.$result->errorOutput()],
+                    'output' => $result->output(),
                 ];
             }
-            
+
         } catch (\Exception $e) {
             return [
                 'valid' => false,
-                'errors' => ['Exception: ' . $e->getMessage()],
-                'output' => ''
+                'errors' => ['Exception: '.$e->getMessage()],
+                'output' => '',
             ];
         }
     }
@@ -297,61 +299,61 @@ class OpenTofuManager
      */
     public function generatePlan(string $configId): array
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        
+        $configPath = $this->configsPath.'/'.$configId;
+
         try {
             // Initialize if needed
             $initResult = Process::path($configPath)
                 ->timeout(120)
                 ->run('tofu init');
-            
-            if (!$initResult->successful()) {
-                throw new ProcessFailedException('Init failed: ' . $initResult->errorOutput());
+
+            if (! $initResult->successful()) {
+                throw new ProcessFailedException('Init failed: '.$initResult->errorOutput());
             }
-            
+
             // Generate plan
             $planResult = Process::path($configPath)
                 ->timeout(180)
                 ->run('tofu plan -out=tfplan');
-            
-            if (!$planResult->successful()) {
+
+            if (! $planResult->successful()) {
                 return [
                     'success' => false,
                     'error' => $planResult->errorOutput(),
-                    'output' => $planResult->output()
+                    'output' => $planResult->output(),
                 ];
             }
-            
+
             // Get plan in JSON format
             $showResult = Process::path($configPath)
                 ->timeout(60)
                 ->run('tofu show -json tfplan');
-            
-            if (!$showResult->successful()) {
+
+            if (! $showResult->successful()) {
                 return [
                     'success' => true,
                     'plan_text' => $planResult->output(),
-                    'plan_json' => null
+                    'plan_json' => null,
                 ];
             }
-            
+
             return [
                 'success' => true,
                 'plan_text' => $planResult->output(),
                 'plan_json' => json_decode($showResult->output(), true),
-                'output' => $planResult->output()
+                'output' => $planResult->output(),
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to generate OpenTofu plan', [
                 'config_id' => $configId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'output' => ''
+                'output' => '',
             ];
         }
     }
@@ -361,62 +363,62 @@ class OpenTofuManager
      */
     public function deployConfiguration(string $configId): array
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        
+        $configPath = $this->configsPath.'/'.$configId;
+
         try {
             // Check if plan exists
-            if (!File::exists($configPath . '/tfplan')) {
+            if (! File::exists($configPath.'/tfplan')) {
                 throw new \RuntimeException('No plan found. Generate plan first.');
             }
-            
+
             // Apply the plan
             $result = Process::path($configPath)
                 ->timeout(1800) // 30 minutes
                 ->run('tofu apply tfplan');
-            
+
             if ($result->successful()) {
                 // Get outputs
                 $outputResult = Process::path($configPath)
                     ->timeout(60)
                     ->run('tofu output -json');
-                
-                $outputs = $outputResult->successful() ? 
+
+                $outputs = $outputResult->successful() ?
                     json_decode($outputResult->output(), true) : [];
-                
+
                 // Update metadata
                 $this->updateConfigurationStatus($configId, 'deployed', $outputs);
-                
+
                 Log::info('OpenTofu configuration deployed successfully', [
-                    'config_id' => $configId
+                    'config_id' => $configId,
                 ]);
-                
+
                 return [
                     'success' => true,
                     'output' => $result->output(),
-                    'outputs' => $outputs
+                    'outputs' => $outputs,
                 ];
             } else {
                 $this->updateConfigurationStatus($configId, 'failed');
-                
+
                 return [
                     'success' => false,
                     'error' => $result->errorOutput(),
-                    'output' => $result->output()
+                    'output' => $result->output(),
                 ];
             }
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to deploy OpenTofu configuration', [
                 'config_id' => $configId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             $this->updateConfigurationStatus($configId, 'failed');
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'output' => ''
+                'output' => '',
             ];
         }
     }
@@ -426,42 +428,42 @@ class OpenTofuManager
      */
     public function destroyConfiguration(string $configId): array
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        
+        $configPath = $this->configsPath.'/'.$configId;
+
         try {
             $result = Process::path($configPath)
                 ->timeout(1800) // 30 minutes
                 ->run('tofu destroy -auto-approve');
-            
+
             if ($result->successful()) {
                 $this->updateConfigurationStatus($configId, 'destroyed');
-                
+
                 Log::info('OpenTofu configuration destroyed', [
-                    'config_id' => $configId
+                    'config_id' => $configId,
                 ]);
-                
+
                 return [
                     'success' => true,
-                    'output' => $result->output()
+                    'output' => $result->output(),
                 ];
             } else {
                 return [
                     'success' => false,
                     'error' => $result->errorOutput(),
-                    'output' => $result->output()
+                    'output' => $result->output(),
                 ];
             }
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to destroy OpenTofu configuration', [
                 'config_id' => $configId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'output' => ''
+                'output' => '',
             ];
         }
     }
@@ -472,14 +474,14 @@ class OpenTofuManager
     private function generateMainTf(string $scenario, string $provider, array $variables): string
     {
         $template = $this->getScenarioTemplate($scenario);
-        
+
         // Replace placeholders with actual values
         $replacements = [
             '{{PROVIDER}}' => $provider,
             '{{PROJECT_NAME}}' => $variables['project_name'] ?? 'dcparty',
-            '{{ENVIRONMENT}}' => $variables['environment'] ?? 'development'
+            '{{ENVIRONMENT}}' => $variables['environment'] ?? 'development',
         ];
-        
+
         return str_replace(array_keys($replacements), array_values($replacements), $template);
     }
 
@@ -489,9 +491,9 @@ class OpenTofuManager
     private function generateVariablesTf(string $provider, array $variables): string
     {
         $content = "# Variables for DCParty OpenTofu Configuration\n\n";
-        
+
         $providerConfig = $this->availableProviders[$provider] ?? [];
-        
+
         // Add required provider variables
         if (isset($providerConfig['required_vars'])) {
             foreach ($providerConfig['required_vars'] as $varName) {
@@ -502,21 +504,21 @@ class OpenTofuManager
                 $content .= "}\n\n";
             }
         }
-        
+
         // Add common variables
         $commonVars = [
             'project_name' => 'string',
             'environment' => 'string',
-            'region' => 'string'
+            'region' => 'string',
         ];
-        
+
         foreach ($commonVars as $varName => $type) {
             $content .= "variable \"{$varName}\" {\n";
-            $content .= "  description = \"" . ucfirst(str_replace('_', ' ', $varName)) . "\"\n";
+            $content .= '  description = "'.ucfirst(str_replace('_', ' ', $varName))."\"\n";
             $content .= "  type        = {$type}\n";
             $content .= "}\n\n";
         }
-        
+
         return $content;
     }
 
@@ -526,17 +528,17 @@ class OpenTofuManager
     private function generateTfVars(array $variables): string
     {
         $content = "# DCParty Configuration Values\n\n";
-        
+
         foreach ($variables as $key => $value) {
             if (is_string($value)) {
                 $content .= "{$key} = \"{$value}\"\n";
             } elseif (is_bool($value)) {
-                $content .= "{$key} = " . ($value ? 'true' : 'false') . "\n";
+                $content .= "{$key} = ".($value ? 'true' : 'false')."\n";
             } elseif (is_numeric($value)) {
                 $content .= "{$key} = {$value}\n";
             }
         }
-        
+
         return $content;
     }
 
@@ -549,9 +551,9 @@ class OpenTofuManager
         $templates = [
             'backend-automation' => $this->getBackendAutomationTemplate(),
             'manual-testing' => $this->getManualTestingTemplate(),
-            'high-performance-windows' => $this->getWindowsWorkstationTemplate()
+            'high-performance-windows' => $this->getWindowsWorkstationTemplate(),
         ];
-        
+
         return $templates[$scenario] ?? $templates['backend-automation'];
     }
 
@@ -717,18 +719,18 @@ EOF;
      */
     private function updateConfigurationStatus(string $configId, string $status, array $outputs = []): void
     {
-        $configPath = $this->configsPath . '/' . $configId;
-        $metadataFile = $configPath . '/metadata.json';
-        
+        $configPath = $this->configsPath.'/'.$configId;
+        $metadataFile = $configPath.'/metadata.json';
+
         if (File::exists($metadataFile)) {
             $metadata = json_decode(File::get($metadataFile), true);
             $metadata['status'] = $status;
             $metadata['updated_at'] = now()->toISOString();
-            
-            if (!empty($outputs)) {
+
+            if (! empty($outputs)) {
                 $metadata['outputs'] = $outputs;
             }
-            
+
             File::put($metadataFile, json_encode($metadata, JSON_PRETTY_PRINT));
         }
     }

@@ -4,9 +4,9 @@ namespace Modules\Fresnel\app\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiLoggerMiddleware
 {
@@ -16,7 +16,7 @@ class ApiLoggerMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $startTime = microtime(true);
-        
+
         // Generate request ID for tracking
         $requestId = Str::random(12);
         $request->attributes->set('api_request_id', $requestId);
@@ -35,7 +35,7 @@ class ApiLoggerMiddleware
 
         // Add request ID and response time to headers
         $response->headers->set('X-Request-ID', $requestId);
-        $response->headers->set('X-Response-Time', $responseTime . 'ms');
+        $response->headers->set('X-Response-Time', $responseTime.'ms');
 
         return $response;
     }
@@ -56,7 +56,7 @@ class ApiLoggerMiddleware
         ];
 
         // Add request body for non-GET requests (but filter sensitive data)
-        if (!$request->isMethod('GET')) {
+        if (! $request->isMethod('GET')) {
             $data['body'] = $this->getFilteredRequestBody($request);
         }
 
@@ -106,10 +106,10 @@ class ApiLoggerMiddleware
     private function getFilteredHeaders(Request $request): array
     {
         $headers = $request->headers->all();
-        
+
         // Remove or mask sensitive headers
         $sensitiveHeaders = ['authorization', 'x-api-key', 'cookie', 'x-csrf-token'];
-        
+
         foreach ($sensitiveHeaders as $header) {
             if (isset($headers[$header])) {
                 if ($header === 'authorization') {
@@ -129,13 +129,13 @@ class ApiLoggerMiddleware
     private function getFilteredRequestBody(Request $request): array
     {
         $body = $request->all();
-        
+
         // Remove or mask sensitive fields
         $sensitiveFields = [
-            'password', 'password_confirmation', 'token', 'api_key', 
-            'secret', 'private_key', 'access_token', 'refresh_token'
+            'password', 'password_confirmation', 'token', 'api_key',
+            'secret', 'private_key', 'access_token', 'refresh_token',
         ];
-        
+
         foreach ($sensitiveFields as $field) {
             if (isset($body[$field])) {
                 $body[$field] = '***masked***';

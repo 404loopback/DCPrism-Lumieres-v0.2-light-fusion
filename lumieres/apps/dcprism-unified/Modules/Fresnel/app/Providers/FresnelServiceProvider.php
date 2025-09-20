@@ -36,32 +36,52 @@ class FresnelServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        
+
         // Register services
         $this->registerServices();
-        
+
         // Register Filament Panel Providers
         $this->registerFilamentPanels();
     }
-    
+
     /**
      * Register module services
      */
     protected function registerServices(): void
     {
+        // Context Services
         $this->app->singleton(\Modules\Fresnel\app\Services\Context\FestivalContextService::class);
+        
+        // Nomenclature Services
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\NomenclatureValidator::class);
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\NomenclatureRepository::class);
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\ParameterExtractor::class);
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\NomenclatureBuilder::class);
+        
+        // Specialized Nomenclature Services
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\NomenclatureConfigService::class);
+        $this->app->singleton(\Modules\Fresnel\app\Services\Nomenclature\NomenclatureStatsService::class);
+        
+        // Main Nomenclature Service (orchestrator)
+        $this->app->singleton(\Modules\Fresnel\app\Services\UnifiedNomenclatureService::class);
+        
+        // Festival Parameter Management Service
+        $this->app->singleton(\Modules\Fresnel\app\Services\FestivalParameterService::class);
+        
+        // Parameter Logic Service (special logics: increment, initials, etc.)
+        $this->app->singleton(\Modules\Fresnel\app\Services\ParameterLogicService::class);
     }
-    
+
     /**
      * Register Filament panel providers for the module.
      */
     protected function registerFilamentPanels(): void
     {
         // Login unifié géré par le site vitrine maintenant
-        
+
         // Enregistrement du FresnelAdminProvider pour le panel admin
         $this->app->register(\Modules\Fresnel\app\Providers\Filament\FresnelAdminProvider::class);
-        
+
         // Autres panels Filament spécialisés
         $this->app->register(\Modules\Fresnel\app\Providers\Filament\CinemaPanelProvider::class);
         $this->app->register(\Modules\Fresnel\app\Providers\Filament\InfrastructurePanelProvider::class);
@@ -162,7 +182,7 @@ class FresnelServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->name . '\\View\\Components', $this->nameLower);
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
     }
 
     /**

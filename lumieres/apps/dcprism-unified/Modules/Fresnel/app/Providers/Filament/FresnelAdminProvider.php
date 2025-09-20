@@ -2,8 +2,6 @@
 
 namespace Modules\Fresnel\app\Providers\Filament;
 
-use Modules\Fresnel\app\Traits\AppliesGlobalTheme;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -13,34 +11,34 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
-use Modules\Fresnel\app\Filament\Widgets\DcpStatisticsWidget;
-use Modules\Fresnel\app\Filament\Widgets\ProcessingActivityWidget;
-use Modules\Fresnel\app\Filament\Widgets\StorageUsageWidget;
-use Modules\Fresnel\app\Filament\Widgets\FestivalPerformanceWidget;
-use Modules\Fresnel\app\Filament\Widgets\TrendsChartWidget;
-use Modules\Fresnel\app\Filament\Widgets\UploadTrendsWidget;
-use Modules\Fresnel\app\Filament\Widgets\DcpVersionsOverviewWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Illuminate\Support\Facades\Auth;
+use Modules\Fresnel\app\Filament\Widgets\DcpStatisticsWidget;
+use Modules\Fresnel\app\Filament\Widgets\DcpVersionsOverviewWidget;
+use Modules\Fresnel\app\Filament\Widgets\FestivalPerformanceWidget;
+use Modules\Fresnel\app\Filament\Widgets\ProcessingActivityWidget;
+use Modules\Fresnel\app\Filament\Widgets\StorageUsageWidget;
+use Modules\Fresnel\app\Filament\Widgets\TrendsChartWidget;
+use Modules\Fresnel\app\Filament\Widgets\UploadTrendsWidget;
+use Modules\Fresnel\app\Traits\AppliesGlobalTheme;
 
 class FresnelAdminProvider extends PanelProvider
 {
     use AppliesGlobalTheme;
-    
+
     public function panel(Panel $panel): Panel
     {
         $panel = $this->applyGlobalTheme($panel);
-        
+
         return $panel
-            ->default()
             ->id('fresnel')
             ->path('fresnel/admin')
-            // ->login()
+            ->homeUrl('/fresnel/admin')
+            ->default()
             ->authGuard('web')
             ->brandName('DCPrism - Connexion')
             ->brandLogo(asset('images/logo-dcprism.svg'))
@@ -57,11 +55,11 @@ class FresnelAdminProvider extends PanelProvider
                 \Modules\Fresnel\app\Filament\Resources\Users\UserResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Langs\LangResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Nomenclatures\NomenclatureResource::class,
-                
+
                 // Ressources intégrées dans FilmsPage (masquées de la navigation)
                 \Modules\Fresnel\app\Filament\Resources\Movies\MovieResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource::class,
-                \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,  
+                \Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource::class,
                 \Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource::class,
                 \Modules\Fresnel\app\Filament\Resources\Versions\VersionResource::class,
             ])
@@ -83,7 +81,7 @@ class FresnelAdminProvider extends PanelProvider
                 UploadTrendsWidget::class,
                 \Modules\Fresnel\app\Filament\Widgets\StatsOverview::class,
                 \Modules\Fresnel\app\Filament\Widgets\LatestMovies::class, // RÉACTIVÉ - routes movies disponibles
-                
+
                 // Widgets par défaut
                 AccountWidget::class,
                 FilamentInfoWidget::class,
@@ -96,7 +94,7 @@ class FresnelAdminProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                DisableBladeIconComponents::class,
+                DisableBladeIconComponents::class, // Nécessaire pour Filament
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
@@ -108,7 +106,7 @@ class FresnelAdminProvider extends PanelProvider
                     ->gridColumns([
                         'default' => 1,
                         'sm' => 2,
-                        'lg' => 3
+                        'lg' => 3,
                     ])
                     ->sectionColumnSpan(1)
                     ->checkboxListColumns([
@@ -119,7 +117,7 @@ class FresnelAdminProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                    ])
+                    ]),
             ])
             ->databaseNotifications(); // Active le système de notifications natif
     }

@@ -2,8 +2,6 @@
 
 namespace Modules\Meniscus\app\Services;
 
-use Modules\Meniscus\app\Models\Job;
-
 class JobService
 {
     public function createJob($data)

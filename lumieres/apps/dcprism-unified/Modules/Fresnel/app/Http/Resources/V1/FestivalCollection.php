@@ -32,23 +32,23 @@ class FestivalCollection extends ResourceCollection
                 'from' => $this->resource->firstItem(),
                 'to' => $this->resource->lastItem(),
                 'has_more_pages' => $this->resource->hasMorePages(),
-                
+
                 // Festival statistics
                 'statistics' => [
                     'active_festivals' => $this->collection->where('is_active', true)->count(),
-                    'upcoming_festivals' => $this->collection->filter(fn($f) => $f->start_date && $f->start_date->isFuture())->count(),
-                    'ongoing_festivals' => $this->collection->filter(fn($f) => $f->start_date && $f->end_date && $f->start_date->isPast() && $f->end_date->isFuture())->count(),
+                    'upcoming_festivals' => $this->collection->filter(fn ($f) => $f->start_date && $f->start_date->isFuture())->count(),
+                    'ongoing_festivals' => $this->collection->filter(fn ($f) => $f->start_date && $f->end_date && $f->start_date->isPast() && $f->end_date->isFuture())->count(),
                     'accepting_submissions' => $this->collection->where('allows_submissions', true)->count(),
                     'countries' => $this->collection->pluck('country')->filter()->unique()->count(),
-                    'total_submissions' => $this->collection->sum(fn($f) => $f->movies_count ?? 0),
-                ]
+                    'total_submissions' => $this->collection->sum(fn ($f) => $f->movies_count ?? 0),
+                ],
             ],
             'links' => [
                 'first' => $this->resource->url(1),
                 'last' => $this->resource->url($this->resource->lastPage()),
                 'prev' => $this->resource->previousPageUrl(),
                 'next' => $this->resource->nextPageUrl(),
-            ]
+            ],
         ];
     }
 
@@ -76,12 +76,12 @@ class FestivalCollection extends ResourceCollection
                 'name' => 'Name A-Z',
                 '-name' => 'Name Z-A',
                 'start_date' => 'Start Date (Earliest first)',
-                '-start_date' => 'Start Date (Latest first)', 
+                '-start_date' => 'Start Date (Latest first)',
                 'year' => 'Year (Oldest first)',
                 '-year' => 'Year (Newest first)',
                 'created_at' => 'Created (Oldest first)',
                 '-created_at' => 'Created (Newest first)',
-            ]
+            ],
         ];
     }
 

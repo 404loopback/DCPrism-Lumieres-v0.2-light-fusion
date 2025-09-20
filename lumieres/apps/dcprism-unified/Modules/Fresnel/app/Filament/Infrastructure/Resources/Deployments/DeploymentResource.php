@@ -2,8 +2,6 @@
 
 namespace Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments;
 
-use Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments\Pages\ManageDeployments;
-use Modules\Fresnel\app\Models\InfrastructureDeployment;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,15 +12,17 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Modules\Fresnel\app\Filament\Infrastructure\Resources\Deployments\Pages\ManageDeployments;
+use Modules\Fresnel\app\Models\InfrastructureDeployment;
 
 class DeploymentResource extends Resource
 {
     protected static ?string $model = InfrastructureDeployment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRocketLaunch;
-    
+
     protected static ?string $navigationLabel = 'Deployments';
-    
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -33,32 +33,32 @@ class DeploymentResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->placeholder('e.g., Production Environment'),
-                
+
                 Forms\Components\Textarea::make('description')
                     ->label('Description')
                     ->rows(3),
-                
+
                 Forms\Components\Select::make('scenario')
                     ->required()
                     ->options([
                         'backend-automation' => 'DCP Processing (Backend)',
                         'manual-testing' => 'Manual Testing Environment',
-                        'high-performance-windows' => 'Windows Workstation'
+                        'high-performance-windows' => 'Windows Workstation',
                     ]),
-                
+
                 Forms\Components\Select::make('environment')
                     ->required()
                     ->options([
                         'development' => 'Development',
                         'staging' => 'Staging',
-                        'production' => 'Production'
+                        'production' => 'Production',
                     ])
                     ->default('development'),
-                
+
                 Forms\Components\TextInput::make('project_name')
                     ->required()
                     ->default('dcparty'),
-                
+
                 Forms\Components\Select::make('status')
                     ->options([
                         'draft' => 'Draft',
@@ -88,7 +88,7 @@ class DeploymentResource extends Resource
                 \Filament\Tables\Columns\BadgeColumn::make('scenario')
                     ->colors([
                         'success' => 'backend-automation',
-                        'info' => 'manual-testing', 
+                        'info' => 'manual-testing',
                         'warning' => 'high-performance-windows',
                     ]),
                 \Filament\Tables\Columns\BadgeColumn::make('status')

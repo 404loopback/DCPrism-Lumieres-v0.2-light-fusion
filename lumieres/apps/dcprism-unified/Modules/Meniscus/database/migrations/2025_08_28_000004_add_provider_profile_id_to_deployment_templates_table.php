@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::table('deployment_templates', function (Blueprint $table) {
             // Add provider_profile_id column after scenario
             $table->unsignedBigInteger('provider_profile_id')->nullable()->after('scenario');
-            
+
             // Add foreign key constraint
             $table->foreign('provider_profile_id')
-                  ->references('id')
-                  ->on('provider_profiles')
-                  ->onDelete('set null');
-                  
+                ->references('id')
+                ->on('provider_profiles')
+                ->onDelete('set null');
+
             // Add index for performance
             $table->index('provider_profile_id');
         });
@@ -35,7 +35,7 @@ return new class extends Migration
             // Drop foreign key and index
             $table->dropForeign(['provider_profile_id']);
             $table->dropIndex(['provider_profile_id']);
-            
+
             // Drop column
             $table->dropColumn('provider_profile_id');
         });

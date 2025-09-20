@@ -2,10 +2,10 @@
 
 namespace Modules\Fresnel\app\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class InfrastructureDeployment extends Model
 {
@@ -32,7 +32,7 @@ class InfrastructureDeployment extends Model
 
     protected $casts = [
         'terraform_config' => 'array',
-        'terraform_state' => 'array', 
+        'terraform_state' => 'array',
         'terraform_outputs' => 'array',
         'provider_config' => 'array',
         'deployment_logs' => 'array',
@@ -44,20 +44,29 @@ class InfrastructureDeployment extends Model
 
     // Status constants
     const STATUS_DRAFT = 'draft';
+
     const STATUS_PLANNING = 'planning';
-    const STATUS_DEPLOYING = 'deploying'; 
+
+    const STATUS_DEPLOYING = 'deploying';
+
     const STATUS_DEPLOYED = 'deployed';
+
     const STATUS_FAILED = 'failed';
+
     const STATUS_DESTROYING = 'destroying';
+
     const STATUS_DESTROYED = 'destroyed';
 
     // Scenario constants
     const SCENARIO_BACKEND_AUTOMATION = 'backend-automation';
+
     const SCENARIO_MANUAL_TESTING = 'manual-testing';
 
     // Environment constants
     const ENV_DEVELOPMENT = 'development';
+
     const ENV_STAGING = 'staging';
+
     const ENV_PRODUCTION = 'production';
 
     /**
@@ -125,8 +134,8 @@ class InfrastructureDeployment extends Model
     public function getAccessUrls(): array
     {
         $outputs = $this->terraform_outputs ?? [];
-        
-        if (!isset($outputs['access_urls'])) {
+
+        if (! isset($outputs['access_urls'])) {
             return [];
         }
 
@@ -136,6 +145,7 @@ class InfrastructureDeployment extends Model
     public function getResourceCount(): int
     {
         $details = $this->resource_details ?? [];
+
         return count($details);
     }
 

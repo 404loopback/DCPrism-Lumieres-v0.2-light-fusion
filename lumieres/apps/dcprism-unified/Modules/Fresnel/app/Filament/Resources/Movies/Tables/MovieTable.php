@@ -2,21 +2,19 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Movies\Tables;
 
-use Modules\Fresnel\app\Filament\Shared\Tables\Columns;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Actions\ActionGroup;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Filament\Shared\Tables\Columns;
 use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Movie;
 
 class MovieTable
 {
@@ -28,7 +26,7 @@ class MovieTable
                 Columns::title(),
                 Columns::email('source_email', 'Source', 30),
                 Columns::countBadge('versions', 'Versions'),
-                    
+
                 Columns::statusBadge(
                     'status',
                     'Statut',
@@ -40,25 +38,25 @@ class MovieTable
                     ],
                     Movie::getStatuses()
                 ),
-                    
+
                 TextColumn::make('festivals_info')
                     ->label('Festivals')
                     ->getStateUsing(function (Movie $record): string {
                         $festivals = $record->festivals->sortBy('id');
-                        
+
                         if ($festivals->isEmpty()) {
                             return 'Aucun festival';
                         }
-                        
+
                         $firstFestival = $festivals->first();
                         $totalCount = $festivals->count();
-                        
+
                         // Status icon for the first festival
                         $status = $firstFestival->pivot->submission_status ?? 'pending';
                         $priority = $firstFestival->pivot->priority ?? 0;
-                        $statusLabel = match($status) {
+                        $statusLabel = match ($status) {
                             'pending' => '⏳',
-                            'submitted' => '📤', 
+                            'submitted' => '📤',
                             'in_review' => '👀',
                             'accepted' => '✅',
                             'rejected' => '❌',
@@ -66,39 +64,39 @@ class MovieTable
                             default => '⚪'
                         };
                         $priorityLabel = $priority > 2 ? ' 🔥' : '';
-                        
+
                         $result = "{$statusLabel} {$firstFestival->name}{$priorityLabel}";
-                        
+
                         // Add badge if more than one festival
                         if ($totalCount > 1) {
                             $additionalCount = $totalCount - 1;
                             $result .= " <span class='inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10'>+{$additionalCount}</span>";
                         }
-                        
+
                         return $result;
                     })
                     ->html()
                     ->limit(60)
                     ->tooltip(function (Movie $record): string {
                         $festivals = $record->festivals;
-                        
+
                         if ($festivals->isEmpty()) {
                             return 'Ce film n\'est lié à aucun festival';
                         }
-                        
+
                         return $festivals->map(function ($festival) {
                             $status = $festival->pivot->submission_status ?? 'pending';
                             $priority = $festival->pivot->priority ?? 0;
-                            $statusText = match($status) {
+                            $statusText = match ($status) {
                                 'pending' => 'En attente',
                                 'submitted' => 'Soumis',
                                 'in_review' => 'En cours d\'examen',
                                 'accepted' => 'Accepté',
-                                'rejected' => 'Rejeté', 
+                                'rejected' => 'Rejeté',
                                 'withdrawn' => 'Retiré',
                                 default => 'Statut inconnu'
                             };
-                            $priorityText = match($priority) {
+                            $priorityText = match ($priority) {
                                 0 => 'Normale',
                                 1 => 'Faible',
                                 2 => 'Moyenne',
@@ -107,10 +105,11 @@ class MovieTable
                                 5 => 'Urgente',
                                 default => 'Inconnue'
                             };
+
                             return "• {$festival->name}: {$statusText} (Priorité: {$priorityText})";
                         })->join('\n');
                     }),
-                    
+
                 // Colonnes de dates partagées
                 Columns::createdAt(),
                 Columns::updatedAt(),
@@ -120,19 +119,19 @@ class MovieTable
                     ->label('Statut')
                     ->options(Movie::getStatuses())
                     ->multiple(),
-                    
+
                 Filter::make('validated')
                     ->label('Validés uniquement')
                     ->query(fn (Builder $query): Builder => $query->validated()),
-                    
+
                 Filter::make('with_errors')
                     ->label('Avec erreurs')
                     ->query(fn (Builder $query): Builder => $query->withErrors()),
-                    
+
                 Filter::make('distributed')
                     ->label('Distribués')
                     ->query(fn (Builder $query): Builder => $query->distributed()),
-                    
+
                 Filter::make('recent')
                     ->label('Récents (7 jours)')
                     ->query(fn (Builder $query): Builder => $query->where('created_at', '>=', now()->subDays(7))),
@@ -143,7 +142,7 @@ class MovieTable
                         ->label('Voir'),
                     EditAction::make()
                         ->label('Éditer'),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

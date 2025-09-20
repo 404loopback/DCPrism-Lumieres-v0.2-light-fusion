@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,19 +29,20 @@ Route::group(['prefix' => 'debug'], function () {
     // Test des utilisateurs
     Route::get('/users', function () {
         $users = \App\Models\User::all(['id', 'name', 'email', 'created_at']);
+
         return response()->json([
             'users' => $users,
-            'count' => $users->count()
+            'count' => $users->count(),
         ]);
     });
 
     // Debug hash de mot de passe
     Route::get('/password/{email}', function ($email) {
         $user = \App\Models\User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'User not found']);
         }
-        
+
         return response()->json([
             'user' => $user->email,
             'password_hash' => $user->password,
@@ -53,18 +53,18 @@ Route::group(['prefix' => 'debug'], function () {
     });
 
     // Test hash simple
-    Route::get('/test-hash', function() {
+    Route::get('/test-hash', function () {
         $password = 'simple123';
         $hash1 = \Illuminate\Support\Facades\Hash::make($password);
         $hash2 = bcrypt($password);
-        
+
         return response()->json([
             'password' => $password,
             'hash1' => $hash1,
             'hash2' => $hash2,
             'check1' => \Illuminate\Support\Facades\Hash::check($password, $hash1),
             'check2' => \Illuminate\Support\Facades\Hash::check($password, $hash2),
-            'check_cross' => \Illuminate\Support\Facades\Hash::check($password, $hash2)
+            'check_cross' => \Illuminate\Support\Facades\Hash::check($password, $hash2),
         ]);
     });
 });
@@ -74,18 +74,18 @@ Route::group(['prefix' => 'auth'], function () {
     // Test de login simple
     Route::post('/login', function (\Illuminate\Http\Request $request) {
         $credentials = $request->only('email', 'password');
-        
+
         if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
             return response()->json([
                 'success' => true,
                 'user' => \Illuminate\Support\Facades\Auth::user(),
-                'message' => 'Login successful'
+                'message' => 'Login successful',
             ]);
         }
-        
+
         return response()->json([
             'success' => false,
-            'message' => 'Invalid credentials'
+            'message' => 'Invalid credentials',
         ], 401);
     });
 });
@@ -95,7 +95,7 @@ Route::group(['prefix' => 'admin'], function () {
     // Créer un utilisateur admin proprement
     Route::post('/create-admin', function () {
         $password = 'admin123';
-        
+
         $user = \App\Models\User::updateOrCreate(
             ['email' => 'admin@dcparty.local'],
             [
@@ -106,12 +106,12 @@ Route::group(['prefix' => 'admin'], function () {
                 'is_active' => true,
             ]
         );
-        
+
         return response()->json([
             'message' => 'Admin user created successfully',
             'email' => $user->email,
             'password_test' => 'admin123',
-            'hash_check' => \Illuminate\Support\Facades\Hash::check($password, $user->password)
+            'hash_check' => \Illuminate\Support\Facades\Hash::check($password, $user->password),
         ]);
     });
 });

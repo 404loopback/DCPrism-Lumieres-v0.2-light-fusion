@@ -2,8 +2,6 @@
 
 namespace Modules\Meniscus\app\Services;
 
-use Modules\Meniscus\app\Models\User;
-
 class TwoFactorService
 {
     public function isEnabled($user)

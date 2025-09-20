@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('screening_id')->constrained('screenings')->onDelete('cascade');
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['version_id', 'screening_id']);
         });
     }

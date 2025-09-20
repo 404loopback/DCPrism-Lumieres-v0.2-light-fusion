@@ -5,9 +5,9 @@ namespace Modules\Fresnel\app\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 abstract class Controller
@@ -50,7 +50,7 @@ abstract class Controller
         $response = [
             'success' => true,
             'message' => $message,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ];
 
         if ($data !== null) {
@@ -68,7 +68,7 @@ abstract class Controller
         $response = [
             'success' => false,
             'message' => $message,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ];
 
         if ($errors !== null) {
@@ -94,9 +94,9 @@ abstract class Controller
                 'last_page' => $paginator->lastPage(),
                 'from' => $paginator->firstItem(),
                 'to' => $paginator->lastItem(),
-                'has_more_pages' => $paginator->hasMorePages()
+                'has_more_pages' => $paginator->hasMorePages(),
             ],
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ]);
     }
 
@@ -159,7 +159,7 @@ abstract class Controller
 
         return [
             'page' => (int) $request->get('page', 1),
-            'per_page' => $perPage
+            'per_page' => $perPage,
         ];
     }
 
@@ -177,13 +177,13 @@ abstract class Controller
         }
 
         // Validate sort field if allowed fields are specified
-        if (!empty($allowedFields) && !in_array($sort, $allowedFields)) {
+        if (! empty($allowedFields) && ! in_array($sort, $allowedFields)) {
             $sort = 'created_at';
         }
 
         return [
             'field' => $sort,
-            'direction' => $direction
+            'direction' => $direction,
         ];
     }
 
@@ -208,7 +208,7 @@ abstract class Controller
      */
     protected function logRequest(Request $request, array $context = []): void
     {
-        if (!$this->logRequests) {
+        if (! $this->logRequests) {
             return;
         }
 
@@ -218,7 +218,7 @@ abstract class Controller
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'user_id' => $request->user()?->id,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ], $context));
     }
 
@@ -232,7 +232,7 @@ abstract class Controller
             'method' => $request->method(),
             'errors' => $errors,
             'input' => $this->sanitizeInput($request->all()),
-            'user_id' => $request->user()?->id
+            'user_id' => $request->user()?->id,
         ]);
     }
 
@@ -242,7 +242,7 @@ abstract class Controller
     protected function sanitizeInput(array $input): array
     {
         $sensitiveKeys = ['password', 'password_confirmation', 'token', 'secret', 'key'];
-        
+
         foreach ($sensitiveKeys as $key) {
             if (array_key_exists($key, $input)) {
                 $input[$key] = '***REDACTED***';
@@ -264,7 +264,7 @@ abstract class Controller
             'line' => $e->getLine(),
             'url' => $request->fullUrl(),
             'method' => $request->method(),
-            'user_id' => $request->user()?->id
+            'user_id' => $request->user()?->id,
         ]);
 
         if ($e instanceof ValidationException) {
@@ -285,7 +285,7 @@ abstract class Controller
                 'exception' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ],
             HttpResponse::HTTP_INTERNAL_SERVER_ERROR
         );
@@ -305,6 +305,7 @@ abstract class Controller
     protected function setRequestLogging(bool $enabled): self
     {
         $this->logRequests = $enabled;
+
         return $this;
     }
 }

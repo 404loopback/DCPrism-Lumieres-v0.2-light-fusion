@@ -9,21 +9,23 @@ use Modules\Fresnel\app\Http\Controllers\Controller;
  *     title="DCPrism API",
  *     version="1.0.0",
  *     description="DCPrism REST API for Digital Cinema Package management, festival submissions, and processing automation. This API provides comprehensive endpoints for managing movies, festivals, DCP processing jobs, and file operations with secure authentication and real-time monitoring.",
+ *
  *     @OA\Contact(
  *         email="api@dcprism.app",
  *         name="DCPrism API Support"
  *     ),
+ *
  *     @OA\License(
  *         name="MIT",
  *         url="https://opensource.org/licenses/MIT"
  *     )
  * )
- * 
+ *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST,
  *     description="DCPrism API Server"
  * )
- * 
+ *
  * @OA\SecurityScheme(
  *     securityScheme="sanctum",
  *     type="http",
@@ -31,32 +33,27 @@ use Modules\Fresnel\app\Http\Controllers\Controller;
  *     bearerFormat="JWT",
  *     description="Enter token in format: Bearer {token}"
  * )
- * 
+ *
  * @OA\Tag(
  *     name="Authentication",
  *     description="User authentication and token management"
  * )
- * 
  * @OA\Tag(
  *     name="Movies",
  *     description="Movie management and DCP operations"
  * )
- * 
  * @OA\Tag(
  *     name="Festivals",
  *     description="Festival management and submissions"
  * )
- * 
  * @OA\Tag(
  *     name="Jobs",
  *     description="Background job monitoring and control"
  * )
- * 
  * @OA\Tag(
  *     name="DCP Processing",
  *     description="DCP analysis, validation, and file processing"
  * )
- * 
  * @OA\Tag(
  *     name="System",
  *     description="System information and health checks"
@@ -74,6 +71,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="ApiResponse",
+ *
  *     @OA\Property(property="message", type="string", description="Response message"),
  *     @OA\Property(property="data", type="object", description="Response data"),
  *     @OA\Property(property="errors", type="object", description="Validation errors", nullable=true),
@@ -83,6 +81,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="PaginationMeta",
+ *
  *     @OA\Property(property="current_page", type="integer", description="Current page number"),
  *     @OA\Property(property="last_page", type="integer", description="Last page number"),
  *     @OA\Property(property="per_page", type="integer", description="Items per page"),
@@ -96,10 +95,13 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="ValidationError",
+ *
  *     @OA\Property(property="message", type="string", description="Error message"),
  *     @OA\Property(property="errors", type="object", description="Field validation errors",
+ *
  *         @OA\AdditionalProperties(
  *             type="array",
+ *
  *             @OA\Items(type="string")
  *         )
  *     )
@@ -109,6 +111,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="Movie",
+ *
  *     @OA\Property(property="id", type="integer", description="Movie ID"),
  *     @OA\Property(property="title", type="string", description="Movie title"),
  *     @OA\Property(property="original_title", type="string", description="Original movie title", nullable=true),
@@ -151,6 +154,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="Festival",
+ *
  *     @OA\Property(property="id", type="integer", description="Festival ID"),
  *     @OA\Property(property="name", type="string", description="Festival name"),
  *     @OA\Property(property="edition", type="string", description="Festival edition", nullable=true),
@@ -195,6 +199,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="Job",
+ *
  *     @OA\Property(property="id", type="integer", description="Job ID"),
  *     @OA\Property(property="job_id", type="string", description="Queue job ID", nullable=true),
  *     @OA\Property(property="job_class", type="string", description="Job class name"),
@@ -237,6 +242,7 @@ class OpenApiController extends Controller
 /**
  * @OA\Schema(
  *     schema="User",
+ *
  *     @OA\Property(property="id", type="integer", description="User ID"),
  *     @OA\Property(property="name", type="string", description="User name"),
  *     @OA\Property(property="email", type="string", description="User email (conditional)"),

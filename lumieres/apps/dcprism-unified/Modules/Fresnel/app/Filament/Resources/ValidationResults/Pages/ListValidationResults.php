@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ValidationResults\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource;
 
 class ListValidationResults extends ListRecords
 {

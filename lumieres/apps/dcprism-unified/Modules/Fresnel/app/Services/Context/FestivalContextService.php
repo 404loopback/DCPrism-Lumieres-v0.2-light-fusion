@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Services\Context;
 
-use Modules\Fresnel\app\Models\Festival;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Modules\Fresnel\app\Models\Festival;
 
 /**
  * Service de contexte des festivals
@@ -13,9 +13,11 @@ use Illuminate\Support\Collection;
 class FestivalContextService
 {
     protected const SESSION_FESTIVAL_ID_KEY = 'selected_festival_id';
+
     protected const SESSION_FESTIVAL_NAME_KEY = 'selected_festival_name';
-    
+
     protected ?Festival $currentFestival = null;
+
     protected bool $loaded = false;
 
     /**
@@ -23,10 +25,10 @@ class FestivalContextService
      */
     public function getCurrentFestival(): ?Festival
     {
-        if (!$this->loaded) {
+        if (! $this->loaded) {
             $this->loadCurrentFestival();
         }
-        
+
         return $this->currentFestival;
     }
 
@@ -36,6 +38,7 @@ class FestivalContextService
     public function getCurrentFestivalId(): ?int
     {
         $festival = $this->getCurrentFestival();
+
         return $festival?->id;
     }
 
@@ -68,7 +71,7 @@ class FestivalContextService
     {
         $this->currentFestival = null;
         $this->loaded = true;
-        
+
         session()->forget([
             self::SESSION_FESTIVAL_ID_KEY,
             self::SESSION_FESTIVAL_NAME_KEY,
@@ -91,8 +94,8 @@ class FestivalContextService
     public function getAvailableFestivals(): Collection
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return collect();
         }
 
@@ -111,16 +114,16 @@ class FestivalContextService
     protected function loadCurrentFestival(): void
     {
         $festivalId = session(self::SESSION_FESTIVAL_ID_KEY);
-        
+
         if ($festivalId) {
             $this->currentFestival = Festival::find($festivalId);
-            
+
             // Si le festival n'existe plus, nettoyer la session
-            if (!$this->currentFestival) {
+            if (! $this->currentFestival) {
                 $this->clearCurrentFestival();
             }
         }
-        
+
         $this->loaded = true;
     }
 
@@ -130,6 +133,7 @@ class FestivalContextService
     public function getCurrentFestivalName(): string
     {
         $festival = $this->getCurrentFestival();
+
         return $festival?->name ?? 'Aucun festival sélectionné';
     }
 
@@ -139,8 +143,8 @@ class FestivalContextService
     public function canAccessFestival(int $festivalId): bool
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 

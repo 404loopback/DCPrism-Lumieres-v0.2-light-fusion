@@ -4,8 +4,8 @@ namespace Modules\Fresnel\app\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class WebhookSignatureMiddleware
 {
@@ -15,11 +15,11 @@ class WebhookSignatureMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Get the signature from headers
-        $signature = $request->header('X-DCPrism-Signature') ?? 
+        $signature = $request->header('X-DCPrism-Signature') ??
                     $request->header('X-Hub-Signature-256') ??
                     $request->header('X-Signature');
 
-        if (!$signature) {
+        if (! $signature) {
             Log::warning('Webhook request missing signature', [
                 'ip' => $request->ip(),
                 'url' => $request->fullUrl(),
@@ -27,28 +27,29 @@ class WebhookSignatureMiddleware
             ]);
 
             return response()->json([
-                'error' => 'Missing webhook signature'
+                'error' => 'Missing webhook signature',
             ], 401);
         }
 
         // Get the webhook secret from config
         $secret = config('app.webhook_secret');
-        
-        if (!$secret) {
+
+        if (! $secret) {
             Log::error('Webhook secret not configured');
+
             return response()->json([
-                'error' => 'Webhook configuration error'
+                'error' => 'Webhook configuration error',
             ], 500);
         }
 
         // Get raw body for signature verification
         $payload = $request->getContent();
-        
+
         // Calculate expected signature
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        $expectedSignature = 'sha256='.hash_hmac('sha256', $payload, $secret);
 
         // Verify signature
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (! hash_equals($expectedSignature, $signature)) {
             Log::warning('Invalid webhook signature', [
                 'ip' => $request->ip(),
                 'url' => $request->fullUrl(),
@@ -57,7 +58,7 @@ class WebhookSignatureMiddleware
             ]);
 
             return response()->json([
-                'error' => 'Invalid signature'
+                'error' => 'Invalid signature',
             ], 401);
         }
 

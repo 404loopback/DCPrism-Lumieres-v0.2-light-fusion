@@ -2,7 +2,6 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\InfrastructureDeploymentResource\Tables;
 
-use Modules\Meniscus\app\Models\InfrastructureDeployment;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,6 +9,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Modules\Meniscus\app\Models\InfrastructureDeployment;
 
 class InfrastructureTable
 {

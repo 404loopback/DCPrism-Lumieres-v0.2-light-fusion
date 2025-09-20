@@ -3,9 +3,9 @@
 namespace Modules\Fresnel\app\Filament\Resources\Parameters\Schemas;
 
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class ParameterForm
 {
@@ -35,7 +35,7 @@ class ParameterForm
                             ])
                             ->required(),
                     ])->columns(2),
-                    
+
                 Section::make('Configuration')
                     ->schema([
                         Forms\Components\Select::make('type')
@@ -62,13 +62,13 @@ class ParameterForm
                         Forms\Components\TextInput::make('default_value')
                             ->label('Valeur par défaut'),
                     ])->columns(2),
-                    
+
                 Section::make('Règles et validation')
                     ->schema([
                         Forms\Components\KeyValue::make('validation_rules')
                             ->label('Règles de validation'),
                     ]),
-                    
+
                 Section::make('État et organisation')
                     ->schema([
                         Forms\Components\TextInput::make('sort_order')

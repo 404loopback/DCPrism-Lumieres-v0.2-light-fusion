@@ -2,15 +2,15 @@
 
 namespace Modules\Fresnel\app\Http\Controllers\Api;
 
-use Modules\Fresnel\app\Http\Controllers\Controller;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Upload;
-use Modules\Fresnel\app\Services\B2NativeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Modules\Fresnel\app\Http\Controllers\Controller;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Upload;
+use Modules\Fresnel\app\Services\B2NativeService;
 
 class B2UploadController extends Controller
 {
@@ -18,7 +18,7 @@ class B2UploadController extends Controller
 
     public function __construct()
     {
-        $this->b2Service = new B2NativeService();
+        $this->b2Service = new B2NativeService;
     }
 
     /**
@@ -28,14 +28,14 @@ class B2UploadController extends Controller
     {
         try {
             Log::info('🌐 [B2Upload] Demande credentials B2 native');
-            
+
             $user = Auth::user();
-            
+
             // Get B2 credentials (priority: user specific, then environment)
             $keyId = $user->b2_key ?? env('B2_NATIVE_KEY_ID');
             $applicationKey = $user->b2_secret ?? env('B2_NATIVE_APPLICATION_KEY');
             $bucketName = env('B2_BUCKET_NAME', 'dcp-test');
-            
+
             if (empty($keyId) || empty($applicationKey)) {
                 throw new \Exception('Missing B2 credentials');
             }
@@ -43,12 +43,12 @@ class B2UploadController extends Controller
             // Initialize B2 service with user credentials
             $b2Service = new B2NativeService($keyId, $applicationKey);
             $authData = $b2Service->getAuthData();
-            
+
             // Get bucket info
             $bucket = $b2Service->getBucketByName($bucketName);
-            
+
             Log::info('✅ [B2Upload] Credentials B2 obtenues avec succès');
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -57,15 +57,15 @@ class B2UploadController extends Controller
                     'bucketId' => $bucket['bucketId'],
                     'bucketName' => $bucket['bucketName'],
                     'accountId' => $authData['accountId'],
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur credentials: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur credentials: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur récupération credentials B2: ' . $e->getMessage()
+                'message' => 'Erreur récupération credentials B2: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -87,7 +87,7 @@ class B2UploadController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -95,19 +95,19 @@ class B2UploadController extends Controller
             $filename = $request->input('filename');
             $fileSize = $request->input('file_size');
             $mimeType = $request->input('mime_type');
-            
+
             // Get movie with festival for nomenclature
             $movie = Movie::with('festival')->findOrFail($movieId);
-            
+
             // Generate upload path using nomenclature logic
             $uploadPath = $this->generateNomenclaturePath($movie, $filename);
-            
+
             Log::info('📂 [B2Upload] Chemin généré', [
                 'movie_id' => $movieId,
                 'upload_path' => $uploadPath,
-                'file_size' => $fileSize
+                'file_size' => $fileSize,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -116,16 +116,16 @@ class B2UploadController extends Controller
                     'filename' => $filename,
                     'file_size' => $fileSize,
                     'mime_type' => $mimeType,
-                    'bucket_name' => env('B2_BUCKET_NAME', 'dcp-test')
-                ]
+                    'bucket_name' => env('B2_BUCKET_NAME', 'dcp-test'),
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur génération chemin: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur génération chemin: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur génération chemin: ' . $e->getMessage()
+                'message' => 'Erreur génération chemin: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -148,7 +148,7 @@ class B2UploadController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -157,22 +157,22 @@ class B2UploadController extends Controller
             $filename = $request->input('filename');
             $fileSize = $request->input('file_size');
             $mimeType = $request->input('mime_type');
-            
+
             // Get B2 bucket info
             $bucketName = env('B2_BUCKET_NAME', 'dcp-test');
             $bucket = $this->b2Service->getBucketByName($bucketName);
-            
+
             // Start large file upload
             $result = $this->b2Service->startLargeFile(
                 $bucket['bucketId'],
                 $uploadPath,
                 $mimeType
             );
-            
+
             // Calculate optimal chunk size and total parts
             $chunkSize = $this->calculateOptimalChunkSize($fileSize);
             $totalParts = ceil($fileSize / $chunkSize);
-            
+
             // Create upload record
             $upload = Upload::create([
                 'movie_id' => $movieId,
@@ -191,16 +191,16 @@ class B2UploadController extends Controller
                 'metadata' => [
                     'chunk_size' => $chunkSize,
                     'b2_file_id' => $result['fileId'],
-                ]
+                ],
             ]);
-            
+
             Log::info('🚀 [B2Upload] Multipart initialisé', [
                 'upload_id' => $upload->id,
                 'b2_file_id' => $result['fileId'],
                 'total_parts' => $totalParts,
-                'chunk_size' => $chunkSize
+                'chunk_size' => $chunkSize,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -209,15 +209,15 @@ class B2UploadController extends Controller
                     'total_parts' => $totalParts,
                     'chunk_size' => $chunkSize,
                     'expires_at' => $upload->expires_at->toISOString(),
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur initialisation multipart: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur initialisation multipart: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur initialisation multipart: ' . $e->getMessage()
+                'message' => 'Erreur initialisation multipart: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -230,47 +230,47 @@ class B2UploadController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'upload_id' => 'required|exists:uploads,id',
-                'part_number' => 'required|integer|min:1|max:10000'
+                'part_number' => 'required|integer|min:1|max:10000',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $uploadId = $request->input('upload_id');
             $partNumber = $request->input('part_number');
-            
+
             // Get upload record
             $upload = Upload::findOrFail($uploadId);
-            
+
             // Check if upload belongs to current user
             if ($upload->user_id !== Auth::id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 403);
             }
-            
+
             // Check if upload is still valid
-            if (!$upload->isResumable()) {
+            if (! $upload->isResumable()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Upload expired or invalid'
+                    'message' => 'Upload expired or invalid',
                 ], 410);
             }
-            
+
             // Get presigned URL from B2
             $result = $this->b2Service->getUploadPartUrl($upload->upload_id);
-            
+
             Log::debug('🔗 [B2Upload] URL présignée générée', [
                 'upload_id' => $uploadId,
-                'part_number' => $partNumber
+                'part_number' => $partNumber,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -278,15 +278,15 @@ class B2UploadController extends Controller
                     'authorization_token' => $result['authorizationToken'],
                     'part_number' => $partNumber,
                     'expires_in' => 1200, // 20 minutes
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur URL présignée: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur URL présignée: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur génération URL présignée: ' . $e->getMessage()
+                'message' => 'Erreur génération URL présignée: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -300,37 +300,37 @@ class B2UploadController extends Controller
             $validator = Validator::make($request->all(), [
                 'upload_id' => 'required|exists:uploads,id',
                 'part_sha1_array' => 'required|array',
-                'part_sha1_array.*' => 'required|string|regex:/^[a-f0-9]{40}$/i'
+                'part_sha1_array.*' => 'required|string|regex:/^[a-f0-9]{40}$/i',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $uploadId = $request->input('upload_id');
             $partSha1Array = $request->input('part_sha1_array');
-            
+
             // Get upload record
             $upload = Upload::findOrFail($uploadId);
-            
+
             // Check ownership
             if ($upload->user_id !== Auth::id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 403);
             }
-            
+
             // Complete B2 large file
             $result = $this->b2Service->finishLargeFile(
                 $upload->upload_id,
                 $partSha1Array
             );
-            
+
             // Update upload record
             $upload->update([
                 'status' => 'completed',
@@ -340,16 +340,16 @@ class B2UploadController extends Controller
                 'part_sha1_array' => $partSha1Array,
                 'completed_parts' => count($partSha1Array),
                 'metadata' => array_merge($upload->metadata ?? [], [
-                    'b2_result' => $result
-                ])
+                    'b2_result' => $result,
+                ]),
             ]);
-            
+
             Log::info('✅ [B2Upload] Multipart complété', [
                 'upload_id' => $uploadId,
                 'b2_file_id' => $result['fileId'],
-                'content_length' => $result['contentLength'] ?? 0
+                'content_length' => $result['contentLength'] ?? 0,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -357,16 +357,16 @@ class B2UploadController extends Controller
                     'file_id' => $result['fileId'],
                     'file_name' => $result['fileName'],
                     'content_length' => $result['contentLength'] ?? 0,
-                    'file_path' => $upload->file_path
-                ]
+                    'file_path' => $upload->file_path,
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur completion multipart: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur completion multipart: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur completion multipart: ' . $e->getMessage()
+                'message' => 'Erreur completion multipart: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -378,61 +378,61 @@ class B2UploadController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'upload_id' => 'required|exists:uploads,id'
+                'upload_id' => 'required|exists:uploads,id',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $uploadId = $request->input('upload_id');
-            
+
             // Get upload record
             $upload = Upload::findOrFail($uploadId);
-            
+
             // Check ownership
             if ($upload->user_id !== Auth::id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 403);
             }
-            
+
             // Cancel B2 large file if it exists
             if ($upload->upload_id) {
                 try {
                     $this->b2Service->cancelLargeFile($upload->upload_id);
                 } catch (\Exception $e) {
-                    Log::warning('⚠️ [B2Upload] Erreur annulation B2 (peut être normal): ' . $e->getMessage());
+                    Log::warning('⚠️ [B2Upload] Erreur annulation B2 (peut être normal): '.$e->getMessage());
                 }
             }
-            
+
             // Update upload record
             $upload->update([
                 'status' => 'cancelled',
-                'error_message' => 'Cancelled by user'
+                'error_message' => 'Cancelled by user',
             ]);
-            
+
             Log::info('🛑 [B2Upload] Multipart annulé', [
                 'upload_id' => $uploadId,
-                'b2_file_id' => $upload->upload_id
+                'b2_file_id' => $upload->upload_id,
             ]);
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'Upload annulé avec succès'
+                'message' => 'Upload annulé avec succès',
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur annulation multipart: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur annulation multipart: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur annulation multipart: ' . $e->getMessage()
+                'message' => 'Erreur annulation multipart: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -454,7 +454,7 @@ class B2UploadController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -462,45 +462,45 @@ class B2UploadController extends Controller
             $completedParts = $request->input('completed_parts');
             $uploadedBytes = $request->input('uploaded_bytes');
             $uploadSpeedMbps = $request->input('upload_speed_mbps');
-            
+
             // Get upload record
             $upload = Upload::findOrFail($uploadId);
-            
+
             // Check ownership
             if ($upload->user_id !== Auth::id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 403);
             }
-            
+
             // Calculate progress percentage
-            $progressPercentage = $upload->total_parts > 0 
+            $progressPercentage = $upload->total_parts > 0
                 ? ($completedParts / $upload->total_parts) * 100
                 : 0;
-            
+
             // Update upload record
             $upload->update([
                 'completed_parts' => $completedParts,
                 'uploaded_bytes' => $uploadedBytes,
                 'upload_speed_mbps' => $uploadSpeedMbps,
-                'progress_percentage' => $progressPercentage
+                'progress_percentage' => $progressPercentage,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'progress_percentage' => $progressPercentage,
-                    'estimated_time_remaining' => $upload->estimated_time_remaining
-                ]
+                    'estimated_time_remaining' => $upload->estimated_time_remaining,
+                ],
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur mise à jour progression: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur mise à jour progression: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur mise à jour progression: ' . $e->getMessage()
+                'message' => 'Erreur mise à jour progression: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -516,7 +516,7 @@ class B2UploadController extends Controller
                 ->with('movie')
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $uploads->map(function ($upload) {
@@ -534,15 +534,15 @@ class B2UploadController extends Controller
                         'created_at' => $upload->created_at->toISOString(),
                         'expires_at' => $upload->expires_at->toISOString(),
                     ];
-                })
+                }),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('❌ [B2Upload] Erreur récupération uploads reprenables: ' . $e->getMessage());
-            
+            Log::error('❌ [B2Upload] Erreur récupération uploads reprenables: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur récupération uploads: ' . $e->getMessage()
+                'message' => 'Erreur récupération uploads: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -556,7 +556,7 @@ class B2UploadController extends Controller
         $year = $festival ? $festival->year : date('Y');
         $festivalSlug = $festival ? Str::slug($festival->name) : 'unknown';
         $movieSlug = Str::slug($movie->title ?: 'untitled');
-        
+
         // Generate path: festival/year/movie/filename
         return sprintf(
             '%s/%d/%s/%s',
@@ -574,7 +574,7 @@ class B2UploadController extends Controller
     {
         $MB = 1024 * 1024;
         $GB = $MB * 1024;
-        
+
         if ($fileSize < $GB) {
             // Small files: 100MB chunks
             return 100 * $MB;

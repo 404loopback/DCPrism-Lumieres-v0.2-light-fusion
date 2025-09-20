@@ -11,16 +11,22 @@ class FestivalParameter extends Model
         'festival_id',
         'parameter_id',
         'is_enabled',
+        'is_required',
+        'is_visible_in_nomenclature',
+        'is_system',
         'custom_default_value',
         'custom_formatting_rules',
         'display_order',
-        'festival_specific_notes'
+        'festival_specific_notes',
     ];
 
     protected $casts = [
         'is_enabled' => 'boolean',
+        'is_required' => 'boolean',
+        'is_visible_in_nomenclature' => 'boolean',
+        'is_system' => 'boolean',
         'custom_formatting_rules' => 'array',
-        'display_order' => 'integer'
+        'display_order' => 'integer',
     ];
 
     /**
@@ -72,6 +78,38 @@ class FestivalParameter extends Model
     }
 
     /**
+     * Scope pour les paramètres système
+     */
+    public function scopeSystemParameters($query)
+    {
+        return $query->where('is_system', true);
+    }
+
+    /**
+     * Scope pour les paramètres personnalisés
+     */
+    public function scopeCustomParameters($query)
+    {
+        return $query->where('is_system', false);
+    }
+
+    /**
+     * Scope pour les paramètres visibles dans la nomenclature
+     */
+    public function scopeVisibleInNomenclature($query)
+    {
+        return $query->where('is_visible_in_nomenclature', true);
+    }
+
+    /**
+     * Scope pour les paramètres requis
+     */
+    public function scopeRequired($query)
+    {
+        return $query->where('is_required', true);
+    }
+
+    /**
      * Obtenir la valeur par défaut (personnalisée ou globale)
      */
     public function getEffectiveDefaultValue()
@@ -86,7 +124,7 @@ class FestivalParameter extends Model
     {
         $globalRules = $this->parameter->validation_rules ?? [];
         $customRules = $this->custom_formatting_rules ?? [];
-        
+
         return array_merge($globalRules, $customRules);
     }
 
@@ -103,6 +141,6 @@ class FestivalParameter extends Model
      */
     public function canBeDisabled(): bool
     {
-        return !$this->isSystemParameter();
+        return ! $this->isSystemParameter();
     }
 }

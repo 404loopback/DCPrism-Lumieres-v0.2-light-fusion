@@ -2,16 +2,16 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\MovieMetadata\Tables;
 
-use Modules\Fresnel\app\Models\Movie;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
+use Modules\Fresnel\app\Models\Movie;
 
 class MovieMetadataTable
 {
@@ -96,7 +96,7 @@ class MovieMetadataTable
                         ->orderBy('title')
                         ->get()
                         ->mapWithKeys(fn ($movie) => [
-                            $movie->id => "{$movie->title} ({$movie->festival?->name})"
+                            $movie->id => "{$movie->title} ({$movie->festival?->name})",
                         ]))
                     ->searchable(),
                 Tables\Filters\SelectFilter::make('data_type')
@@ -136,7 +136,7 @@ class MovieMetadataTable
                     ->label('Valider')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn ($record) => !$record->is_verified)
+                    ->visible(fn ($record) => ! $record->is_verified)
                     ->action(fn ($record) => $record->update(['is_verified' => true])),
                 Action::make('copy_value')
                     ->label('Copier')
@@ -151,7 +151,7 @@ class MovieMetadataTable
                             ->send();
                     })
                     ->extraAttributes([
-                        'onclick' => 'navigator.clipboard.writeText(this.closest("tr").querySelector("[data-column=\"metadata_value\"]").textContent.trim())'
+                        'onclick' => 'navigator.clipboard.writeText(this.closest("tr").querySelector("[data-column=\"metadata_value\"]").textContent.trim())',
                     ]),
             ])
             ->toolbarActions([

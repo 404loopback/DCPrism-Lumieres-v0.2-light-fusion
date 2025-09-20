@@ -14,13 +14,13 @@ class FestivalParameter extends Model
         'custom_default_value',
         'custom_formatting_rules',
         'display_order',
-        'festival_specific_notes'
+        'festival_specific_notes',
     ];
 
     protected $casts = [
         'is_enabled' => 'boolean',
         'custom_formatting_rules' => 'array',
-        'display_order' => 'integer'
+        'display_order' => 'integer',
     ];
 
     /**
@@ -86,7 +86,7 @@ class FestivalParameter extends Model
     {
         $globalRules = $this->parameter->validation_rules ?? [];
         $customRules = $this->custom_formatting_rules ?? [];
-        
+
         return array_merge($globalRules, $customRules);
     }
 
@@ -103,6 +103,6 @@ class FestivalParameter extends Model
      */
     public function canBeDisabled(): bool
     {
-        return !$this->isSystemParameter();
+        return ! $this->isSystemParameter();
     }
 }

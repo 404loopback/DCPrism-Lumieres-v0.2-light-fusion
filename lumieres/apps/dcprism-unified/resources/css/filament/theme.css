@@ -1,5 +1,10 @@
-@import 'tailwindcss';
-@import '/vendor/filament/filament/resources/css/index.css';
+@import '../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../app/Filament';
+@source '../../../resources/views/filament';
+@source '../../../resources/views';
+@source '../../../Modules';
+@source '../../../app/Http';
 
 /* ===========================================
    DCPrism Global Filament Theme (Tailwind v4)

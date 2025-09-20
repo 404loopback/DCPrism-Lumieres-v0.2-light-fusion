@@ -2,9 +2,10 @@
 
 namespace Modules\Fresnel\app\Services\Nomenclature;
 
-use Modules\Fresnel\app\Models\{Festival, Movie, Nomenclature};
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Collection;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Nomenclature;
 
 /**
  * Focused service for building nomenclatures from configured parameters
@@ -25,15 +26,16 @@ class NomenclatureBuilder
         Log::info('[NomenclatureBuilder] Building nomenclature', [
             'movie_id' => $movie->id,
             'festival_id' => $festival->id,
-            'movie_title' => $movie->title
+            'movie_title' => $movie->title,
         ]);
 
         $nomenclatures = $this->nomenclatureRepository->getActiveNomenclatures($festival);
-        
+
         if ($nomenclatures->isEmpty()) {
             Log::warning('[NomenclatureBuilder] No active nomenclatures found', [
-                'festival_id' => $festival->id
+                'festival_id' => $festival->id,
             ]);
+
             return $this->generateDefaultNomenclature($movie, $festival);
         }
 
@@ -41,38 +43,44 @@ class NomenclatureBuilder
         $missingRequired = [];
 
         foreach ($nomenclatures as $nomenclature) {
-            $value = $this->parameterExtractor->getParameterValueForMovie(
-                $movie, 
-                $nomenclature->parameter
-            );
+            $parameter = $nomenclature->resolveParameter();
+            if (!$parameter) {
+                continue;
+            }
             
+            $value = $this->parameterExtractor->getParameterValueForMovie(
+                $movie,
+                $parameter
+            );
+
             if ($nomenclature->is_required && empty($value)) {
-                $missingRequired[] = $nomenclature->parameter->name;
+                $missingRequired[] = $parameter->name;
+
                 continue;
             }
 
-            if (!empty($value)) {
+            if (! empty($value)) {
                 $formatted = $nomenclature->formatValue($value, $movie);
-                if (!empty($formatted)) {
+                if (! empty($formatted)) {
                     $parts[] = $formatted;
                 }
             }
         }
 
-        if (!empty($missingRequired)) {
+        if (! empty($missingRequired)) {
             Log::warning('[NomenclatureBuilder] Missing required parameters', [
                 'movie_id' => $movie->id,
-                'missing' => $missingRequired
+                'missing' => $missingRequired,
             ]);
         }
 
-        $result = !empty($parts) 
-            ? implode('_', $parts) 
+        $result = ! empty($parts)
+            ? implode('_', $parts)
             : $this->generateDefaultNomenclature($movie, $festival);
 
         Log::info('[NomenclatureBuilder] Nomenclature built', [
             'movie_id' => $movie->id,
-            'result' => $result
+            'result' => $result,
         ]);
 
         return $result;
@@ -89,13 +97,18 @@ class NomenclatureBuilder
         $warnings = [];
 
         foreach ($nomenclatures as $nomenclature) {
-            $paramName = $nomenclature->parameter->name;
+            $parameter = $nomenclature->resolveParameter();
+            if (!$parameter) {
+                continue;
+            }
             
-            $value = $parameterValues[$paramName] ?? 
-                     $this->parameterExtractor->getParameterValueForMovie($movie, $nomenclature->parameter);
+            $paramName = $parameter->name;
+
+            $value = $parameterValues[$paramName] ??
+                     $this->parameterExtractor->getParameterValueForMovie($movie, $parameter);
 
             $formatted = $nomenclature->formatValue($value, $movie);
-            
+
             $preview[] = [
                 'parameter' => $paramName,
                 'raw_value' => $value,
@@ -103,28 +116,27 @@ class NomenclatureBuilder
                 'is_required' => $nomenclature->is_required,
                 'order' => $nomenclature->order_position,
                 'prefix' => $nomenclature->prefix,
-                'suffix' => $nomenclature->suffix
+                'suffix' => $nomenclature->suffix,
             ];
 
             if ($nomenclature->is_required && empty($value)) {
                 $warnings[] = "Required parameter missing: {$paramName}";
-            } elseif (!empty($formatted)) {
+            } elseif (! empty($formatted)) {
                 $parts[] = $formatted;
             }
         }
 
-        $finalNomenclature = !empty($parts) 
-            ? implode('_', $parts) 
+        $finalNomenclature = ! empty($parts)
+            ? implode('_', $parts)
             : $this->generateDefaultNomenclature($movie, $festival);
 
         return [
             'preview_parts' => $preview,
             'final_nomenclature' => $finalNomenclature,
             'warnings' => $warnings,
-            'is_valid' => empty($warnings)
+            'is_valid' => empty($warnings),
         ];
     }
-
 
     /**
      * Generate a default nomenclature when no configuration exists
@@ -133,7 +145,7 @@ class NomenclatureBuilder
     {
         $date = now()->format('Ymd');
         $festivalCode = strtoupper(substr($festival->name, 0, 3));
-        
+
         return "{$movie->title}_{$festivalCode}_{$date}";
     }
 }

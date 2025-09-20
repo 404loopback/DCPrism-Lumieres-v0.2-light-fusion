@@ -13,14 +13,14 @@ class Screenings extends Model
         'name',
         'scheduled_at',
         'notes',
-        'is_active'
+        'is_active',
     ];
-    
+
     protected $casts = [
         'scheduled_at' => 'datetime',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
-    
+
     /**
      * Relation avec le cinéma
      */
@@ -28,17 +28,17 @@ class Screenings extends Model
     {
         return $this->belongsTo(Cinemas::class, 'cinemas_id');
     }
-    
+
     /**
      * Relation many-to-many avec les versions
      */
     public function versions(): BelongsToMany
     {
         return $this->belongsToMany(Version::class, 'versions_screenings', 'screening_id', 'version_id')
-                    ->withPivot(['notes'])
-                    ->withTimestamps();
+            ->withPivot(['notes'])
+            ->withTimestamps();
     }
-    
+
     /**
      * Scope pour les screenings actifs
      */

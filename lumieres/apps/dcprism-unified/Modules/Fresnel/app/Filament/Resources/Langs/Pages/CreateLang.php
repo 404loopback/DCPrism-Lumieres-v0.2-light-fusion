@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Langs\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 
 class CreateLang extends CreateRecord
 {

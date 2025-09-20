@@ -35,12 +35,12 @@ return new class extends Migration
             $table->string('original_filename')->nullable();
             $table->timestamp('uploaded_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status']);
             $table->index(['source_email']);
             $table->index(['created_at']);
             $table->index(['validated_by']);
-            
+
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('validated_by')->references('id')->on('users')->onDelete('set null');
         });

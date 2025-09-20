@@ -44,4 +44,3 @@ class ValidationResult extends Model
         return $this->belongsTo(Parameter::class);
     }
 }
-

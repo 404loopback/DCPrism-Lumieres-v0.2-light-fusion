@@ -31,7 +31,7 @@ return new class extends Migration
             // Foreign keys
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
-            
+
             // Indexes for performance
             $table->index(['scenario', 'provider']);
             $table->index(['is_active', 'scenario']);

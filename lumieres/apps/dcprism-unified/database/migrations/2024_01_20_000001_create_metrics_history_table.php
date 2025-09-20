@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamp('timestamp');
             $table->json('metrics');
             $table->timestamp('created_at');
-            
+
             $table->index(['timestamp']);
             $table->index(['created_at']);
         });

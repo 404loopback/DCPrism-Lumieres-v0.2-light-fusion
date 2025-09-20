@@ -2,10 +2,9 @@
 
 namespace Modules\Fresnel\app\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
 
 class LoginRedirectController extends Controller
 {
@@ -14,16 +13,16 @@ class LoginRedirectController extends Controller
      */
     public function redirectToDashboard(): RedirectResponse
     {
-        if (!Auth::check()) {
-            return redirect()->route('filament.admin.auth.login');
+        if (! Auth::check()) {
+            return redirect()->route('fresnel.login');
         }
 
         $user = Auth::user();
-        
+
         // Mappage des rôles vers leurs panels de destination
         $rolePanelMapping = [
             'admin' => '/fresnel/admin',
-            'tech' => '/fresnel/tech', 
+            'tech' => '/fresnel/tech',
             'manager' => '/fresnel/manager',
             'supervisor' => '/fresnel/manager', // Les supervisors utilisent le panel manager
             'source' => '/fresnel/source',

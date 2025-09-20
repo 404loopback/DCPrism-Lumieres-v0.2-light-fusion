@@ -30,7 +30,7 @@ trait HasLogging
      */
     protected function logInfo(string $message, array $context = []): void
     {
-        if (!$this->loggingEnabled) {
+        if (! $this->loggingEnabled) {
             return;
         }
 
@@ -42,7 +42,7 @@ trait HasLogging
      */
     protected function logError(string $message, array $context = []): void
     {
-        if (!$this->loggingEnabled) {
+        if (! $this->loggingEnabled) {
             return;
         }
 
@@ -54,7 +54,7 @@ trait HasLogging
      */
     protected function logWarning(string $message, array $context = []): void
     {
-        if (!$this->loggingEnabled) {
+        if (! $this->loggingEnabled) {
             return;
         }
 
@@ -66,7 +66,7 @@ trait HasLogging
      */
     protected function logDebug(string $message, array $context = []): void
     {
-        if (!$this->loggingEnabled || !app()->environment(['local', 'testing'])) {
+        if (! $this->loggingEnabled || ! app()->environment(['local', 'testing'])) {
             return;
         }
 
@@ -78,7 +78,7 @@ trait HasLogging
      */
     protected function logCustom(string $level, string $message, array $context = []): void
     {
-        if (!$this->loggingEnabled) {
+        if (! $this->loggingEnabled) {
             return;
         }
 
@@ -91,6 +91,7 @@ trait HasLogging
     protected function formatLogMessage(string $message): string
     {
         $component = $this->getLogComponent();
+
         return "[{$component}] {$message}";
     }
 
@@ -116,23 +117,23 @@ trait HasLogging
 
         try {
             $this->logInfo("Starting {$method}", $context);
-            
+
             $result = $callback();
-            
+
             $executionTime = round((microtime(true) - $startTime) * 1000, 2);
             $memoryUsed = memory_get_usage(true) - $startMemory;
-            
+
             $this->logInfo("Completed {$method}", array_merge($context, [
                 'execution_time_ms' => $executionTime,
                 'memory_used_bytes' => $memoryUsed,
-                'success' => true
+                'success' => true,
             ]));
 
             return $result;
 
         } catch (\Exception $e) {
             $executionTime = round((microtime(true) - $startTime) * 1000, 2);
-            
+
             $this->logError("Failed {$method}", array_merge($context, [
                 'execution_time_ms' => $executionTime,
                 'error' => $e->getMessage(),
@@ -151,11 +152,11 @@ trait HasLogging
     protected function logOperation(string $operation, array $data = []): string
     {
         $operationId = Str::uuid()->toString();
-        
+
         $this->logInfo("Operation started: {$operation}", [
             'operation_id' => $operationId,
             'operation' => $operation,
-            'data' => $this->sanitizeLogData($data)
+            'data' => $this->sanitizeLogData($data),
         ]);
 
         return $operationId;
@@ -169,7 +170,7 @@ trait HasLogging
         $this->logInfo("Operation completed: {$operation}", [
             'operation_id' => $operationId,
             'operation' => $operation,
-            'result' => $this->sanitizeLogData($result)
+            'result' => $this->sanitizeLogData($result),
         ]);
     }
 
@@ -184,7 +185,7 @@ trait HasLogging
             'error' => $exception->getMessage(),
             'exception' => get_class($exception),
             'file' => $exception->getFile(),
-            'line' => $exception->getLine()
+            'line' => $exception->getLine(),
         ]);
     }
 
@@ -194,10 +195,10 @@ trait HasLogging
     protected function sanitizeLogData(array $data): array
     {
         $sensitiveKeys = ['password', 'token', 'secret', 'key', 'credential', 'api_key'];
-        
+
         array_walk_recursive($data, function (&$value, $key) use ($sensitiveKeys) {
-            if (is_string($key) && 
-                collect($sensitiveKeys)->some(fn($sensitive) => str_contains(strtolower($key), $sensitive))) {
+            if (is_string($key) &&
+                collect($sensitiveKeys)->some(fn ($sensitive) => str_contains(strtolower($key), $sensitive))) {
                 $value = '***REDACTED***';
             }
         });
@@ -211,6 +212,7 @@ trait HasLogging
     public function setLogContext(array $context): self
     {
         $this->logContext = array_merge($this->logContext, $context);
+
         return $this;
     }
 
@@ -220,6 +222,7 @@ trait HasLogging
     public function setLoggingEnabled(bool $enabled): self
     {
         $this->loggingEnabled = $enabled;
+
         return $this;
     }
 
@@ -229,6 +232,7 @@ trait HasLogging
     public function clearLogContext(): self
     {
         $this->logContext = [];
+
         return $this;
     }
 }

@@ -2,20 +2,19 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources;
 
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Movie;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
-use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Session;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
+use Modules\Fresnel\app\Models\Version;
 use UnitEnum;
-use BackedEnum;
 
 class VersionResource extends Resource
 {
@@ -24,15 +23,15 @@ class VersionResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-globe-alt';
 
     protected static ?string $recordTitleAttribute = 'type';
-    
+
     protected static ?string $navigationLabel = 'Versions';
-    
+
     protected static ?string $modelLabel = 'Version';
-    
+
     protected static ?string $pluralModelLabel = 'Versions';
-    
+
     protected static ?int $navigationSort = 2;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Gestion Festival';
 
     /**
@@ -51,15 +50,13 @@ class VersionResource extends Resource
                         ->label('Voir'),
                     EditAction::make()
                         ->label('Éditer')
-                        ->visible(fn (Version $record): bool => 
-                            static::canEditVersion($record)
+                        ->visible(fn (Version $record): bool => static::canEditVersion($record)
                         ),
                     Action::make('generate_nomenclature')
                         ->label('Générer Nomenclature')
                         ->icon('heroicon-o-sparkles')
                         ->color('success')
-                        ->visible(fn (Version $record): bool => 
-                            static::canEditVersion($record)
+                        ->visible(fn (Version $record): bool => static::canEditVersion($record)
                         )
                         ->action(function (Version $record) {
                             static::generateVersionNomenclature($record);
@@ -74,7 +71,7 @@ class VersionResource extends Resource
                         })
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Fermer'),
-                ])
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped();
@@ -86,12 +83,12 @@ class VersionResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             // Si aucun festival sélectionné, retourner une query vide
             return parent::getEloquentQuery()->whereRaw('1 = 0');
         }
-        
+
         return parent::getEloquentQuery()
             ->whereHas('movie.festivals', function (Builder $query) use ($festivalId) {
                 $query->where('festival_id', $festivalId);
@@ -106,8 +103,8 @@ class VersionResource extends Resource
     {
         $user = auth()->user();
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$user || !$user->hasRole('manager') || !$festivalId) {
+
+        if (! $user || ! $user->hasRole('manager') || ! $festivalId) {
             return false;
         }
 
@@ -122,34 +119,34 @@ class VersionResource extends Resource
     {
         try {
             $nomenclatureService = app(\Modules\Fresnel\app\Services\UnifiedNomenclatureService::class);
-            
+
             // Générer la nomenclature pour le festival du manager
             $movie = $record->movie;
             $festivalId = Session::get('selected_festival_id');
-            
-            if (!$festivalId) {
+
+            if (! $festivalId) {
                 throw new \Exception('Aucun festival sélectionné');
             }
-            
+
             $festival = $movie->festivals()->where('festival_id', $festivalId)->first();
-            
-            if (!$festival) {
+
+            if (! $festival) {
                 throw new \Exception('Ce film n\'est pas associé au festival sélectionné');
             }
-            
+
             $nomenclature = $nomenclatureService->generateMovieNomenclature($movie, $festival);
-            
+
             // Mettre à jour la version
             $record->update([
-                'generated_nomenclature' => $nomenclature
+                'generated_nomenclature' => $nomenclature,
             ]);
-            
+
             Notification::make()
                 ->title('Nomenclature générée avec succès')
-                ->body('Nomenclature: ' . $nomenclature)
+                ->body('Nomenclature: '.$nomenclature)
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de génération')
@@ -168,35 +165,35 @@ class VersionResource extends Resource
             $nomenclatureService = app(\Modules\Fresnel\app\Services\UnifiedNomenclatureService::class);
             $movie = $record->movie;
             $festivalId = Session::get('selected_festival_id');
-            
-            if (!$festivalId) {
+
+            if (! $festivalId) {
                 return view('filament.modals.version-nomenclature-preview', [
-                    'message' => 'Aucun festival sélectionné'
+                    'message' => 'Aucun festival sélectionné',
                 ]);
             }
-            
+
             $festival = $movie->festivals()->where('festival_id', $festivalId)->first();
-            
-            if (!$festival) {
+
+            if (! $festival) {
                 return view('filament.modals.version-nomenclature-preview', [
-                    'message' => 'Ce film n\'est pas associé au festival sélectionné'
+                    'message' => 'Ce film n\'est pas associé au festival sélectionné',
                 ]);
             }
-            
+
             $preview = $nomenclatureService->previewNomenclature($movie, $festival);
-            
+
             return view('filament.modals.version-nomenclature-preview', [
                 'previews' => [
                     [
                         'festival' => $festival->name,
-                        'preview' => $preview
-                    ]
-                ]
+                        'preview' => $preview,
+                    ],
+                ],
             ]);
-            
+
         } catch (\Exception $e) {
             return view('filament.modals.version-nomenclature-preview', [
-                'message' => 'Erreur: ' . $e->getMessage()
+                'message' => 'Erreur: '.$e->getMessage(),
             ]);
         }
     }

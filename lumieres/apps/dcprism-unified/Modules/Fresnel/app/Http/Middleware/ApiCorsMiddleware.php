@@ -18,7 +18,7 @@ class ApiCorsMiddleware
         // Configure CORS headers for API
         $response->headers->set('Access-Control-Allow-Origin', $this->getAllowedOrigins($request));
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 
+        $response->headers->set('Access-Control-Allow-Headers',
             'Authorization, Content-Type, Accept, X-Requested-With, Origin, Cache-Control, Pragma, X-API-Version'
         );
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
@@ -55,13 +55,13 @@ class ApiCorsMiddleware
         }
 
         $origin = $request->headers->get('Origin');
-        
+
         if ($origin && in_array($origin, $allowedOrigins)) {
             return $origin;
         }
 
         // Allow same origin requests
-        if (!$origin || $origin === $request->getSchemeAndHttpHost()) {
+        if (! $origin || $origin === $request->getSchemeAndHttpHost()) {
             return $request->getSchemeAndHttpHost();
         }
 

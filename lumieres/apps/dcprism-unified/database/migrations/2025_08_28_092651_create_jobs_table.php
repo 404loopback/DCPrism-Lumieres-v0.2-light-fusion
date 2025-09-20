@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('estimated_duration')->nullable(); // en secondes
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
+
             $table->index(['status']);
             $table->index(['type']);
             $table->index(['user_id']);

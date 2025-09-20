@@ -2,16 +2,16 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Versions\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Movie;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Modules\Fresnel\app\Models\Lang;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\Version;
 
 class VersionForm
 {
@@ -34,7 +34,7 @@ class VersionForm
                                         // Auto-generate nomenclature when movie changes
                                         $set('generated_nomenclature', null);
                                     }),
-                                    
+
                                 Select::make('type')
                                     ->label('Type de version')
                                     ->options(Version::TYPES)
@@ -47,14 +47,14 @@ class VersionForm
                                     ->helperText('VO = Version Originale, VOST = VO Sous-titrée, etc.'),
                             ]),
                     ]),
-                    
+
                 Section::make('Configuration linguistique')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Select::make('audio_lang')
                                     ->label('Langue audio')
-                                    ->relationship('audioLanguage', 'name', 
+                                    ->relationship('audioLanguage', 'name',
                                         fn ($query) => $query->orderBy('name')
                                     )
                                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
@@ -64,7 +64,7 @@ class VersionForm
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $set('generated_nomenclature', null);
                                     }),
-                                    
+
                                 Select::make('sub_lang')
                                     ->label('Langue sous-titres')
                                     ->relationship('subtitleLanguage', 'name',
@@ -79,7 +79,7 @@ class VersionForm
                                     }),
                             ]),
                     ]),
-                    
+
                 Section::make('Relations et hiérarchie')
                     ->schema([
                         Grid::make(2)
@@ -87,14 +87,13 @@ class VersionForm
                                 Select::make('ov_id')
                                     ->label('Version originale de référence')
                                     ->relationship('originalVersion', 'type')
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => 
-                                        $record->movie->title . ' - ' . $record->type . ' (' . 
-                                        $record->audio_lang . ')'
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->movie->title.' - '.$record->type.' ('.
+                                        $record->audio_lang.')'
                                     )
                                     ->searchable()
                                     ->preload()
                                     ->helperText('Uniquement pour les versions doublées/sous-titrées'),
-                                    
+
                                 TagsInput::make('vf_ids')
                                     ->label('IDs des versions françaises liées')
                                     ->placeholder('ID1, ID2, ID3...')
@@ -103,7 +102,7 @@ class VersionForm
                     ])
                     ->collapsible()
                     ->collapsed(),
-                    
+
                 Section::make('Accessibilité')
                     ->schema([
                         Select::make('accessibility')
@@ -121,7 +120,7 @@ class VersionForm
                             }),
                     ])
                     ->collapsible(),
-                    
+
                 Section::make('Nomenclature automatique')
                     ->schema([
                         Placeholder::make('nomenclature_preview')
@@ -132,38 +131,38 @@ class VersionForm
                                 $audioLang = $get('audio_lang');
                                 $subLang = $get('sub_lang');
                                 $accessibility = $get('accessibility');
-                                
-                                if (!$movieId || !$type) {
+
+                                if (! $movieId || ! $type) {
                                     return 'Remplissez le film et le type pour voir la nomenclature';
                                 }
-                                
+
                                 $movie = Movie::find($movieId);
                                 $audioLangModel = $audioLang ? Lang::where('iso_639_1', $audioLang)->first() : null;
                                 $subLangModel = $subLang ? Lang::where('iso_639_1', $subLang)->first() : null;
-                                
-                                if (!$movie) {
+
+                                if (! $movie) {
                                     return 'Film non trouvé';
                                 }
-                                
+
                                 $parts = [$movie->title, $type];
-                                
+
                                 if ($audioLangModel) {
                                     $parts[] = $audioLangModel->iso_639_1;
                                 }
-                                
+
                                 if ($subLangModel) {
-                                    $parts[] = 'ST' . $subLangModel->iso_639_1;
+                                    $parts[] = 'ST'.$subLangModel->iso_639_1;
                                 }
-                                
+
                                 if ($accessibility) {
                                     $parts[] = implode('_', (array) $accessibility);
                                 }
-                                
+
                                 return implode('_', $parts);
                             })
                             ->live()
                             ->columnSpanFull(),
-                            
+
                         TextInput::make('generated_nomenclature')
                             ->label('Nomenclature générée')
                             ->disabled()

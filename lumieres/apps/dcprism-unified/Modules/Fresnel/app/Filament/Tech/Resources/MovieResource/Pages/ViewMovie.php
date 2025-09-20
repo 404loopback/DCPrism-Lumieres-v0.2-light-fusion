@@ -2,11 +2,11 @@
 
 namespace Modules\Fresnel\app\Filament\Tech\Resources\MovieResource\Pages;
 
+use Filament\Actions;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
 use Modules\Fresnel\app\Filament\Tech\Resources\MovieResource;
 use Modules\Fresnel\app\Models\Dcp;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Notifications\Notification;
 
 class ViewMovie extends ViewRecord
 {
@@ -23,6 +23,7 @@ class ViewMovie extends ViewRecord
                 ->modalHeading('Valider tous les DCPs du film')
                 ->modalDescription(function () {
                     $pendingCount = $this->record->dcps()->where('status', Dcp::STATUS_UPLOADED)->count();
+
                     return "Valider les {$pendingCount} DCPs en attente pour ce film ?";
                 })
                 ->action(function () {
@@ -30,13 +31,13 @@ class ViewMovie extends ViewRecord
                         ->where('status', Dcp::STATUS_UPLOADED)
                         ->where('is_valid', false)
                         ->get();
-                    
+
                     $count = 0;
                     foreach ($pendingDcps as $dcp) {
-                        $dcp->markAsValid('DCP validé par technicien le ' . now()->format('d/m/Y H:i'));
+                        $dcp->markAsValid('DCP validé par technicien le '.now()->format('d/m/Y H:i'));
                         $count++;
                     }
-                    
+
                     // Mettre à jour le statut global du film
                     if ($count > 0) {
                         $this->record->update([
@@ -45,7 +46,7 @@ class ViewMovie extends ViewRecord
                             'validated_by' => auth()->id(),
                         ]);
                     }
-                    
+
                     Notification::make()
                         ->title('Validation terminée')
                         ->body("{$count} DCPs validés pour le film {$this->record->title}")
@@ -63,8 +64,8 @@ class ViewMovie extends ViewRecord
                 ->url(function () {
                     return route('filament.tech.resources.dcps.index', [
                         'tableFilters' => [
-                            'movie' => ['value' => $this->record->id]
-                        ]
+                            'movie' => ['value' => $this->record->id],
+                        ],
                     ]);
                 }),
         ];

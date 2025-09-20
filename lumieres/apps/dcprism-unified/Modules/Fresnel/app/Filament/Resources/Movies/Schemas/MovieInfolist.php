@@ -2,15 +2,13 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Movies\Schemas;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Dcp;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Grid;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Modules\Fresnel\app\Models\Movie;
 
 class MovieInfolist
 {
@@ -25,7 +23,7 @@ class MovieInfolist
                                 TextEntry::make('title')
                                     ->label('Titre')
                                     ->weight('medium'),
-                                    
+
                                 TextEntry::make('format')
                                     ->label('Format')
                                     ->badge()
@@ -36,7 +34,7 @@ class MovieInfolist
                                         'TST' => 'danger',
                                         default => 'gray'
                                     }),
-                                    
+
                                 TextEntry::make('status')
                                     ->label('Statut')
                                     ->badge()
@@ -49,19 +47,19 @@ class MovieInfolist
                                     })
                                     ->formatStateUsing(fn (string $state): string => Movie::getStatuses()[$state] ?? $state),
                             ]),
-                            
+
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('source_email')
                                     ->label('Source')
                                     ->copyable(),
-                                    
+
                                 TextEntry::make('created_at')
                                     ->label('Créé le')
                                     ->dateTime('d/m/Y à H:i'),
                             ]),
                     ]),
-                    
+
                 Section::make('Validation Source')
                     ->description('Gestion des versions par la source')
                     ->schema([
@@ -71,12 +69,12 @@ class MovieInfolist
                             ->state(function (Movie $record): array {
                                 return [
                                     'movie_id' => $record->id,
-                                    'versions' => $record->versions()->with(['audioLanguage', 'subtitleLanguage', 'dcps'])->get()
+                                    'versions' => $record->versions()->with(['audioLanguage', 'subtitleLanguage', 'dcps'])->get(),
                                 ];
                             }),
                     ])
                     ->collapsible(),
-                    
+
                 Section::make('Validation Technique')
                     ->description('Gestion des DCP par les techniciens')
                     ->schema([
@@ -86,12 +84,12 @@ class MovieInfolist
                             ->state(function (Movie $record): array {
                                 return [
                                     'movie_id' => $record->id,
-                                    'dcps' => $record->dcps()->with(['version', 'uploader', 'audioLanguage', 'subtitleLanguage'])->get()
+                                    'dcps' => $record->dcps()->with(['version', 'uploader', 'audioLanguage', 'subtitleLanguage'])->get(),
                                 ];
                             }),
                     ])
                     ->collapsible(),
-                    
+
                 Section::make('Festivals liés')
                     ->description('Informations sur les soumissions aux festivals')
                     ->schema([
@@ -116,7 +114,7 @@ class MovieInfolist
                                         TextEntry::make('name')
                                             ->label('Festival')
                                             ->weight('medium'),
-                                            
+
                                         TextEntry::make('submission_status')
                                             ->label('Statut')
                                             ->badge()
@@ -129,7 +127,7 @@ class MovieInfolist
                                                 'withdrawn' => 'secondary',
                                                 default => 'gray'
                                             })
-                                            ->formatStateUsing(fn (string $state): string => match($state) {
+                                            ->formatStateUsing(fn (string $state): string => match ($state) {
                                                 'pending' => 'En attente',
                                                 'submitted' => 'Soumis',
                                                 'in_review' => 'En cours d\'examen',
@@ -138,7 +136,7 @@ class MovieInfolist
                                                 'withdrawn' => 'Retiré',
                                                 default => 'Inconnu'
                                             }),
-                                            
+
                                         TextEntry::make('priority')
                                             ->label('Priorité')
                                             ->badge()
@@ -148,7 +146,7 @@ class MovieInfolist
                                                 3, 4, 5 => 'danger',
                                                 default => 'gray'
                                             })
-                                            ->formatStateUsing(fn (int $state): string => match($state) {
+                                            ->formatStateUsing(fn (int $state): string => match ($state) {
                                                 0 => 'Normale',
                                                 1 => 'Faible',
                                                 2 => 'Moyenne',
@@ -157,7 +155,7 @@ class MovieInfolist
                                                 5 => 'Urgente',
                                                 default => 'Inconnue'
                                             }),
-                                            
+
                                         TextEntry::make('technical_notes')
                                             ->label('Notes')
                                             ->placeholder('Aucune note')
@@ -167,7 +165,7 @@ class MovieInfolist
                     ])
                     ->visible(fn (Movie $record): bool => $record->festivals()->exists())
                     ->collapsible(),
-                    
+
                 Section::make('Métadonnées')
                     ->schema([
                         Grid::make(3)
@@ -175,17 +173,17 @@ class MovieInfolist
                                 TextEntry::make('year')
                                     ->label('Année')
                                     ->placeholder('Non renseignée'),
-                                    
+
                                 TextEntry::make('duration')
                                     ->label('Durée')
                                     ->suffix(' min')
                                     ->placeholder('Non renseignée'),
-                                    
+
                                 TextEntry::make('country')
                                     ->label('Pays')
                                     ->placeholder('Non renseigné'),
                             ]),
-                            
+
                         TextEntry::make('description')
                             ->label('Description')
                             ->prose()

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('technical_notes')->nullable();
             $table->integer('priority')->default(0);
             $table->timestamps();
-            
+
             $table->unique(['movie_id', 'festival_id']);
         });
     }

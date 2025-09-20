@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Festivals\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Fresnel\app\Filament\Resources\Festivals\FestivalResource;
 
 class CreateFestival extends CreateRecord
 {

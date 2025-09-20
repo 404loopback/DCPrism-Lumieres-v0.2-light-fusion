@@ -6,7 +6,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Modules\Fresnel\app\Filament\Source\Pages\SourceDashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -16,6 +15,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Modules\Fresnel\app\Filament\Source\Pages\SourceDashboard;
 
 class SourcePanelProvider extends PanelProvider
 {
@@ -47,7 +47,7 @@ class SourcePanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                DisableBladeIconComponents::class,
+                // DisableBladeIconComponents::class, // RETIRÉ POUR PERMETTRE L'AFFICHAGE DES ICÔNES
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([

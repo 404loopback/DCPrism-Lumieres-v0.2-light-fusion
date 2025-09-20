@@ -2,21 +2,20 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Widgets;
 
-use Modules\Fresnel\app\Filament\Shared\Concerns\HasFestivalContext;
-use Modules\Fresnel\app\Filament\Shared\Concerns\HasRoleBasedAccess;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
+use Modules\Fresnel\app\Filament\Shared\Concerns\HasFestivalContext;
 
 /**
  * Widget de centre de notifications utilisant les composants Filament natifs
  */
 class NotificationCenterWidget extends Widget
 {
-    use HasFestivalContext, HasRoleBasedAccess;
+    use HasFestivalContext;
 
     protected static string $view = 'filament.shared.widgets.notification-center';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function getHeading(): ?string
     {
@@ -37,12 +36,12 @@ class NotificationCenterWidget extends Widget
     protected function getViewData(): array
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return [
                 'notifications' => collect(),
                 'unread_count' => 0,
-                'stats' => []
+                'stats' => [],
             ];
         }
 
@@ -53,16 +52,16 @@ class NotificationCenterWidget extends Widget
             ->get();
 
         $unreadCount = $user->unreadNotifications()->count();
-        
+
         // Statistiques des notifications
         $stats = $this->getNotificationStats($user);
-        
+
         return [
             'notifications' => $notifications,
             'unread_count' => $unreadCount,
             'stats' => $stats,
             'user' => $user,
-            'festival_context' => $this->getFestivalContext()
+            'festival_context' => $this->getFestivalContext(),
         ];
     }
 
@@ -84,7 +83,7 @@ class NotificationCenterWidget extends Widget
             'read' => $total - $unread,
             'today' => $today,
             'this_week' => $thisWeek,
-            'read_rate' => $total > 0 ? round((($total - $unread) / $total) * 100, 1) : 0
+            'read_rate' => $total > 0 ? round((($total - $unread) / $total) * 100, 1) : 0,
         ];
     }
 
@@ -94,10 +93,10 @@ class NotificationCenterWidget extends Widget
     public function markAllAsRead(): void
     {
         $user = Auth::user();
-        
+
         if ($user) {
             $user->unreadNotifications()->update(['read_at' => now()]);
-            
+
             // Notification de succès
             \Filament\Notifications\Notification::make()
                 ->title('Notifications marquées comme lues')
@@ -112,11 +111,11 @@ class NotificationCenterWidget extends Widget
     public function markAsRead(string $notificationId): void
     {
         $user = Auth::user();
-        
+
         if ($user) {
             $notification = $user->notifications()->find($notificationId);
-            
-            if ($notification && !$notification->read_at) {
+
+            if ($notification && ! $notification->read_at) {
                 $notification->markAsRead();
             }
         }
@@ -128,13 +127,13 @@ class NotificationCenterWidget extends Widget
     public function deleteNotification(string $notificationId): void
     {
         $user = Auth::user();
-        
+
         if ($user) {
             $notification = $user->notifications()->find($notificationId);
-            
+
             if ($notification) {
                 $notification->delete();
-                
+
                 \Filament\Notifications\Notification::make()
                     ->title('Notification supprimée')
                     ->success()
@@ -149,11 +148,11 @@ class NotificationCenterWidget extends Widget
     public function clearReadNotifications(): void
     {
         $user = Auth::user();
-        
+
         if ($user) {
             $count = $user->readNotifications()->count();
             $user->readNotifications()->delete();
-            
+
             \Filament\Notifications\Notification::make()
                 ->title("$count notifications supprimées")
                 ->success()

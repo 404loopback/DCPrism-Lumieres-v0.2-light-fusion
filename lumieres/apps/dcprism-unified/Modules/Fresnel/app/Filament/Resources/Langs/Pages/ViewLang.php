@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Langs\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 
 class ViewLang extends ViewRecord
 {

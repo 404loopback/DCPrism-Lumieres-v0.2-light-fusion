@@ -2,18 +2,18 @@
 
 namespace Modules\Fresnel\app\Filament\Widgets;
 
-use Modules\Fresnel\app\Models\Upload;
-use Modules\Fresnel\app\Models\Movie;
-use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Filament\Widgets\ChartWidget;
+use Modules\Fresnel\app\Models\Upload;
 
 class UploadTrendsWidget extends ChartWidget
 {
     protected static ?int $sort = 6;
-    protected int | string | array $columnSpan = 2;
-    
+
+    protected int|string|array $columnSpan = 2;
+
     protected ?string $heading = 'Tendances d\'upload - 7 derniers jours';
+
     protected ?string $description = 'Volume des uploads DCP jour par jour';
 
     protected function getData(): array
@@ -21,25 +21,25 @@ class UploadTrendsWidget extends ChartWidget
         $days = collect();
         $uploads = collect();
         $completedUploads = collect();
-        
+
         // Générer les 7 derniers jours
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $dateString = $date->format('Y-m-d');
-            
+
             $days->push($date->format('d/m'));
-            
+
             // Compter les uploads du jour
             $dailyUploads = Upload::whereDate('created_at', $date)->count();
             $uploads->push($dailyUploads);
-            
+
             // Compter les uploads complétés du jour
             $dailyCompleted = Upload::whereDate('updated_at', $date)
                 ->where('status', 'completed')
                 ->count();
             $completedUploads->push($dailyCompleted);
         }
-        
+
         return [
             'datasets' => [
                 [
@@ -67,7 +67,7 @@ class UploadTrendsWidget extends ChartWidget
     {
         return 'line';
     }
-    
+
     protected function getOptions(): array
     {
         return [

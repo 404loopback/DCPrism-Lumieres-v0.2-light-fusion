@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\TestPages;
 
-use Modules\Fresnel\app\Filament\Resources\TestResource;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\TestResource;
 
 class ListTestUsers extends ListRecords
 {

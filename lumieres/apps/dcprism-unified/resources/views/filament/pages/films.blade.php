@@ -12,7 +12,7 @@
                         'border-primary-500 text-primary-600 dark:text-primary-400' => $activeTab === 'films',
                         'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300' => $activeTab !== 'films',
                     ])>
-                    <x-heroicon-o-film class="w-4 h-4 inline mr-2"/> Films
+                    @svg('heroicon-o-film', 'w-4 h-4 inline mr-2') Films
                 </button>
                 <button 
                     wire:click="changeTab('versions')"
@@ -21,7 +21,7 @@
                         'border-primary-500 text-primary-600 dark:text-primary-400' => $activeTab === 'versions',
                         'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300' => $activeTab !== 'versions',
                     ])>
-                    <x-heroicon-o-document-duplicate class="w-4 h-4 inline mr-2"/> Versions
+                    @svg('heroicon-o-document-duplicate', 'w-4 h-4 inline mr-2') Versions
                 </button>
                 <button 
                     wire:click="changeTab('dcps')"
@@ -30,7 +30,7 @@
                         'border-primary-500 text-primary-600 dark:text-primary-400' => $activeTab === 'dcps',
                         'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300' => $activeTab !== 'dcps',
                     ])>
-                    <x-heroicon-o-archive-box class="w-4 h-4 inline mr-2"/> DCPs
+                    @svg('heroicon-o-archive-box', 'w-4 h-4 inline mr-2') DCPs
                 </button>
                 <button 
                     wire:click="changeTab('metadata')"
@@ -39,7 +39,7 @@
                         'border-primary-500 text-primary-600 dark:text-primary-400' => $activeTab === 'metadata',
                         'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300' => $activeTab !== 'metadata',
                     ])>
-                    <x-heroicon-o-tag class="w-4 h-4 inline mr-2"/> Métadonnées
+                    @svg('heroicon-o-tag', 'w-4 h-4 inline mr-2') Métadonnées
                 </button>
             </nav>
         </div>

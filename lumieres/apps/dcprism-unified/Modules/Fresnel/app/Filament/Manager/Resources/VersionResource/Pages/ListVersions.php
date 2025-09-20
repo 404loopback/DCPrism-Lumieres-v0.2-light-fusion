@@ -2,10 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\VersionResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\VersionResource;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Actions;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Filament\Manager\Resources\VersionResource;
 
 class ListVersions extends ListRecords
 {
@@ -23,19 +23,20 @@ class ListVersions extends ListRecords
                 ->modalHeading('À propos des versions')
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Fermer')
-->modalContent(fn() => view('fresnel::filament.modals.versions-info')),
+                ->modalContent(fn () => view('fresnel::filament.modals.versions-info')),
         ];
     }
 
     public function getTitle(): string
     {
         $festivalId = Session::get('selected_festival_id');
-        
+
         if ($festivalId) {
             $festival = \Modules\Fresnel\app\Models\Festival::find($festivalId);
+
             return $festival ? "Versions - {$festival->name}" : 'Versions';
         }
-        
+
         return 'Versions';
     }
 
@@ -58,13 +59,14 @@ class ListVersions extends ListRecords
     public function getSubheading(): ?string
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return 'Aucun festival sélectionné. Veuillez retourner au dashboard et choisir un festival à administrer.';
         }
-        
+
         $count = $this->getTableQuery()->count();
-        return "Gestion des versions linguistiques ({$count} version" . ($count > 1 ? 's' : '') . ")";
+
+        return "Gestion des versions linguistiques ({$count} version".($count > 1 ? 's' : '').')';
     }
 
     /**
@@ -73,7 +75,7 @@ class ListVersions extends ListRecords
     public function mount(): void
     {
         parent::mount();
-        
+
         // Pas de redirection forcée, on laisse getEloquentQuery() gérer le cas où il n'y a pas de festival
     }
 }

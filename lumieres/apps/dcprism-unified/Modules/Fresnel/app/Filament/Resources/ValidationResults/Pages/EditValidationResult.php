@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ValidationResults\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Fresnel\app\Filament\Resources\ValidationResults\ValidationResultResource;
 
 class EditValidationResult extends EditRecord
 {

@@ -12,7 +12,7 @@ class Dashboard extends BaseDashboard
             \Modules\Meniscus\app\Filament\Widgets\UserStatsWidget::class,
         ];
     }
-    
+
     protected function getFooterWidgets(): array
     {
         return [

@@ -2,11 +2,11 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ValidationResults\Schemas;
 
+use Filament\Forms;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Modules\Fresnel\app\Models\Movie;
 use Modules\Fresnel\app\Models\Parameter;
-use Filament\Forms;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 
 class ValidationResultForm
 {
@@ -23,7 +23,7 @@ class ValidationResultForm
                                 ->orderBy('title')
                                 ->get()
                                 ->mapWithKeys(fn ($movie) => [
-                                    $movie->id => "{$movie->title} ({$movie->festival?->name})"
+                                    $movie->id => "{$movie->title} ({$movie->festival?->name})",
                                 ]))
                             ->required()
                             ->searchable(),
@@ -34,12 +34,12 @@ class ValidationResultForm
                                 ->orderBy('title')
                                 ->get()
                                 ->mapWithKeys(fn ($param) => [
-                                    $param->id => "{$param->category} - {$param->title}"
+                                    $param->id => "{$param->category} - {$param->title}",
                                 ]))
                             ->searchable()
                             ->helperText('Laisser vide pour les validations générales'),
                     ])->columns(2),
-                    
+
                 Section::make('Type de validation')
                     ->schema([
                         Forms\Components\Select::make('validation_type')
@@ -61,7 +61,7 @@ class ValidationResultForm
                             ->maxLength(100)
                             ->helperText('Nom technique de la règle de validation'),
                     ])->columns(2),
-                    
+
                 Section::make('Résultat')
                     ->schema([
                         Forms\Components\Select::make('status')
@@ -84,7 +84,7 @@ class ValidationResultForm
                             ->default('info')
                             ->required(),
                     ])->columns(2),
-                    
+
                 Section::make('Détails de validation')
                     ->schema([
                         Forms\Components\Textarea::make('description')
@@ -100,7 +100,7 @@ class ValidationResultForm
                             ->rows(2)
                             ->helperText('Ce qui a été trouvé'),
                     ]),
-                    
+
                 Section::make('Résolution')
                     ->schema([
                         Forms\Components\Textarea::make('suggestion')
@@ -111,7 +111,7 @@ class ValidationResultForm
                             ->label('Correction automatique possible')
                             ->helperText('Peut être corrigé automatiquement par le système'),
                     ]),
-                    
+
                 Section::make('Détails techniques')
                     ->schema([
                         Forms\Components\KeyValue::make('details')

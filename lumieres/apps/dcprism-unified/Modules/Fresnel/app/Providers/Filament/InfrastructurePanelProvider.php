@@ -47,7 +47,7 @@ class InfrastructurePanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                DisableBladeIconComponents::class,
+                // DisableBladeIconComponents::class, // RETIRÉ POUR PERMETTRE L'AFFICHAGE DES ICÔNES
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([

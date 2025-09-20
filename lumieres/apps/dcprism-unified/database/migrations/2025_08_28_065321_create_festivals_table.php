@@ -30,13 +30,13 @@ return new class extends Migration
             $table->json('technical_requirements')->nullable();
             $table->json('accepted_formats')->nullable();
             $table->bigInteger('max_storage')->nullable(); // en bytes
-            $table->bigInteger('max_file_size')->nullable(); // en bytes  
+            $table->bigInteger('max_file_size')->nullable(); // en bytes
             $table->string('backblaze_folder')->nullable();
             $table->enum('storage_status', ['active', 'full', 'error', 'maintenance'])->default('active');
             $table->json('storage_info')->nullable();
             $table->timestamp('storage_last_tested_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['is_active']);
             $table->index(['start_date', 'end_date']);
             $table->index(['submission_deadline']);

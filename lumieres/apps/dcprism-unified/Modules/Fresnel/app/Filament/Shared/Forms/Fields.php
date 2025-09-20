@@ -2,12 +2,12 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Forms;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -31,39 +31,39 @@ class Fields
     /**
      * Standard name field for entities
      */
-    public static function name(string $label = 'Nom', bool $required = true, string $placeholder = null): TextInput
+    public static function name(string $label = 'Nom', bool $required = true, ?string $placeholder = null): TextInput
     {
         $field = TextInput::make('name')
             ->label($label)
             ->required($required)
             ->maxLength(255);
-            
+
         if ($placeholder) {
             $field->placeholder($placeholder);
         }
-        
+
         return $field;
     }
 
     /**
      * Standard email field with validation
      */
-    public static function email(string $label = 'Email', bool $required = true, bool $unique = false, string $placeholder = null): TextInput
+    public static function email(string $label = 'Email', bool $required = true, bool $unique = false, ?string $placeholder = null): TextInput
     {
         $field = TextInput::make('email')
             ->label($label)
             ->email()
             ->required($required)
             ->maxLength(255);
-            
+
         if ($unique) {
             $field->unique(ignoreRecord: true);
         }
-        
+
         if ($placeholder) {
             $field->placeholder($placeholder);
         }
-        
+
         return $field;
     }
 
@@ -87,15 +87,15 @@ class Fields
         $field = Select::make('status')
             ->label($label)
             ->required($required);
-            
-        if (!empty($options)) {
+
+        if (! empty($options)) {
             $field->options($options);
         }
-        
+
         if ($default !== null) {
             $field->default($default);
         }
-        
+
         return $field;
     }
 
@@ -171,16 +171,16 @@ class Fields
     /**
      * Standard active toggle
      */
-    public static function isActive(string $label = 'Actif', string $helperText = null, bool $default = true): Toggle
+    public static function isActive(string $label = 'Actif', ?string $helperText = null, bool $default = true): Toggle
     {
         $field = Toggle::make('is_active')
             ->label($label)
             ->default($default);
-            
+
         if ($helperText) {
             $field->helperText($helperText);
         }
-        
+
         return $field;
     }
 
@@ -197,20 +197,18 @@ class Fields
                 ->dehydrated(fn ($state) => filled($state))
                 ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                 ->rule(Password::default())
-                ->placeholder(fn (string $context) => 
-                    $context === 'edit' 
+                ->placeholder(fn (string $context) => $context === 'edit'
                         ? 'Laissez vide pour conserver le mot de passe actuel'
                         : 'Minimum 8 caractères'
                 ),
-                
+
             TextInput::make('password_confirmation')
                 ->label('Confirmer le mot de passe')
                 ->password()
                 ->required(fn (string $context): bool => $context === 'create')
                 ->dehydrated(false)
                 ->same('password')
-                ->placeholder(fn (string $context) => 
-                    $context === 'edit'
+                ->placeholder(fn (string $context) => $context === 'edit'
                         ? 'Confirmez le nouveau mot de passe si modifié'
                         : 'Confirmez le mot de passe'
                 ),
@@ -221,21 +219,21 @@ class Fields
      * Standard date picker with Brussels timezone
      */
     public static function datePicker(
-        string $fieldName, 
-        string $label, 
+        string $fieldName,
+        string $label,
         bool $required = false,
         string $format = 'd/m/Y',
-        string $afterOrEqual = null
+        ?string $afterOrEqual = null
     ): DatePicker {
         $field = DatePicker::make($fieldName)
             ->label($label)
             ->required($required)
             ->displayFormat($format);
-            
+
         if ($afterOrEqual) {
             $field->afterOrEqual($afterOrEqual);
         }
-        
+
         return $field;
     }
 
@@ -260,16 +258,16 @@ class Fields
     /**
      * Standard Backblaze folder field
      */
-    public static function backblazeFolder(string $label = 'Dossier Backblaze', string $helperText = null): TextInput
+    public static function backblazeFolder(string $label = 'Dossier Backblaze', ?string $helperText = null): TextInput
     {
         $field = TextInput::make('backblaze_folder')
             ->label($label)
             ->maxLength(255);
-            
+
         if ($helperText) {
             $field->helperText($helperText);
         }
-        
+
         return $field;
     }
 
@@ -281,38 +279,42 @@ class Fields
         string $label,
         string $suffix,
         bool $required = false,
-        string $helperText = null
+        ?string $helperText = null
     ): TextInput {
         $field = TextInput::make($fieldName)
             ->label($label)
             ->numeric()
             ->required($required)
             ->suffix($suffix);
-            
+
         if ($helperText) {
             $field->helperText($helperText);
         }
-        
+
         return $field;
     }
 
     /**
-     * Standard role select field
+     * Shield/Spatie roles selection field
+     * Compatible avec le système de rôles Shield
      */
-    public static function roleSelect(string $label = 'Rôle', bool $searchable = true): Select
-    {
-        return Select::make('role')
+    public static function shieldRoleSelect(
+        string $label = 'Rôles', 
+        bool $multiple = false, 
+        bool $searchable = true
+    ): Select {
+        return Select::make('roles')
             ->label($label)
-            ->options([
-                'admin' => 'Administrateur',
-                'supervisor' => 'Superviseur',
-                'tech' => 'Technique',
-                'manager' => 'Manager', 
-                'source' => 'Source',
-                'cinema' => 'Cinéma',
-            ])
-            ->required()
+            ->relationship('roles', 'name')
+            ->multiple($multiple)
             ->searchable($searchable)
-            ->placeholder('Sélectionnez un rôle');
+            ->preload()
+            ->required()
+            ->placeholder('Sélectionnez un ou plusieurs rôles')
+            ->helperText(fn (callable $get) => 
+                $multiple 
+                    ? 'Un utilisateur peut avoir plusieurs rôles. Sélectionnez tous les rôles applicables.'
+                    : 'Sélectionnez le rôle principal de cet utilisateur.'
+            );
     }
 }

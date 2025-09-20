@@ -24,11 +24,11 @@ Route::get('/health', function () {
     $start = microtime(true);
     $userCount = User::count();
     $dbTime = round((microtime(true) - $start) * 1000, 2);
-    
+
     return response()->json([
         'status' => 'healthy',
         'database' => 'connected',
         'users_count' => $userCount,
-        'response_time_ms' => round((microtime(true) - $start) * 1000, 2)
+        'response_time_ms' => round((microtime(true) - $start) * 1000, 2),
     ]);
 });

@@ -4,36 +4,34 @@ namespace Modules\Fresnel\app\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;
-use Filament\Tables\Table;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Version;
-use Modules\Fresnel\app\Models\Dcp;
-use Modules\Fresnel\app\Models\MovieMetadata;
-use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MovieTable;
-use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
+use Filament\Tables\Table;
 use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
 use Modules\Fresnel\app\Filament\Resources\MovieMetadata\Tables\MovieMetadataTable;
-use Livewire\Attributes\On;
-use Illuminate\Database\Eloquent\Builder;
+use Modules\Fresnel\app\Filament\Resources\Movies\Tables\MovieTable;
+use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
+use Modules\Fresnel\app\Models\Dcp;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Models\MovieMetadata;
+use Modules\Fresnel\app\Models\Version;
 
 class FilmsPage extends Page implements HasTable
 {
     use InteractsWithTable;
-    
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-film';
-    
+
     protected static ?string $navigationLabel = 'Films';
-    
+
     protected static ?string $title = 'Gestion Films';
-    
+
     protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.films';
-    
+
     public string $activeTab = 'films';
-    
+
     /**
      * Table des Films
      */
@@ -43,7 +41,7 @@ class FilmsPage extends Page implements HasTable
             $table->query(Movie::query())
         );
     }
-    
+
     /**
      * Table des Versions
      */
@@ -53,7 +51,7 @@ class FilmsPage extends Page implements HasTable
             $table->query(Version::query())
         );
     }
-    
+
     /**
      * Table des DCPs
      */
@@ -63,7 +61,7 @@ class FilmsPage extends Page implements HasTable
             $table->query(Dcp::query())
         );
     }
-    
+
     /**
      * Table des Métadonnées
      */
@@ -73,7 +71,7 @@ class FilmsPage extends Page implements HasTable
             $table->query(MovieMetadata::query())
         );
     }
-    
+
     /**
      * Changer d'onglet
      */
@@ -82,13 +80,13 @@ class FilmsPage extends Page implements HasTable
         $this->activeTab = $tab;
         $this->resetTable();
     }
-    
+
     /**
      * Récupérer la table active
      */
     public function table(Table $table): Table
     {
-        return match($this->activeTab) {
+        return match ($this->activeTab) {
             'films' => $this->moviesTable($table),
             'versions' => $this->versionsTable($table),
             'dcps' => $this->dcpsTable($table),

@@ -17,7 +17,7 @@ abstract class BaseApiResource extends JsonResource
      * Fields that should be hidden from API response by default
      */
     protected array $hiddenFields = [
-        'password', 'remember_token', 'api_token', 'secret'
+        'password', 'remember_token', 'api_token', 'secret',
     ];
 
     /**
@@ -46,10 +46,10 @@ abstract class BaseApiResource extends JsonResource
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
-        
+
         $bytes /= pow(1024, $pow);
-        
-        return round($bytes, 2) . ' ' . $units[$pow];
+
+        return round($bytes, 2).' '.$units[$pow];
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class BaseApiResource extends JsonResource
         $hours = floor($seconds / 3600);
         $minutes = floor(($seconds % 3600) / 60);
         $remainingSeconds = $seconds % 60;
-        
+
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $remainingSeconds);
     }
 
@@ -74,13 +74,13 @@ abstract class BaseApiResource extends JsonResource
     protected function userCan(Request $request, string $ability, ?string $model = null): bool
     {
         $user = $request->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 
         $model = $model ?? $this->resource;
-        
+
         return $user->can($ability, $model);
     }
 
@@ -90,19 +90,19 @@ abstract class BaseApiResource extends JsonResource
     protected function userCanAny(Request $request, array $abilities, ?string $model = null): bool
     {
         $user = $request->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 
         $model = $model ?? $this->resource;
-        
+
         foreach ($abilities as $ability) {
             if ($user->can($ability, $model)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -128,19 +128,19 @@ abstract class BaseApiResource extends JsonResource
     protected function generateLinks(array $routes = []): array
     {
         $links = [];
-        
+
         foreach ($routes as $name => $route) {
             if (is_array($route)) {
                 $links[$name] = [
                     'href' => $route['href'] ?? null,
                     'method' => $route['method'] ?? 'GET',
-                    'type' => $route['type'] ?? 'application/json'
+                    'type' => $route['type'] ?? 'application/json',
                 ];
             } else {
                 $links[$name] = $route;
             }
         }
-        
+
         return $links;
     }
 
@@ -174,6 +174,7 @@ abstract class BaseApiResource extends JsonResource
     protected function whenRequested(Request $request, string $parameter, mixed $value, bool $default = false): mixed
     {
         $include = $request->boolean($parameter, $default);
+
         return $this->when($include, $value);
     }
 
@@ -184,7 +185,7 @@ abstract class BaseApiResource extends JsonResource
     {
         return $this->when(
             $this->relationLoaded($relationship) && $this->userCan($request, $ability),
-            fn() => $this->getRelationValue($relationship)
+            fn () => $this->getRelationValue($relationship)
         );
     }
 
@@ -196,7 +197,7 @@ abstract class BaseApiResource extends JsonResource
         foreach ($this->hiddenFields as $field) {
             unset($data[$field]);
         }
-        
+
         return $data;
     }
 
@@ -209,7 +210,7 @@ abstract class BaseApiResource extends JsonResource
             'type' => $this->getResourceType(),
             'id' => $this->getResourceId(),
             'links' => $this->generateBaseLinks(),
-            'permissions' => $this->getPermissions($request)
+            'permissions' => $this->getPermissions($request),
         ];
     }
 
@@ -220,15 +221,15 @@ abstract class BaseApiResource extends JsonResource
     {
         $resourceType = $this->getResourceType();
         $resourceId = $this->getResourceId();
-        
-        if (!$resourceId) {
+
+        if (! $resourceId) {
             return [];
         }
 
         return [
             'self' => route("api.v1.{$resourceType}s.show", $resourceId),
             'edit' => route("api.v1.{$resourceType}s.update", $resourceId),
-            'delete' => route("api.v1.{$resourceType}s.destroy", $resourceId)
+            'delete' => route("api.v1.{$resourceType}s.destroy", $resourceId),
         ];
     }
 
@@ -237,17 +238,17 @@ abstract class BaseApiResource extends JsonResource
      */
     protected function getPermissions(Request $request): array
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return [];
         }
 
         $abilities = ['view', 'update', 'delete'];
         $permissions = [];
-        
+
         foreach ($abilities as $ability) {
             $permissions["can_{$ability}"] = $this->userCan($request, $ability);
         }
-        
+
         return $permissions;
     }
 
@@ -259,8 +260,9 @@ abstract class BaseApiResource extends JsonResource
         if ($json === null) {
             return null;
         }
-        
+
         $decoded = json_decode($json, true);
+
         return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
     }
 
@@ -288,8 +290,8 @@ abstract class BaseApiResource extends JsonResource
         return [
             'meta' => [
                 'timestamp' => now()->toISOString(),
-                'version' => config('app.version', '1.0.0')
-            ]
+                'version' => config('app.version', '1.0.0'),
+            ],
         ];
     }
 
@@ -300,7 +302,7 @@ abstract class BaseApiResource extends JsonResource
     {
         $includes = $request->get('include', '');
         $includeArray = is_string($includes) ? explode(',', $includes) : [];
-        
+
         return in_array($field, $includeArray);
     }
 
@@ -310,13 +312,13 @@ abstract class BaseApiResource extends JsonResource
     protected function filterFields(array $data, Request $request): array
     {
         $fields = $request->get('fields');
-        
-        if (!$fields) {
+
+        if (! $fields) {
             return $data;
         }
-        
+
         $requestedFields = is_string($fields) ? explode(',', $fields) : $fields;
-        
+
         return array_intersect_key($data, array_flip($requestedFields));
     }
 }

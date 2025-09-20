@@ -2,24 +2,25 @@
 
 namespace Modules\Fresnel\app\Http\Controllers\Api\V1;
 
-use Modules\Fresnel\app\Http\Controllers\Controller;
-use Modules\Fresnel\app\Http\Resources\V1\MovieResource;
-use Modules\Fresnel\app\Http\Resources\V1\MovieCollection;
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Repositories\MovieRepository;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Modules\Fresnel\app\Http\Controllers\Controller;
+use Modules\Fresnel\app\Http\Resources\V1\MovieCollection;
+use Modules\Fresnel\app\Http\Resources\V1\MovieResource;
 use Modules\Fresnel\app\Jobs\DcpAnalysisJob;
 use Modules\Fresnel\app\Jobs\DcpValidationJob;
+use Modules\Fresnel\app\Models\Movie;
+use Modules\Fresnel\app\Repositories\MovieRepository;
+use Modules\Fresnel\app\Traits\HasLogging;
+use Modules\Fresnel\app\Traits\HasValidation;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Modules\Fresnel\app\Traits\{HasValidation, HasLogging};
-use Exception;
 
 class MovieApiController extends Controller
 {
-    use HasValidation, HasLogging;
+    use HasLogging, HasValidation;
 
     protected MovieRepository $movieRepository;
 
@@ -28,6 +29,7 @@ class MovieApiController extends Controller
     ) {
         $this->movieRepository = $movieRepository;
     }
+
     /**
      * Display a paginated listing of movies
      *
@@ -37,66 +39,88 @@ class MovieApiController extends Controller
      *     description="Get paginated list of movies with filtering and sorting options",
      *     tags={"Movies"},
      *     security={{"sanctum": {}}},
+     *
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
      *         description="Page number",
+     *
      *         @OA\Schema(type="integer", minimum=1)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="per_page",
      *         in="query",
      *         description="Items per page (max 100)",
+     *
      *         @OA\Schema(type="integer", minimum=1, maximum=100)
      *     ),
+     *
      *     @OA\Parameter(
      *         name="sort",
      *         in="query",
      *         description="Sort field and direction",
+     *
      *         @OA\Schema(type="string", enum={"title", "-title", "year", "-year", "created_at", "-created_at", "dcp_size", "-dcp_size"})
      *     ),
+     *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
      *         description="Filter by DCP status",
+     *
      *         @OA\Schema(type="string", enum={"pending", "uploading", "processing", "completed", "failed"})
      *     ),
+     *
      *     @OA\Parameter(
      *         name="genre",
      *         in="query",
      *         description="Filter by genre",
+     *
      *         @OA\Schema(type="string")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="year",
      *         in="query",
      *         description="Filter by release year",
+     *
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="festival_id",
      *         in="query",
      *         description="Filter by festival ID",
+     *
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\Parameter(
      *         name="search",
      *         in="query",
      *         description="Search in title, director, synopsis",
+     *
      *         @OA\Schema(type="string")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Movies retrieved successfully",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Movie")),
      *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
      *         )
      *     ),
+     *
      *     @OA\Response(
      *         response=401,
      *         description="Unauthenticated",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Unauthenticated")
      *         )
      *     )
@@ -122,14 +146,14 @@ class MovieApiController extends Controller
         $this->logInfo('Movies index requested', [
             'user_id' => $request->user()->id ?? 'guest',
             'filters' => array_filter($validated),
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         try {
             // Utiliser le repository pour la recherche avancée
             $movies = $this->movieRepository->searchAndFilter($validated, [
                 'per_page' => $validated['per_page'] ?? 15,
-                'sort' => $validated['sort'] ?? '-created_at'
+                'sort' => $validated['sort'] ?? '-created_at',
             ]);
 
             $this->logInfo('Movies retrieved successfully', [
@@ -142,7 +166,7 @@ class MovieApiController extends Controller
         } catch (Exception $e) {
             $this->logError('Failed to retrieve movies', [
                 'error' => $e->getMessage(),
-                'filters' => $validated
+                'filters' => $validated,
             ]);
 
             return $this->errorResponse('Failed to retrieve movies', 500);
@@ -171,7 +195,7 @@ class MovieApiController extends Controller
 
         $this->logInfo('Creating new movie', [
             'title' => $validated['title'],
-            'user_id' => $request->user()->id
+            'user_id' => $request->user()->id,
         ]);
 
         try {
@@ -183,7 +207,7 @@ class MovieApiController extends Controller
 
             $this->logInfo('Movie created successfully', [
                 'movie_id' => $movie->id,
-                'title' => $movie->title
+                'title' => $movie->title,
             ]);
 
             return $this->successResponse(
@@ -195,7 +219,7 @@ class MovieApiController extends Controller
         } catch (Exception $e) {
             $this->logError('Failed to create movie', [
                 'error' => $e->getMessage(),
-                'data' => $validated
+                'data' => $validated,
             ]);
 
             return $this->errorResponse('Failed to create movie', 500);
@@ -211,15 +235,15 @@ class MovieApiController extends Controller
 
         $this->logInfo('Movie show requested', [
             'movie_id' => $movie->id,
-            'user_id' => $request->user()->id ?? 'guest'
+            'user_id' => $request->user()->id ?? 'guest',
         ]);
 
         try {
             $movie = $this->movieRepository->findWithRelations($movie->id, [
                 'festivals',
-                'processingJobs' => function($q) {
+                'processingJobs' => function ($q) {
                     $q->latest()->limit(10);
-                }
+                },
             ]);
 
             return $this->successResponse(
@@ -230,7 +254,7 @@ class MovieApiController extends Controller
         } catch (Exception $e) {
             $this->logError('Failed to retrieve movie details', [
                 'movie_id' => $movie->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return $this->errorResponse('Movie not found', 404);
@@ -261,7 +285,7 @@ class MovieApiController extends Controller
 
         return response()->json([
             'message' => 'Movie updated successfully',
-            'data' => new MovieResource($movie->load('festivals', 'processingJobs'))
+            'data' => new MovieResource($movie->load('festivals', 'processingJobs')),
         ]);
     }
 
@@ -285,7 +309,7 @@ class MovieApiController extends Controller
         $movie->delete();
 
         return response()->json([
-            'message' => 'Movie deleted successfully'
+            'message' => 'Movie deleted successfully',
         ]);
     }
 
@@ -324,11 +348,11 @@ class MovieApiController extends Controller
                     'has_metadata' => $movie->technical_metadata !== null,
                     'checksum_verified' => $movie->dcp_checksum !== null,
                 ],
-                'can_download' => $movie->dcp_status === 'completed' && 
-                                 $movie->dcp_path && 
+                'can_download' => $movie->dcp_status === 'completed' &&
+                                 $movie->dcp_path &&
                                  Storage::exists($movie->dcp_path) &&
-                                 $request->user()->can('download', $movie)
-            ]
+                                 $request->user()->can('download', $movie),
+            ],
         ]);
     }
 
@@ -346,7 +370,7 @@ class MovieApiController extends Controller
         try {
             $file = $request->file('dcp_file');
             $path = $file->store("dcp/movies/{$movie->id}", 'public');
-            
+
             $movie->update([
                 'dcp_path' => $path,
                 'dcp_size' => $file->getSize(),
@@ -361,13 +385,13 @@ class MovieApiController extends Controller
 
             return response()->json([
                 'message' => 'DCP uploaded successfully and analysis started',
-                'data' => new MovieResource($movie)
+                'data' => new MovieResource($movie),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Upload failed',
-                'errors' => ['file' => ['Failed to upload DCP file']]
+                'errors' => ['file' => ['Failed to upload DCP file']],
             ], 500);
         }
     }
@@ -379,22 +403,22 @@ class MovieApiController extends Controller
     {
         $this->authorize('download', $movie);
 
-        if ($movie->dcp_status !== 'completed' || !$movie->dcp_path) {
+        if ($movie->dcp_status !== 'completed' || ! $movie->dcp_path) {
             return response()->json([
                 'message' => 'DCP not available for download',
-                'errors' => ['dcp' => ['DCP file is not ready or does not exist']]
+                'errors' => ['dcp' => ['DCP file is not ready or does not exist']],
             ], 404);
         }
 
-        if (!Storage::exists($movie->dcp_path)) {
+        if (! Storage::exists($movie->dcp_path)) {
             return response()->json([
                 'message' => 'DCP file not found',
-                'errors' => ['dcp' => ['DCP file not found on storage']]
+                'errors' => ['dcp' => ['DCP file not found on storage']],
             ], 404);
         }
 
         $filename = "{$movie->title} ({$movie->year}) - DCP.zip";
-        
+
         return Storage::download($movie->dcp_path, $filename);
     }
 
@@ -408,7 +432,7 @@ class MovieApiController extends Controller
         if ($movie->dcp_status !== 'completed') {
             return response()->json([
                 'message' => 'Cannot validate DCP',
-                'errors' => ['dcp' => ['DCP must be completed before validation']]
+                'errors' => ['dcp' => ['DCP must be completed before validation']],
             ], 400);
         }
 
@@ -420,8 +444,8 @@ class MovieApiController extends Controller
             'data' => [
                 'movie_id' => $movie->id,
                 'validation_started' => true,
-                'estimated_duration' => '5-15 minutes'
-            ]
+                'estimated_duration' => '5-15 minutes',
+            ],
         ]);
     }
 
@@ -432,8 +456,8 @@ class MovieApiController extends Controller
     {
         $this->authorize('view', $movie);
 
-        $metadata = $movie->technical_metadata 
-            ? json_decode($movie->technical_metadata, true) 
+        $metadata = $movie->technical_metadata
+            ? json_decode($movie->technical_metadata, true)
             : null;
 
         return response()->json([
@@ -447,8 +471,8 @@ class MovieApiController extends Controller
                     'size_human' => $movie->dcp_size ? $this->formatBytes($movie->dcp_size) : null,
                     'checksum' => $movie->dcp_checksum,
                     'created_at' => $movie->dcp_created_at?->toISOString(),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -470,7 +494,7 @@ class MovieApiController extends Controller
                 'last_page' => $jobs->lastPage(),
                 'per_page' => $jobs->perPage(),
                 'total' => $jobs->total(),
-            ]
+            ],
         ]);
     }
 
@@ -481,18 +505,18 @@ class MovieApiController extends Controller
     {
         $request->validate([
             'q' => 'required|string|min:2|max:255',
-            'limit' => 'integer|min:1|max:50'
+            'limit' => 'integer|min:1|max:50',
         ]);
 
-        $cacheKey = 'movie_search:' . md5($request->q . ':' . ($request->limit ?? 10));
-        
+        $cacheKey = 'movie_search:'.md5($request->q.':'.($request->limit ?? 10));
+
         $results = Cache::remember($cacheKey, 300, function () use ($request) {
             return Movie::where('dcp_status', 'completed')
                 ->where(function ($q) use ($request) {
                     $search = $request->q;
                     $q->where('title', 'LIKE', "%{$search}%")
-                      ->orWhere('director', 'LIKE', "%{$search}%")
-                      ->orWhere('genre', 'LIKE', "%{$search}%");
+                        ->orWhere('director', 'LIKE', "%{$search}%")
+                        ->orWhere('genre', 'LIKE', "%{$search}%");
                 })
                 ->select(['id', 'title', 'director', 'year', 'genre', 'poster_url'])
                 ->limit($request->get('limit', 10))
@@ -500,7 +524,7 @@ class MovieApiController extends Controller
         });
 
         return response()->json([
-            'data' => $results
+            'data' => $results,
         ]);
     }
 
@@ -511,8 +535,7 @@ class MovieApiController extends Controller
     {
         // This would handle webhooks from external upload services
         // Implementation depends on the specific service used
-        
+
         return response()->json(['status' => 'received']);
     }
-
 }

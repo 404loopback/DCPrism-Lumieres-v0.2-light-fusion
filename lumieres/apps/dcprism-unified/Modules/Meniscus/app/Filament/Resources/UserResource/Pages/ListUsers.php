@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\UserResource\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Meniscus\app\Filament\Resources\UserResource;
 
 class ListUsers extends ListRecords
 {

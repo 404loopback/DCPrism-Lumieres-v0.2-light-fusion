@@ -2,10 +2,10 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Langs\Schemas;
 
-use Filament\Schemas\Schema;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Grid;
+use Filament\Schemas\Schema;
 
 class LangForm
 {
@@ -24,7 +24,7 @@ class LangForm
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->helperText('Code langue sur 2 lettres (ISO 639-1)'),
-                                    
+
                                 TextInput::make('iso_639_3')
                                     ->label('Code ISO 639-3')
                                     ->placeholder('fra, eng, deu, spa...')
@@ -32,7 +32,7 @@ class LangForm
                                     ->unique(ignoreRecord: true)
                                     ->helperText('Code langue sur 3 lettres (ISO 639-3)'),
                             ]),
-                            
+
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
@@ -40,7 +40,7 @@ class LangForm
                                     ->placeholder('French, English, German, Spanish...')
                                     ->required()
                                     ->maxLength(100),
-                                    
+
                                 TextInput::make('local_name')
                                     ->label('Nom local')
                                     ->placeholder('Français, English, Deutsch, Español...')
@@ -48,7 +48,7 @@ class LangForm
                                     ->helperText('Nom de la langue dans sa propre langue'),
                             ]),
                     ]),
-                    
+
                 Section::make('Aperçu')
                     ->schema([
                         \Filament\Forms\Components\Placeholder::make('display_preview')
@@ -57,19 +57,19 @@ class LangForm
                                 $name = $get('name');
                                 $localName = $get('local_name');
                                 $iso1 = $get('iso_639_1');
-                                
-                                if (!$name && !$localName) {
+
+                                if (! $name && ! $localName) {
                                     return 'Remplissez les champs ci-dessus pour voir l\'aperçu';
                                 }
-                                
+
                                 $display = $name;
                                 if ($localName && $localName !== $name) {
-                                    $display .= ' (' . $localName . ')';
+                                    $display .= ' ('.$localName.')';
                                 }
                                 if ($iso1) {
-                                    $display .= ' [' . $iso1 . ']';
+                                    $display .= ' ['.$iso1.']';
                                 }
-                                
+
                                 return $display;
                             })
                             ->live(onBlur: true),

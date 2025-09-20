@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\MovieMetadata\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\MovieMetadata\MovieMetadataResource;
 
 class ListMovieMetadata extends ListRecords
 {

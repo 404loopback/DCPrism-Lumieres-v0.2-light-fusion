@@ -2,10 +2,8 @@
 
 namespace Modules\Meniscus\app\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\Facades\Blade;
-use Modules\Meniscus\app\Providers\AppServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use Modules\Meniscus\app\Providers\Filament\MeniscusPanelProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -133,7 +131,7 @@ class MeniscusServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->name . '\\View\\Components', $this->nameLower);
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
     }
 
     /**

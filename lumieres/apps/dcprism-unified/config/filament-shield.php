@@ -229,7 +229,7 @@ return [
     'custom_permissions' => [
         'panel.admin' => 'Access Admin Panel',
         'panel.manager' => 'Access Manager Panel',
-        'panel.tech' => 'Access Tech Panel', 
+        'panel.tech' => 'Access Tech Panel',
         'panel.source' => 'Access Source Panel',
         'panel.cinema' => 'Access Cinema Panel',
         'panel.infrastructure' => 'Access Infrastructure Panel',

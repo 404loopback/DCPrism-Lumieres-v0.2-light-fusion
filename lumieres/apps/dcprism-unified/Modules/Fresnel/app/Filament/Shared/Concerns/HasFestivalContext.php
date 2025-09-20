@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Concerns;
 
-use Modules\Fresnel\app\Models\Festival;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\Fresnel\app\Models\Festival;
 
 /**
  * Trait for managing festival context in Filament components
@@ -19,10 +19,10 @@ trait HasFestivalContext
      */
     public function getSelectedFestival(): ?Festival
     {
-        if (!$this->selectedFestival) {
+        if (! $this->selectedFestival) {
             $this->selectedFestival = $this->loadDefaultFestival();
         }
-        
+
         return $this->selectedFestival;
     }
 
@@ -67,7 +67,7 @@ trait HasFestivalContext
             ->label('Festival')
             ->options(function () {
                 $user = auth()->user();
-                
+
                 if ($user && method_exists($user, 'festivals')) {
                     // User has specific festivals assigned
                     return $user->festivals()
@@ -75,7 +75,7 @@ trait HasFestivalContext
                         ->pluck('name', 'id')
                         ->toArray();
                 }
-                
+
                 // Admin or user with all festival access
                 return Festival::where('is_active', true)
                     ->pluck('name', 'id')
@@ -83,6 +83,7 @@ trait HasFestivalContext
             })
             ->default(function () {
                 $festival = $this->getSelectedFestival();
+
                 return $festival ? $festival->id : null;
             })
             ->reactive()
@@ -90,7 +91,7 @@ trait HasFestivalContext
                 if ($state) {
                     $festival = Festival::find($state);
                     $this->setSelectedFestival($festival);
-                    
+
                     // Store in session for persistence
                     session(['selected_festival_id' => $state]);
                 }
@@ -103,8 +104,8 @@ trait HasFestivalContext
     protected function applyFestivalFilter(Builder $query, ?int $festivalId = null): Builder
     {
         $festivalId = $festivalId ?? $this->getSelectedFestival()?->id;
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return $query;
         }
 
@@ -129,6 +130,7 @@ trait HasFestivalContext
     protected function getFestivalAwareQuery(string $modelClass): Builder
     {
         $query = $modelClass::query();
+
         return $this->applyFestivalFilter($query);
     }
 
@@ -146,8 +148,8 @@ trait HasFestivalContext
     protected function getFestivalContext(): array
     {
         $festival = $this->getSelectedFestival();
-        
-        if (!$festival) {
+
+        if (! $festival) {
             return [
                 'festival' => null,
                 'name' => 'Tous les festivals',
@@ -172,13 +174,13 @@ trait HasFestivalContext
     protected function canAccessFestival(Festival $festival): bool
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 
-        // Admin has access to all festivals
-        if ($user->role === 'admin') {
+        // Admin et super_admin ont accès à tous les festivals
+        if ($user->hasAnyRole(['admin', 'super_admin'])) {
             return true;
         }
 
@@ -196,13 +198,13 @@ trait HasFestivalContext
     protected function getAccessibleFestivals(): \Illuminate\Database\Eloquent\Collection
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return collect();
         }
 
-        // Admin has access to all festivals
-        if ($user->role === 'admin') {
+        // Admin et super_admin ont accès à tous les festivals
+        if ($user->hasAnyRole(['admin', 'super_admin'])) {
             return Festival::where('is_active', true)->get();
         }
 
@@ -226,18 +228,18 @@ trait HasFestivalContext
      * Create a statistic helper method compatible with widgets
      */
     protected function createStatistic(
-        string $label, 
-        int|string $value, 
-        string $description = null, 
-        string $icon = null, 
+        string $label,
+        int|string $value,
+        ?string $description = null,
+        ?string $icon = null,
         string $color = 'primary',
-        array $chart = null
+        ?array $chart = null
     ) {
         // This method will be available in widgets that use this trait
         if (method_exists($this, 'createStat')) {
             return $this->createStat($label, $value, $description, $icon, $color, $chart);
         }
-        
+
         // Fallback for non-widget contexts
         return compact('label', 'value', 'description', 'icon', 'color', 'chart');
     }

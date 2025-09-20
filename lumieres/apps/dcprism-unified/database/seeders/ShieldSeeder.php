@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
@@ -95,7 +95,7 @@ class ShieldSeeder extends Seeder
                 $permission = Permission::where('name', $permissionName)
                     ->where('guard_name', 'web')
                     ->first();
-                    
+
                 if ($permission) {
                     $role->givePermissionTo($permission);
                     $assignedCount++;
@@ -104,12 +104,12 @@ class ShieldSeeder extends Seeder
                 }
             }
 
-            $this->command->info("🎭 Rôle '{$roleName}' configuré avec {$assignedCount}/" . count($permissionNames) . " permissions");
+            $this->command->info("🎭 Rôle '{$roleName}' configuré avec {$assignedCount}/".count($permissionNames).' permissions');
         }
 
         $this->command->info('');
         $this->command->info('✅ Rôles et permissions Shield créés avec succès!');
-        $this->command->info('📝 Rôles disponibles: ' . Role::pluck('name')->join(', '));
-        $this->command->info('🔑 ' . Permission::count() . ' permissions au total');
+        $this->command->info('📝 Rôles disponibles: '.Role::pluck('name')->join(', '));
+        $this->command->info('🔑 '.Permission::count().' permissions au total');
     }
 }

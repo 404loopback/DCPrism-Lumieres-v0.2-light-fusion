@@ -9,16 +9,16 @@ class NewDCPParametersSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * NOUVEAUX paramètres DCP uniquement - évite les doublons avec les paramètres existants :
      * AUDIO_LANG, ASPECT_RATIO, FRAME_RATE, TITLE, VERSION_TYPE, FORMAT, DURATION, YEAR, SUBTITLES
      */
     public function run(): void
     {
         echo "NewDCPParametersSeeder running...\n";
-        
+
         $parameters = [
-            
+
             // =========================================
             // CATÉGORIE VIDEO (nouveaux uniquement)
             // =========================================
@@ -134,7 +134,7 @@ class NewDCPParametersSeeder extends Seeder
             ],
 
             // =========================================
-            // CATÉGORIE ACCESSIBILITY (nouveaux uniquement)  
+            // CATÉGORIE ACCESSIBILITY (nouveaux uniquement)
             // =========================================
             [
                 'name' => 'Subtitle Language',

@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\ActivityLogResource\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\ActivityLogResource;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\ActivityLogResource;
 
 class ListActivityLogs extends ListRecords
 {

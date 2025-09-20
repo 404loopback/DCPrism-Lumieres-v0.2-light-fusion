@@ -2,19 +2,13 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Festivals\Tables;
 
-use Modules\Fresnel\app\Filament\Shared\Tables\Columns;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Tables\Table;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Table;
 use Modules\Fresnel\app\Models\Festival;
 
 class FestivalTable
@@ -61,7 +55,7 @@ class FestivalTable
                     ->label('Statut')
                     ->options([
                         1 => 'Actifs',
-                        0 => 'Inactifs'
+                        0 => 'Inactifs',
                     ]),
             ])
             ->recordActions([
@@ -76,9 +70,9 @@ class FestivalTable
                         ->icon(fn (Festival $record) => $record->is_active ? 'heroicon-o-pause-circle' : 'heroicon-o-play-circle')
                         ->color(fn (Festival $record) => $record->is_active ? 'warning' : 'success')
                         ->action(function (Festival $record) {
-                            $record->update(['is_active' => !$record->is_active]);
-                        })
-                ])
+                            $record->update(['is_active' => ! $record->is_active]);
+                        }),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

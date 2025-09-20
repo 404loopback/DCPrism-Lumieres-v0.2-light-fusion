@@ -39,7 +39,7 @@ return new class extends Migration
             $table->text('error_message')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            
+
             $table->index(['movie_id']);
             $table->index(['festival_id']);
             $table->index(['user_id']);
@@ -47,7 +47,7 @@ return new class extends Migration
             $table->index(['upload_id']);
             $table->index(['b2_file_id']);
             $table->index(['expires_at']);
-            
+
             $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

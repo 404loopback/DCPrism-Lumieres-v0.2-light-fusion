@@ -24,14 +24,14 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamp('extracted_at')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['movie_id', 'metadata_key']);
             $table->index(['metadata_key']);
             $table->index(['data_type']);
             $table->index(['source']);
             $table->index(['is_verified']);
             $table->index(['is_critical']);
-            
+
             $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
         });
     }

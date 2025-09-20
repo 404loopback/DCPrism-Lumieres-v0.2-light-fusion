@@ -2,20 +2,19 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\NomenclatureResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\NomenclatureResource;
-use Modules\Fresnel\app\Filament\Manager\Resources\NomenclatureResource\Widgets\NomenclaturePreviewWidget;
-use Modules\Fresnel\app\Services\UnifiedNomenclatureService;
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Models\Nomenclature;
-use Modules\Fresnel\app\Traits\SafeTableReordering;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Filament\Manager\Resources\NomenclatureResource;
+use Modules\Fresnel\app\Filament\Manager\Resources\NomenclatureResource\Widgets\NomenclaturePreviewWidget;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Nomenclature;
+use Modules\Fresnel\app\Traits\SafeTableReordering;
 
 class ListNomenclatures extends ListRecords
 {
     use SafeTableReordering;
-    
+
     protected static string $resource = NomenclatureResource::class;
 
     protected function getHeaderActions(): array
@@ -24,62 +23,62 @@ class ListNomenclatures extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
-    
+
     protected function getFooterWidgets(): array
     {
         return [
             NomenclaturePreviewWidget::class,
         ];
     }
-    
+
     /**
      * Obtenir les données pour l'aperçu de nomenclature
      */
     public function getNomenclaturePreviewData()
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return [
                 'error' => true,
                 'message' => 'Aucun festival sélectionné. Veuillez d\'abord choisir un festival à administrer.',
-                'icon' => '⚠️'
+                'icon' => '⚠️',
             ];
         }
-        
+
         $festival = Festival::find($festivalId);
-        if (!$festival) {
+        if (! $festival) {
             return [
                 'error' => true,
                 'message' => 'Festival introuvable. Le festival sélectionné n\'existe plus.',
-                'icon' => '❌'
+                'icon' => '❌',
             ];
         }
-        
+
         try {
-            $nomenclatures = $festival->nomenclatures()->with('parameter')->orderBy('order_position')->get();
-            
+            $nomenclatures = $festival->nomenclatures()->with('festivalParameter.parameter')->orderBy('order_position')->get();
+
             return [
                 'festival' => $festival,
                 'nomenclatures' => $nomenclatures,
-                'success' => true
+                'success' => true,
             ];
-            
+
         } catch (\Exception $e) {
             return [
                 'error' => true,
-                'message' => 'Erreur lors de la génération de l\'aperçu: ' . $e->getMessage(),
-                'icon' => '🚫'
+                'message' => 'Erreur lors de la génération de l\'aperçu: '.$e->getMessage(),
+                'icon' => '🚫',
             ];
         }
     }
-    
+
     /**
      * Génère des valeurs d'exemple pour l'aperçu
      */
     private function getExampleValue(string $parameterCode): string
     {
-        return match($parameterCode) {
+        return match ($parameterCode) {
             'TITLE' => 'ExampleMovie',
             'YEAR' => '2024',
             'DURATION' => '120',
@@ -92,5 +91,4 @@ class ListNomenclatures extends ListRecords
             default => 'Example'
         };
     }
-    
 }

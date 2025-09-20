@@ -2,17 +2,17 @@
 
 namespace Modules\Fresnel\app\Filament\Builders;
 
-use Modules\Fresnel\app\Models\Parameter;
-use Modules\Fresnel\app\Models\FestivalParameter;
-use Modules\Fresnel\app\Services\Context\FestivalContextService;
 use Filament\Forms\Components\Component;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Collection;
+use Modules\Fresnel\app\Models\FestivalParameter;
+use Modules\Fresnel\app\Models\Parameter;
+use Modules\Fresnel\app\Services\Context\FestivalContextService;
 
 /**
  * Centralized builder for creating consistent Filament form fields
@@ -34,22 +34,22 @@ class FormFieldBuilder
             $festivalId = $this->festivalContext->getCurrentFestivalId();
             $festivalIds = $festivalId ? [$festivalId] : [];
         }
-        
+
         if (empty($festivalIds)) {
             return [
-                $this->createNoFestivalPlaceholder()
+                $this->createNoFestivalPlaceholder(),
             ];
         }
-        
+
         // Get active parameters for the primary festival
         $festivalParameters = $this->getFestivalParameters($festivalIds[0]);
-        
+
         if ($festivalParameters->isEmpty()) {
             return [
-                $this->createNoParametersPlaceholder()
+                $this->createNoParametersPlaceholder(),
             ];
         }
-        
+
         return $this->buildFieldsFromParameters($festivalParameters);
     }
 
@@ -59,24 +59,24 @@ class FormFieldBuilder
     public function buildMetadataFields(): array
     {
         $festivalId = $this->festivalContext->getCurrentFestivalId();
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return [
-                $this->createNoFestivalPlaceholder()
+                $this->createNoFestivalPlaceholder(),
             ];
         }
-        
+
         // Get metadata parameters for the festival
         $metadataParameters = $this->getMetadataParameters($festivalId);
-        
+
         if ($metadataParameters->isEmpty()) {
             return [
                 Placeholder::make('no_metadata_parameters')
                     ->content('No metadata parameters configured for this festival.')
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ];
         }
-        
+
         return $this->buildFieldsFromParameters($metadataParameters);
     }
 
@@ -86,15 +86,15 @@ class FormFieldBuilder
     public function buildParameterField(Parameter $parameter, mixed $defaultValue = null, array $options = []): Component
     {
         $fieldName = $options['field_name'] ?? "parameter_{$parameter->id}";
-        $required = $options['required'] ?? (bool)($parameter->is_required ?? false);
-        
+        $required = $options['required'] ?? (bool) ($parameter->is_required ?? false);
+
         // Handle parameters with predefined values
-        if (!empty($parameter->possible_values)) {
+        if (! empty($parameter->possible_values)) {
             return $this->buildSelectField($parameter, $fieldName, $required, $defaultValue);
         }
-        
+
         // Handle different parameter types
-        return match($parameter->type) {
+        return match ($parameter->type) {
             Parameter::TYPE_INT => $this->buildNumericField($parameter, $fieldName, $required, $defaultValue),
             Parameter::TYPE_FLOAT => $this->buildFloatField($parameter, $fieldName, $required, $defaultValue),
             Parameter::TYPE_BOOL => $this->buildToggleField($parameter, $fieldName, $required, $defaultValue),
@@ -110,7 +110,7 @@ class FormFieldBuilder
     private function buildSelectField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Select
     {
         $options = array_combine($parameter->possible_values, $parameter->possible_values);
-        
+
         return Select::make($fieldName)
             ->label($parameter->name)
             ->options($options)
@@ -180,7 +180,7 @@ class FormFieldBuilder
             ->rows(3)
             ->required($required)
             ->default($defaultValue)
-            ->helperText($parameter->description . ' (JSON format)');
+            ->helperText($parameter->description.' (JSON format)');
     }
 
     /**
@@ -192,7 +192,7 @@ class FormFieldBuilder
         $shouldUseTextarea = str_contains(strtolower($parameter->name), 'description') ||
                            str_contains(strtolower($parameter->description ?? ''), 'description') ||
                            strlen($parameter->name) > 50;
-        
+
         if ($shouldUseTextarea) {
             return Textarea::make($fieldName)
                 ->label($parameter->name)
@@ -201,7 +201,7 @@ class FormFieldBuilder
                 ->default($defaultValue)
                 ->helperText($parameter->description);
         }
-        
+
         return TextInput::make($fieldName)
             ->label($parameter->name)
             ->required($required)
@@ -219,7 +219,7 @@ class FormFieldBuilder
             ->with('parameter')
             ->ordered()
             ->get()
-            ->filter(fn($fp) => $fp->parameter && $fp->parameter->is_active);
+            ->filter(fn ($fp) => $fp->parameter && $fp->parameter->is_active);
     }
 
     /**
@@ -231,7 +231,7 @@ class FormFieldBuilder
             ->where('is_enabled', true)
             ->whereHas('parameter', function ($query) {
                 $query->where('category', 'metadata')
-                      ->where('is_active', true);
+                    ->where('is_active', true);
             })
             ->with('parameter')
             ->ordered()
@@ -244,26 +244,26 @@ class FormFieldBuilder
     private function buildFieldsFromParameters(Collection $festivalParameters): array
     {
         $fields = [];
-        
+
         foreach ($festivalParameters as $festivalParameter) {
             $parameter = $festivalParameter->parameter;
             $defaultValue = $festivalParameter->getEffectiveDefaultValue();
-            $required = (bool)($parameter->is_required ?? false);
-            
+            $required = (bool) ($parameter->is_required ?? false);
+
             $field = $this->buildParameterField($parameter, $defaultValue, [
                 'required' => $required,
-                'field_name' => "parameter_{$parameter->id}"
+                'field_name' => "parameter_{$parameter->id}",
             ]);
-            
+
             // Add festival-specific notes if present
-            if (!empty($festivalParameter->festival_specific_notes)) {
+            if (! empty($festivalParameter->festival_specific_notes)) {
                 $existingHelperText = $parameter->description ?? '';
-                $field->helperText($existingHelperText . ' - Note: ' . $festivalParameter->festival_specific_notes);
+                $field->helperText($existingHelperText.' - Note: '.$festivalParameter->festival_specific_notes);
             }
-            
+
             $fields[] = $field;
         }
-        
+
         return $fields;
     }
 

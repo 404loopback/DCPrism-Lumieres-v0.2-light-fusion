@@ -46,8 +46,8 @@ Fields::description()    // Textarea with consistent styling
 Fields::status()         // Status select with customizable options
 
 // Specialized fields
-Fields::roleSelect()     // Role selection dropdown
-Fields::password()       // Password + confirmation fields
+Fields::shieldRoleSelect()  // Shield/Spatie role selection
+Fields::password()          // Password + confirmation fields
 Fields::isActive()       // Active/inactive toggle
 Fields::year()           // Year field with validation
 Fields::duration()       // Duration with minutes suffix
@@ -62,7 +62,7 @@ use App\Filament\Shared\Forms\Fields;
 $schema = [
     Fields::title('Titre du film'),
     Fields::email('Email de contact', unique: true),
-    Fields::roleSelect(),
+    Fields::shieldRoleSelect(),
     ...Fields::password(),
 ];
 ```

@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource\Pages;
 
-use Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Fresnel\app\Filament\Manager\Resources\FestivalParameterResource;
 
 class EditFestivalParameter extends EditRecord
 {
@@ -14,7 +14,7 @@ class EditFestivalParameter extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-                ->visible(fn (): bool => !$this->getRecord()->parameter->is_system),
+                ->visible(fn (): bool => ! $this->getRecord()->parameter->is_system),
         ];
     }
 

@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Shared\Tables;
 
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 
 /**
@@ -16,17 +16,17 @@ class Columns
     /**
      * Standard name/title column with search and sort
      */
-    public static function name(string $field = 'name', string $label = 'Nom', int $limit = null): TextColumn
+    public static function name(string $field = 'name', string $label = 'Nom', ?int $limit = null): TextColumn
     {
         $column = TextColumn::make($field)
             ->label($label)
             ->searchable()
             ->sortable();
-            
+
         if ($limit) {
             $column->limit($limit);
         }
-        
+
         return $column;
     }
 
@@ -45,18 +45,18 @@ class Columns
     /**
      * Standard email column with search, sort and copy
      */
-    public static function email(string $field = 'email', string $label = 'Email', int $limit = null): TextColumn
+    public static function email(string $field = 'email', string $label = 'Email', ?int $limit = null): TextColumn
     {
         $column = TextColumn::make($field)
             ->label($label)
             ->searchable()
             ->sortable()
             ->copyable();
-            
+
         if ($limit) {
             $column->limit($limit);
         }
-        
+
         return $column;
     }
 
@@ -71,17 +71,17 @@ class Columns
             ->sortable()
             ->copyable()
             ->formatStateUsing(function ($state, $record) {
-                $isVerified = !is_null($record->email_verified_at);
-                $icon = $isVerified 
+                $isVerified = ! is_null($record->email_verified_at);
+                $icon = $isVerified
                     ? '<span class="text-green-600 font-bold ml-2" title="Email vérifié">✓</span>'
                     : '<span class="text-red-600 font-bold ml-2" title="Email non vérifié">✗</span>';
-                
-                return new \Illuminate\Support\HtmlString($state . $icon);
+
+                return new \Illuminate\Support\HtmlString($state.$icon);
             })
             ->html()
             ->tooltip(function ($record) {
-                return $record->email_verified_at 
-                    ? 'Email vérifié le ' . $record->email_verified_at->format('d/m/Y à H:i')
+                return $record->email_verified_at
+                    ? 'Email vérifié le '.$record->email_verified_at->format('d/m/Y à H:i')
                     : 'Email non vérifié';
             });
     }
@@ -98,19 +98,19 @@ class Columns
     ): BadgeColumn {
         $column = BadgeColumn::make($field)
             ->label($label);
-            
-        if (!empty($colors)) {
+
+        if (! empty($colors)) {
             $column->colors($colors);
         }
-        
-        if (!empty($formatMapping)) {
+
+        if (! empty($formatMapping)) {
             $column->formatStateUsing(fn (string $state): string => $formatMapping[$state] ?? $state);
         }
-        
+
         if ($sortable) {
             $column->sortable();
         }
-        
+
         return $column;
     }
 
@@ -125,7 +125,7 @@ class Columns
             ->color(fn ($state): string => match ($state) {
                 'admin' => 'danger',
                 'super_admin' => 'purple',
-                'tech' => 'warning', 
+                'tech' => 'warning',
                 'manager' => 'success',
                 'supervisor' => 'info',
                 'source' => 'primary',
@@ -172,7 +172,7 @@ class Columns
         string $falseIcon = 'heroicon-o-x-circle',
         string $trueColor = 'success',
         string $falseColor = 'danger',
-        callable $tooltip = null
+        ?callable $tooltip = null
     ): IconColumn {
         $column = IconColumn::make($field)
             ->label($label)
@@ -182,11 +182,11 @@ class Columns
             ->trueColor($trueColor)
             ->falseColor($falseColor)
             ->alignCenter();
-            
+
         if ($tooltip) {
             $column->tooltip($tooltip);
         }
-        
+
         return $column;
     }
 
@@ -199,8 +199,8 @@ class Columns
             'email_verified_at',
             $label,
             tooltip: function ($record) {
-                return $record->email_verified_at 
-                    ? 'Vérifié le ' . $record->email_verified_at->format('d/m/Y à H:i')
+                return $record->email_verified_at
+                    ? 'Vérifié le '.$record->email_verified_at->format('d/m/Y à H:i')
                     : 'Email non vérifié';
             }
         );
@@ -230,16 +230,16 @@ class Columns
         string $color = 'primary',
         bool $alignCenter = true
     ): TextColumn {
-        $column = TextColumn::make($relationship . '_count')
+        $column = TextColumn::make($relationship.'_count')
             ->label($label)
             ->counts($relationship)
             ->badge()
             ->color($color);
-            
+
         if ($alignCenter) {
             $column->alignCenter();
         }
-        
+
         return $column;
     }
 
@@ -256,15 +256,15 @@ class Columns
         $column = TextColumn::make($field)
             ->label($label)
             ->date($format);
-            
+
         if ($sortable) {
             $column->sortable();
         }
-        
+
         if ($since) {
             $column->since();
         }
-        
+
         return $column;
     }
 
@@ -283,19 +283,19 @@ class Columns
         $column = TextColumn::make($field)
             ->label($label)
             ->dateTime($format);
-            
+
         if ($sortable) {
             $column->sortable();
         }
-        
+
         if ($since) {
             $column->since();
         }
-        
+
         if ($toggleable) {
             $column->toggleable(isToggledHiddenByDefault: $hiddenByDefault);
         }
-        
+
         return $column;
     }
 
@@ -340,9 +340,9 @@ class Columns
         string $displayField = 'name',
         int $maxDisplay = 2,
         string $color = 'info',
-        callable $customState = null
+        ?callable $customState = null
     ): TextColumn {
-        return TextColumn::make($relationshipName . '_display')
+        return TextColumn::make($relationshipName.'_display')
             ->label($label)
             ->badge()
             ->color($color)
@@ -350,19 +350,20 @@ class Columns
                 if ($customState) {
                     return $customState($record);
                 }
-                
+
                 $items = $record->{$relationshipName}->pluck($displayField)->toArray();
                 if (empty($items)) {
                     return null;
                 }
-                
+
                 $displayItems = array_slice($items, 0, $maxDisplay);
                 $remaining = count($items) - count($displayItems);
-                
+
                 $result = implode(', ', $displayItems);
                 if ($remaining > 0) {
                     $result .= " (+{$remaining})";
                 }
+
                 return $result;
             })
             ->searchable()
@@ -377,6 +378,7 @@ class Columns
                 if ($count > 1) {
                     $tooltip .= " (total: {$count} éléments)";
                 }
+
                 return $tooltip;
             })
             ->placeholder('Aucun élément');

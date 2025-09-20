@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Langs\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\Langs\LangResource;
 
 class ListLangs extends ListRecords
 {

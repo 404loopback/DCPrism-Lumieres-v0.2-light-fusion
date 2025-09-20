@@ -2,9 +2,9 @@
 
 namespace Modules\Meniscus\app\Filament\Resources\Jobs\Pages;
 
-use Modules\Meniscus\app\Filament\Resources\Jobs\JobResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Meniscus\app\Filament\Resources\Jobs\JobResource;
 
 class ListJobs extends ListRecords
 {

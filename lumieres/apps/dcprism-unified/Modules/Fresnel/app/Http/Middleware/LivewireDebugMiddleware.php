@@ -13,10 +13,10 @@ class LivewireDebugMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $isLivewireRequest = $request->hasHeader('X-Livewire') || 
-                           $request->is('livewire/*') || 
+        $isLivewireRequest = $request->hasHeader('X-Livewire') ||
+                           $request->is('livewire/*') ||
                            str_contains($request->getContentType() ?? '', 'livewire');
-        
+
         if ($isLivewireRequest) {
             Log::channel('daily')->info('[LIVEWIRE DEBUG] Request detected', [
                 'url' => $request->fullUrl(),
@@ -30,10 +30,10 @@ class LivewireDebugMiddleware
                 'timestamp' => now()->toISOString(),
             ]);
         }
-        
+
         // Capturer les redirections potentiellement problématiques
         $response = $next($request);
-        
+
         if ($response->isRedirection() && $isLivewireRequest) {
             Log::channel('daily')->warning('[LIVEWIRE DEBUG] Redirect in Livewire request', [
                 'from_url' => $request->fullUrl(),
@@ -42,7 +42,7 @@ class LivewireDebugMiddleware
                 'timestamp' => now()->toISOString(),
             ]);
         }
-        
+
         return $response;
     }
 }

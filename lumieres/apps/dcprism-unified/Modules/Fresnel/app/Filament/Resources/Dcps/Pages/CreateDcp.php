@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Dcps\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Fresnel\app\Filament\Resources\Dcps\DcpResource;
 
 class CreateDcp extends CreateRecord
 {

@@ -2,11 +2,11 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Nomenclatures\Schemas;
 
+use Filament\Forms;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Modules\Fresnel\app\Models\Festival;
 use Modules\Fresnel\app\Models\Parameter;
-use Filament\Forms;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 
 class NomenclatureForm
 {
@@ -25,15 +25,15 @@ class NomenclatureForm
                             ->label('Paramètre')
                             ->options(Parameter::where('is_active', true)
                                 ->orderBy('category')
-                                ->orderBy('name')
+                                ->orderBy('code')
                                 ->get()
                                 ->mapWithKeys(fn ($param) => [
-                                    $param->id => "{$param->category} - {$param->name}"
-                                ]))
+                                    $param->id => "{$param->category} - {$param->code}",
+                                ])
                             ->required()
                             ->searchable(),
                     ])->columns(2),
-                    
+
                 Section::make('Configuration de position')
                     ->schema([
                         Forms\Components\TextInput::make('order_position')
@@ -48,7 +48,7 @@ class NomenclatureForm
                             ->maxLength(10)
                             ->helperText('Caractère de séparation (ex: _, -, .)'),
                     ])->columns(2),
-                    
+
                 Section::make('Formatage avancé')
                     ->schema([
                         Forms\Components\TextInput::make('prefix')
@@ -63,7 +63,7 @@ class NomenclatureForm
                             ->label('Valeur par défaut')
                             ->helperText('Utilisée si le paramètre n\'a pas de valeur'),
                     ])->columns(2),
-                    
+
                 Section::make('Règles complexes')
                     ->schema([
                         Forms\Components\KeyValue::make('formatting_rules')
@@ -73,7 +73,7 @@ class NomenclatureForm
                             ->label('Règles conditionnelles')
                             ->helperText('JSON avec des conditions d\'application'),
                     ]),
-                    
+
                 Section::make('État')
                     ->schema([
                         Forms\Components\Toggle::make('is_active')

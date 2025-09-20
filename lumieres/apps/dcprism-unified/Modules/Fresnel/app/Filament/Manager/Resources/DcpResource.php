@@ -2,20 +2,19 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources;
 
-use Modules\Fresnel\app\Models\Dcp;
-use Modules\Fresnel\app\Models\Movie;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
-use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Session;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Session;
+use Modules\Fresnel\app\Filament\Resources\Dcps\Tables\DcpTable;
+use Modules\Fresnel\app\Models\Dcp;
 use UnitEnum;
-use BackedEnum;
 
 class DcpResource extends Resource
 {
@@ -24,15 +23,15 @@ class DcpResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-film';
 
     protected static ?string $recordTitleAttribute = 'id';
-    
+
     protected static ?string $navigationLabel = 'DCPs';
-    
+
     protected static ?string $modelLabel = 'DCP';
-    
+
     protected static ?string $pluralModelLabel = 'DCPs';
-    
+
     protected static ?int $navigationSort = 3;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Gestion Festival';
 
     /**
@@ -51,15 +50,13 @@ class DcpResource extends Resource
                         ->label('Voir'),
                     EditAction::make()
                         ->label('Éditer')
-                        ->visible(fn (Dcp $record): bool => 
-                            static::canEditDcp($record)
+                        ->visible(fn (Dcp $record): bool => static::canEditDcp($record)
                         ),
                     Action::make('validate')
                         ->label('Valider DCP')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn (Dcp $record): bool => 
-                            static::canValidateDcp($record)
+                        ->visible(fn (Dcp $record): bool => static::canValidateDcp($record)
                         )
                         ->requiresConfirmation()
                         ->modalHeading('Valider le DCP')
@@ -69,15 +66,14 @@ class DcpResource extends Resource
                         ->label('Demander Révision')
                         ->icon('heroicon-o-exclamation-triangle')
                         ->color('warning')
-                        ->visible(fn (Dcp $record): bool => 
-                            static::canRequestRevision($record)
+                        ->visible(fn (Dcp $record): bool => static::canRequestRevision($record)
                         )
                         ->form([
                             \Filament\Forms\Components\Textarea::make('revision_notes')
                                 ->label('Notes de révision')
                                 ->required()
                                 ->rows(3)
-                                ->helperText('Expliquez les changements nécessaires')
+                                ->helperText('Expliquez les changements nécessaires'),
                         ])
                         ->action(function (Dcp $record, array $data) {
                             static::requestRevision($record, $data['revision_notes']);
@@ -86,8 +82,7 @@ class DcpResource extends Resource
                         ->label('Notifier Source')
                         ->icon('heroicon-o-envelope')
                         ->color('info')
-                        ->visible(fn (Dcp $record): bool => 
-                            static::canNotifySource($record)
+                        ->visible(fn (Dcp $record): bool => static::canNotifySource($record)
                         )
                         ->requiresConfirmation()
                         ->modalHeading('Notifier la Source')
@@ -97,12 +92,12 @@ class DcpResource extends Resource
                         ->label('Télécharger')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('gray')
-                        ->visible(fn (Dcp $record): bool => 
-                            $record->is_valid && !empty($record->backblaze_file_id)
+                        ->visible(fn (Dcp $record): bool => $record->is_valid && ! empty($record->backblaze_file_id)
                         )
                         ->action(function (Dcp $record) {
                             try {
                                 $backblazeService = app(\App\Services\BackblazeService::class);
+
                                 return $backblazeService->download($record->movie);
                             } catch (\Exception $e) {
                                 Notification::make()
@@ -112,7 +107,7 @@ class DcpResource extends Resource
                                     ->send();
                             }
                         }),
-                ])
+                ]),
             ])
             ->defaultSort('uploaded_at', 'desc')
             ->striped();
@@ -124,12 +119,12 @@ class DcpResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             // Si aucun festival sélectionné, retourner une query vide
             return parent::getEloquentQuery()->whereRaw('1 = 0');
         }
-        
+
         return parent::getEloquentQuery()
             ->whereHas('movie.festivals', function (Builder $query) use ($festivalId) {
                 $query->where('festival_id', $festivalId);
@@ -144,8 +139,8 @@ class DcpResource extends Resource
     {
         $user = auth()->user();
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$user || !$user->hasRole('manager') || !$festivalId) {
+
+        if (! $user || ! $user->hasRole('manager') || ! $festivalId) {
             return false;
         }
 
@@ -158,8 +153,8 @@ class DcpResource extends Resource
      */
     protected static function canValidateDcp(Dcp $dcp): bool
     {
-        return static::canEditDcp($dcp) && 
-               !$dcp->is_valid && 
+        return static::canEditDcp($dcp) &&
+               ! $dcp->is_valid &&
                in_array($dcp->status, [Dcp::STATUS_UPLOADED, Dcp::STATUS_PROCESSING]);
     }
 
@@ -168,7 +163,7 @@ class DcpResource extends Resource
      */
     protected static function canRequestRevision(Dcp $dcp): bool
     {
-        return static::canEditDcp($dcp) && 
+        return static::canEditDcp($dcp) &&
                in_array($dcp->status, [Dcp::STATUS_UPLOADED, Dcp::STATUS_PROCESSING, Dcp::STATUS_VALID]);
     }
 
@@ -177,7 +172,7 @@ class DcpResource extends Resource
      */
     protected static function canNotifySource(Dcp $dcp): bool
     {
-        return static::canEditDcp($dcp) && !empty($dcp->movie->source_email);
+        return static::canEditDcp($dcp) && ! empty($dcp->movie->source_email);
     }
 
     /**
@@ -187,7 +182,7 @@ class DcpResource extends Resource
     {
         try {
             $dcp->markAsValid('Validé par le manager du festival');
-            
+
             Notification::make()
                 ->title('DCP validé avec succès')
                 ->body("Le DCP #{$dcp->id} a été marqué comme valide")
@@ -196,7 +191,7 @@ class DcpResource extends Resource
 
             // Optionnel: Notifier la source automatiquement
             static::notifySource($dcp, 'Votre DCP a été validé avec succès');
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de validation')
@@ -215,9 +210,9 @@ class DcpResource extends Resource
             $dcp->update([
                 'status' => Dcp::STATUS_INVALID,
                 'is_valid' => false,
-                'validation_notes' => $notes
+                'validation_notes' => $notes,
             ]);
-            
+
             Notification::make()
                 ->title('Révision demandée')
                 ->body("Une demande de révision a été envoyée pour le DCP #{$dcp->id}")
@@ -226,7 +221,7 @@ class DcpResource extends Resource
 
             // Notifier la source
             static::notifySource($dcp, "Révision demandée: {$notes}");
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur')
@@ -243,7 +238,7 @@ class DcpResource extends Resource
     {
         try {
             $movie = $dcp->movie;
-            
+
             if (empty($movie->source_email)) {
                 throw new \Exception('Aucun email de source configuré pour ce film');
             }
@@ -251,16 +246,16 @@ class DcpResource extends Resource
             // Envoi d'email via MailingService
             $mailingService = app(\App\Services\MailingService::class);
             $emailSent = $mailingService->sendDcpStatusUpdate($dcp, $customMessage ?? "Mise à jour du statut de votre DCP #{$dcp->id}");
-            
+
             $message = $customMessage ?? "Mise à jour du statut de votre DCP #{$dcp->id}";
-            
+
             // Pour l'instant, juste une notification dans l'interface
             Notification::make()
                 ->title('Source notifiée')
                 ->body("Email envoyé à {$movie->source_email}: {$message}")
                 ->success()
                 ->send();
-                
+
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Erreur de notification')

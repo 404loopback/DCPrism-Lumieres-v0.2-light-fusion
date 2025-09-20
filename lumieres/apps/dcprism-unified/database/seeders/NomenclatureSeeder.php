@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Models\Parameter;
-use Modules\Fresnel\app\Models\Nomenclature;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Nomenclature;
+use Modules\Fresnel\app\Models\Parameter;
 
 class NomenclatureSeeder extends Seeder
 {
@@ -23,12 +22,13 @@ class NomenclatureSeeder extends Seeder
         // Vérifier que les paramètres existent
         $requiredParameters = ['TITLE', 'YEAR', 'VERSION_TYPE', 'AUDIO_LANG'];
         $parameters = [];
-        
+
         foreach ($requiredParameters as $code) {
             $param = Parameter::where('code', $code)->first();
-            if (!$param) {
+            if (! $param) {
                 $this->command->error("❌ Paramètre manquant: {$code}");
                 $this->command->info("🔄 Exécutez d'abord: php artisan db:seed --class=ParameterSeeder");
+
                 return;
             }
             $parameters[$code] = $param;
@@ -67,19 +67,19 @@ class NomenclatureSeeder extends Seeder
         ];
 
         $festivals = Festival::all();
-        
+
         if ($festivals->isEmpty()) {
             $this->command->warn("⚠️  Aucun festival trouvé. Création d'un festival de test...");
-            
+
             $festival = Festival::create([
                 'name' => 'Festival de Test',
                 'subdomain' => 'test',
                 'description' => 'Festival pour tester la nomenclature',
                 'start_date' => now()->addMonths(2),
                 'end_date' => now()->addMonths(2)->addDays(10),
-                'is_active' => true
+                'is_active' => true,
             ]);
-            
+
             $festivals = collect([$festival]);
             $this->command->info("✅ Festival de test créé: {$festival->name}");
         }
@@ -89,13 +89,13 @@ class NomenclatureSeeder extends Seeder
 
         foreach ($festivals as $festival) {
             $this->command->line("🎭 Configuration pour: {$festival->name}");
-            
+
             $festivalCreated = 0;
             $festivalExisting = 0;
 
             foreach ($defaultNomenclatureConfig as $config) {
                 $parameter = $parameters[$config['parameter_code']];
-                
+
                 $nomenclature = Nomenclature::firstOrCreate(
                     [
                         'festival_id' => $festival->id,
@@ -121,15 +121,15 @@ class NomenclatureSeeder extends Seeder
 
             $totalCreated += $festivalCreated;
             $totalExisting += $festivalExisting;
-            
+
             $this->command->line("  📊 {$festivalCreated} éléments créés, {$festivalExisting} existants");
         }
 
-        $this->command->info("✨ Configuration terminée!");
-        $this->command->info("📊 Total: {$totalCreated} nomenclatures créées sur " . $festivals->count() . " festival(s)");
-        
+        $this->command->info('✨ Configuration terminée!');
+        $this->command->info("📊 Total: {$totalCreated} nomenclatures créées sur ".$festivals->count().' festival(s)');
+
         // Afficher un exemple de nomenclature générée
         $this->command->newLine();
-        $this->command->info("📋 Exemple de nomenclature générée: TITRE_2025_VO_FR");
+        $this->command->info('📋 Exemple de nomenclature générée: TITRE_2025_VO_FR');
     }
 }

@@ -14,7 +14,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     volumes:
       - 'mariadb-data:/var/lib/mysql'
-      - '${PWD}/infra/docker/mariadb/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql'
+      - '${PWD}/infra/docker/mariadb/init:/docker-entrypoint-initdb.d'
     networks:
       - lumieres-network
     healthcheck:

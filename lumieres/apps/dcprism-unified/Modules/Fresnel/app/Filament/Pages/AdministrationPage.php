@@ -149,8 +149,11 @@ class AdministrationPage extends Page implements HasTable
         $this->activeTab = $tab;
         $this->tableKey++; // Force le re-render
         
-        // Utilisation d'un refresh Livewire explicite pour s'assurer que les données sont rechargées
-        $this->js('$wire.$refresh()');
+        // Réinitialiser complètement la table
+        $this->resetTable();
+        
+        // Force le refresh du composant
+        $this->dispatch('$refresh');
     }
     
     /**

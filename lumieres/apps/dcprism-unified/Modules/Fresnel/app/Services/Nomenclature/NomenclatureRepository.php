@@ -2,9 +2,10 @@
 
 namespace Modules\Fresnel\app\Services\Nomenclature;
 
-use Modules\Fresnel\app\Models\{Festival, Nomenclature};
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Nomenclature;
 
 /**
  * Centralized repository for nomenclature data access
@@ -20,13 +21,13 @@ class NomenclatureRepository
     public function getActiveNomenclatures(Festival $festival): Collection
     {
         $cacheKey = "nomenclature_active_{$festival->id}";
-        
-        return Cache::remember($cacheKey, self::CACHE_TTL, function() use ($festival) {
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($festival) {
             return Nomenclature::where('festival_id', $festival->id)
-                             ->where('is_active', true)
-                             ->with('parameter')
-                             ->orderBy('order_position')
-                             ->get();
+                ->where('is_active', true)
+                ->with('parameter')
+                ->orderBy('order_position')
+                ->get();
         });
     }
 

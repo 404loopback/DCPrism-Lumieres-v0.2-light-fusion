@@ -2,40 +2,39 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Modules\Fresnel\app\Models\Lang;
 use Illuminate\Support\Facades\File;
+use Modules\Fresnel\app\Models\Lang;
 
 class LanguageSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Utilise les packages umpirsky/language-list pour obtenir toutes les langues ISO
      * avec leurs noms en anglais, français et dans leur langue native
      */
     public function run(): void
     {
         $this->command->info('🌍 Génération complète des langues ISO avec traductions françaises...');
-        
+
         // Charger les données des langues depuis les packages installés
         $englishLanguages = require base_path('vendor/umpirsky/language-list/data/en/language.php');
-        $frenchLanguages = require base_path('vendor/umpirsky/language-list/data/fr/language.php'); 
+        $frenchLanguages = require base_path('vendor/umpirsky/language-list/data/fr/language.php');
         $nativeLanguages = $this->loadNativeLanguages();
-        
+
         // Mapping manuel des codes ISO 639-3 pour les langues les plus courantes
         $iso639_3_mapping = $this->getIso639_3Mapping();
-        
+
         $created = 0;
         $updated = 0;
-        
+
         foreach ($englishLanguages as $iso639_1 => $englishName) {
             // Ignorer les codes invalides ou trop longs
             if (strlen($iso639_1) !== 2) {
                 continue;
             }
-            
+
             $languageData = [
                 'iso_639_1' => strtoupper($iso639_1),
                 'iso_639_3' => isset($iso639_3_mapping[$iso639_1]) ? strtoupper($iso639_3_mapping[$iso639_1]) : null,
@@ -43,54 +42,54 @@ class LanguageSeeder extends Seeder
                 'french_name' => $frenchLanguages[$iso639_1] ?? null,
                 'local_name' => $nativeLanguages[$iso639_1] ?? null,
             ];
-            
+
             $language = Lang::firstOrCreate(
                 ['iso_639_1' => strtoupper($iso639_1)],
                 $languageData
             );
-            
+
             if ($language->wasRecentlyCreated) {
                 $created++;
             } else {
                 // Mettre à jour avec les nouvelles données si nécessaire
-                $language->update(array_filter($languageData, fn($value) => !is_null($value)));
+                $language->update(array_filter($languageData, fn ($value) => ! is_null($value)));
                 $updated++;
             }
         }
-        
+
         $total = Lang::count();
-        
+
         $this->command->info('✅ Génération des langues terminée !');
-        $this->command->info('📊 Résultat: ' . $created . ' langues créées, ' . $updated . ' mises à jour');
-        $this->command->info('🌐 Total: ' . $total . ' langues disponibles dans la base de données');
-        $this->command->info('🇫🇷 Traductions françaises: ' . Lang::whereNotNull('french_name')->count());
-        $this->command->info('🏠 Noms natifs: ' . Lang::whereNotNull('local_name')->count());
+        $this->command->info('📊 Résultat: '.$created.' langues créées, '.$updated.' mises à jour');
+        $this->command->info('🌐 Total: '.$total.' langues disponibles dans la base de données');
+        $this->command->info('🇫🇷 Traductions françaises: '.Lang::whereNotNull('french_name')->count());
+        $this->command->info('🏠 Noms natifs: '.Lang::whereNotNull('local_name')->count());
     }
-    
+
     /**
      * Charge les noms natifs des langues depuis le package umpirsky
      */
     private function loadNativeLanguages(): array
     {
         $nativeLanguages = [];
-        
+
         // Charger automatiquement les noms natifs depuis les fichiers du package
         $dataDir = base_path('vendor/umpirsky/language-list/data/');
-        
+
         if (File::exists($dataDir)) {
             // Récupérer tous les dossiers de langues (codes à 2 lettres)
             $languageDirs = File::directories($dataDir);
-            
+
             foreach ($languageDirs as $langDir) {
                 $langCode = basename($langDir);
-                
+
                 // Ignorer les dossiers avec des codes longs (variantes régionales)
                 if (strlen($langCode) !== 2) {
                     continue;
                 }
-                
-                $languageFile = $langDir . '/language.php';
-                
+
+                $languageFile = $langDir.'/language.php';
+
                 if (File::exists($languageFile)) {
                     try {
                         $langData = require $languageFile;
@@ -105,10 +104,10 @@ class LanguageSeeder extends Seeder
                 }
             }
         }
-        
+
         return $nativeLanguages;
     }
-    
+
     /**
      * Mapping des codes ISO 639-1 vers ISO 639-3 pour les langues les plus courantes
      */
@@ -151,7 +150,7 @@ class LanguageSeeder extends Seeder
             'ts' => 'tso', 'tt' => 'tat', 'tw' => 'twi', 'ty' => 'tah', 'ug' => 'uig',
             'uk' => 'ukr', 'ur' => 'urd', 'uz' => 'uzb', 've' => 'ven', 'vi' => 'vie',
             'vo' => 'vol', 'wa' => 'wln', 'wo' => 'wol', 'xh' => 'xho', 'yi' => 'yid',
-            'yo' => 'yor', 'za' => 'zha', 'zh' => 'zho', 'zu' => 'zul'
+            'yo' => 'yor', 'za' => 'zha', 'zh' => 'zho', 'zu' => 'zul',
         ];
     }
 }

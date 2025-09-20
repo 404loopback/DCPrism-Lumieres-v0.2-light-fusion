@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Users\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Users\UserResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\Users\UserResource;
 
 class ListUsers extends ListRecords
 {

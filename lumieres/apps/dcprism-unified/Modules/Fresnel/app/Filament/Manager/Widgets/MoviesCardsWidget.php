@@ -2,21 +2,21 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Widgets;
 
-use Modules\Fresnel\app\Models\Movie;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Contracts\View\View;
+use Modules\Fresnel\app\Models\Movie;
 
 class MoviesCardsWidget extends Widget
 {
     protected string $view = 'filament.manager.widgets.movies-cards';
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function getMovies()
     {
         $festivalId = Session::get('selected_festival_id');
-        
-        if (!$festivalId) {
+
+        if (! $festivalId) {
             return collect();
         }
 
@@ -31,21 +31,21 @@ class MoviesCardsWidget extends Widget
     public function notifySource(int $movieId): void
     {
         $movie = Movie::findOrFail($movieId);
-        
+
         // Envoi d'email via MailingService
         $mailingService = app(\App\Services\MailingService::class);
         $message = "Mise à jour concernant votre film '{$movie->title}' dans DCPrism.";
         $success = $mailingService->sendSourceNotification($movie, $message);
-        
+
         if ($success) {
             $this->dispatch('notify', [
                 'type' => 'success',
-                'message' => "La source {$movie->source_email} a été notifiée pour le film '{$movie->title}'."
+                'message' => "La source {$movie->source_email} a été notifiée pour le film '{$movie->title}'.",
             ]);
         } else {
             $this->dispatch('notify', [
-                'type' => 'error', 
-                'message' => "Erreur lors de l'envoi de l'email."
+                'type' => 'error',
+                'message' => "Erreur lors de l'envoi de l'email.",
             ]);
         }
     }
@@ -54,14 +54,14 @@ class MoviesCardsWidget extends Widget
     {
         $movie = Movie::findOrFail($movieId);
         $movieTitle = $movie->title;
-        
+
         $movie->delete();
-        
+
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => "Le film '{$movieTitle}' a été supprimé avec succès."
+            'message' => "Le film '{$movieTitle}' a été supprimé avec succès.",
         ]);
-        
+
         $this->dispatch('$refresh');
     }
 }

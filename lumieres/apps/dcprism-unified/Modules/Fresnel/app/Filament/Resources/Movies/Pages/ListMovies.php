@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Movies\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Movies\MovieResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\Movies\MovieResource;
 
 class ListMovies extends ListRecords
 {

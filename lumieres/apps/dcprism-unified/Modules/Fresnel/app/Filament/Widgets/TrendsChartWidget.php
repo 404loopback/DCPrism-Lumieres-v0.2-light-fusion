@@ -2,21 +2,20 @@
 
 namespace Modules\Fresnel\app\Filament\Widgets;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Upload;
-use Modules\Fresnel\app\Models\ValidationResult;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Modules\Fresnel\app\Models\Movie;
 
 class TrendsChartWidget extends ChartWidget
 {
     protected static ?int $sort = 5;
-    protected int | string | array $columnSpan = 2;
-    
+
+    protected int|string|array $columnSpan = 2;
+
     protected ?string $heading = 'Répartition des statuts DCP';
+
     protected ?string $description = 'Vue d’ensemble de l’état des DCP dans le système';
-    
+
     // protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
@@ -24,11 +23,11 @@ class TrendsChartWidget extends ChartWidget
         $statusCounts = Movie::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get();
-            
+
         $labels = [];
         $data = [];
         $backgroundColor = [];
-        
+
         foreach ($statusCounts as $status) {
             switch ($status->status) {
                 case 'draft':
@@ -57,7 +56,7 @@ class TrendsChartWidget extends ChartWidget
             }
             $data[] = $status->count;
         }
-        
+
         return [
             'datasets' => [
                 [
@@ -76,7 +75,7 @@ class TrendsChartWidget extends ChartWidget
     {
         return 'doughnut';
     }
-    
+
     protected function getOptions(): array
     {
         return [

@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Parameters\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Parameters\ParameterResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Modules\Fresnel\app\Filament\Resources\Parameters\ParameterResource;
 
 class ListParameters extends ListRecords
 {

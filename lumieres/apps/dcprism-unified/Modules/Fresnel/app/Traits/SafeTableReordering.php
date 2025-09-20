@@ -13,17 +13,17 @@ trait SafeTableReordering
     {
         // Log pour déboguer
         \Log::info('SafeTableReordering::reorderTable called!', ['order' => $order, 'draggedRecordKey' => $draggedRecordKey]);
-        
-        $festivalId = Session::get('manager_festival_id');
-        
-        if (!$festivalId) {
+
+        $festivalId = Session::get('selected_festival_id');
+
+        if (! $festivalId) {
             \Log::error('No festival selected for reordering');
             throw new \Exception('Aucun festival sélectionné. Impossible de réorganiser.');
         }
-        
+
         $modelClass = static::getModel();
-        \Log::info('Model class: ' . $modelClass);
-        
+        \Log::info('Model class: '.$modelClass);
+
         // Utiliser notre méthode personnalisée pour réorganiser en sécurité
         if (method_exists($modelClass, 'reorderSafely')) {
             \Log::info('Using custom reorderSafely method', ['order' => $order, 'festival_id' => $festivalId]);

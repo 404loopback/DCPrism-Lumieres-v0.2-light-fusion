@@ -2,25 +2,23 @@
 
 namespace Modules\Fresnel\app\Filament\Tech\Resources;
 
-use Modules\Fresnel\app\Models\Movie;
-use Modules\Fresnel\app\Models\Dcp;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Schemas\Schema;
+use BackedEnum;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Schemas\Schema;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Notifications\Notification;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\Fresnel\app\Models\Dcp;
+use Modules\Fresnel\app\Models\Movie;
 use UnitEnum;
-use BackedEnum;
 
 class MovieResource extends Resource
 {
@@ -29,13 +27,13 @@ class MovieResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-film';
 
     protected static ?string $navigationLabel = 'Films & Statuts';
-    
+
     protected static ?string $modelLabel = 'Film';
-    
+
     protected static ?string $pluralModelLabel = 'Films';
-    
+
     protected static ?int $navigationSort = 2;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Validation Technique';
 
     public static function form(Schema $schema): Schema
@@ -174,6 +172,7 @@ class MovieResource extends Resource
                     ->modalHeading('Valider tous les DCPs du film')
                     ->modalDescription(function ($record) {
                         $pendingCount = $record->dcps()->where('status', Dcp::STATUS_UPLOADED)->count();
+
                         return "Valider les {$pendingCount} DCPs en attente pour ce film ?";
                     })
                     ->action(function (Movie $record) {
@@ -181,13 +180,13 @@ class MovieResource extends Resource
                             ->where('status', Dcp::STATUS_UPLOADED)
                             ->where('is_valid', false)
                             ->get();
-                        
+
                         $count = 0;
                         foreach ($pendingDcps as $dcp) {
-                            $dcp->markAsValid('DCP validé par technicien le ' . now()->format('d/m/Y H:i'));
+                            $dcp->markAsValid('DCP validé par technicien le '.now()->format('d/m/Y H:i'));
                             $count++;
                         }
-                        
+
                         // Mettre à jour le statut global du film
                         if ($count > 0) {
                             $record->update([
@@ -196,7 +195,7 @@ class MovieResource extends Resource
                                 'validated_by' => auth()->id(),
                             ]);
                         }
-                        
+
                         Notification::make()
                             ->title('Validation terminée')
                             ->body("{$count} DCPs validés pour le film {$record->title}")
@@ -214,8 +213,8 @@ class MovieResource extends Resource
                     ->url(function (Movie $record) {
                         return route('filament.tech.resources.dcps.index', [
                             'tableFilters' => [
-                                'movie' => ['value' => $record->id]
-                            ]
+                                'movie' => ['value' => $record->id],
+                            ],
                         ]);
                     }),
 
@@ -238,17 +237,17 @@ class MovieResource extends Resource
     {
         $query = parent::getEloquentQuery()
             ->with(['dcps', 'festivals']);
-            
+
         // Si le technicien est assigné à des festivals spécifiques
         $user = auth()->user();
         if ($user->festivals()->exists()) {
             $festivalIds = $user->festivals()->pluck('festivals.id');
-            
+
             $query->whereHas('festivals', function (Builder $subQuery) use ($festivalIds) {
                 $subQuery->whereIn('festivals.id', $festivalIds);
             });
         }
-        
+
         return $query;
     }
 

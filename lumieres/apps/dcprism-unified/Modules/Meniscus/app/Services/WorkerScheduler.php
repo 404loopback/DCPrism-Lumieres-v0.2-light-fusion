@@ -2,17 +2,19 @@
 
 namespace Modules\Meniscus\app\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Carbon\Carbon;
 
 class WorkerScheduler
 {
     private CloudProviderFactory $providerFactory;
+
     private array $config;
 
     // Default deployment time (20:00 UTC)
     private const DEFAULT_DEPLOYMENT_HOUR = 20;
+
     private const DEFAULT_DEPLOYMENT_MINUTE = 0;
 
     public function __construct(CloudProviderFactory $providerFactory, array $config = [])
@@ -54,26 +56,28 @@ class WorkerScheduler
             // Get queue size from Redis
             $queueSize = Redis::llen('queues:dcp-processing');
             $queueData = Redis::lrange('queues:dcp-processing', 0, -1);
-            
+
             $totalJobs = $queueSize;
             $estimatedProcessingTime = 0;
             $complexityScores = [];
-            
+
             // Analyze individual jobs
             foreach ($queueData as $jobJson) {
                 $job = json_decode($jobJson, true);
-                
-                if (!$job) continue;
-                
+
+                if (! $job) {
+                    continue;
+                }
+
                 // Calculate complexity based on job parameters
                 $complexity = $this->calculateJobComplexity($job);
                 $complexityScores[] = $complexity;
-                
+
                 // Estimate processing time (in hours)
                 $estimatedProcessingTime += $this->estimateJobTime($job, $complexity);
             }
 
-            $averageComplexity = !empty($complexityScores) ? 
+            $averageComplexity = ! empty($complexityScores) ?
                 array_sum($complexityScores) / count($complexityScores) : 1.0;
 
             return [
@@ -87,9 +91,9 @@ class WorkerScheduler
 
         } catch (\Exception $e) {
             Log::error('Failed to analyze queue', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return [
                 'total_jobs' => 0,
                 'estimated_total_time' => 0,
@@ -108,13 +112,14 @@ class WorkerScheduler
     public function deployScheduledWorkers(): array
     {
         $analysis = $this->analyzeQueue();
-        
+
         if ($analysis['recommended_workers'] <= 0) {
             Log::info('No workers needed based on queue analysis', $analysis);
+
             return [
                 'deployed' => false,
                 'reason' => 'No jobs in queue',
-                'analysis' => $analysis
+                'analysis' => $analysis,
             ];
         }
 
@@ -130,10 +135,11 @@ class WorkerScheduler
 
             try {
                 $provider = $this->providerFactory->create($providerName);
-                
+
                 // Test provider connectivity
-                if (!$provider->testConnection()) {
+                if (! $provider->testConnection()) {
                     Log::warning("Provider {$providerName} not available, trying next");
+
                     continue;
                 }
 
@@ -144,7 +150,7 @@ class WorkerScheduler
                     'worker_count' => $workersToDeployOnProvider,
                     'plan' => $analysis['recommended_instance_type'],
                     'environment' => config('app.env'),
-                    'deployment_id' => 'scheduled-' . time(),
+                    'deployment_id' => 'scheduled-'.time(),
                     'project_name' => 'dcparty',
                     'domain_name' => config('dcparty.domain_name', 'dcparty.local'),
                     'estimated_hours' => ceil($analysis['estimated_total_time'] / $maxWorkers),
@@ -152,27 +158,28 @@ class WorkerScheduler
                 ];
 
                 $deployed = $provider->deployWorkers($deploymentConfig);
-                
-                if (!empty($deployed)) {
+
+                if (! empty($deployed)) {
                     $deploymentResults[] = [
                         'provider' => $providerName,
                         'workers' => $deployed,
                         'count' => count($deployed),
                     ];
                     $totalDeployed += count($deployed);
-                    
-                    Log::info("Deployed {count} workers on {provider}", [
+
+                    Log::info('Deployed {count} workers on {provider}', [
                         'count' => count($deployed),
                         'provider' => $providerName,
-                        'analysis' => $analysis
+                        'analysis' => $analysis,
                     ]);
                 }
 
             } catch (\Exception $e) {
                 Log::error("Failed to deploy workers on {$providerName}", [
                     'error' => $e->getMessage(),
-                    'provider' => $providerName
+                    'provider' => $providerName,
                 ]);
+
                 continue;
             }
         }
@@ -195,7 +202,7 @@ class WorkerScheduler
     private function calculateJobComplexity(array $job): float
     {
         $complexity = 1.0;
-        
+
         // Resolution factor
         if (isset($job['resolution'])) {
             if (str_contains(strtoupper($job['resolution']), '4K')) {
@@ -204,7 +211,7 @@ class WorkerScheduler
                 $complexity += 1.0;
             }
         }
-        
+
         // Duration factor
         if (isset($job['duration_minutes'])) {
             if ($job['duration_minutes'] > 120) {
@@ -213,7 +220,7 @@ class WorkerScheduler
                 $complexity += 0.5;
             }
         }
-        
+
         // File size factor
         if (isset($job['file_size_gb'])) {
             if ($job['file_size_gb'] > 100) {
@@ -233,10 +240,10 @@ class WorkerScheduler
     {
         // Base processing time (in hours)
         $baseTime = 0.5;
-        
+
         // Apply complexity multiplier
         $estimatedTime = $baseTime * $complexity;
-        
+
         // Additional factors
         if (isset($job['duration_minutes'])) {
             // Rough estimate: 1 minute of source = 2 minutes of processing
@@ -257,13 +264,13 @@ class WorkerScheduler
 
         // Target: complete all jobs within 4 hours
         $targetCompletionTime = 4.0;
-        
+
         $workersForTime = ceil($totalTime / $targetCompletionTime);
         $workersForJobs = ceil($totalJobs / $this->config['jobs_per_worker']);
-        
+
         // Take the higher of the two estimates
         $recommendedWorkers = max($workersForTime, $workersForJobs);
-        
+
         // Apply limits
         return min($recommendedWorkers, $this->config['max_workers_per_deployment']);
     }
@@ -280,7 +287,7 @@ class WorkerScheduler
         } elseif ($averageComplexity >= 1.5) {
             return 'vc2-4c-8gb';  // Standard performance
         }
-        
+
         return 'vc2-2c-4gb'; // Basic performance for simple jobs
     }
 
@@ -306,22 +313,22 @@ class WorkerScheduler
                 'queue_analysis' => $analysis,
                 'deployment_type' => 'scheduled',
             ];
-            
+
             // Store in Redis for quick access
             Redis::lpush('dcparty:deployment_history', json_encode($record));
-            
+
             // Keep only last 100 deployment records
             Redis::ltrim('dcparty:deployment_history', 0, 99);
-            
+
             Log::info('Deployment recorded successfully', [
                 'total_workers' => array_sum(array_column($deployments, 'count')),
-                'providers_used' => array_column($deployments, 'provider')
+                'providers_used' => array_column($deployments, 'provider'),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Failed to record deployment', [
                 'error' => $e->getMessage(),
-                'deployments' => $deployments
+                'deployments' => $deployments,
             ]);
         }
     }

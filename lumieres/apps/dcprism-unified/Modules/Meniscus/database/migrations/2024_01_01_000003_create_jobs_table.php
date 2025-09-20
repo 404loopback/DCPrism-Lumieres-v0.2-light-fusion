@@ -35,7 +35,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index(['status', 'priority']);
             $table->index(['user_id', 'status']);
             $table->index(['worker_id', 'status']);

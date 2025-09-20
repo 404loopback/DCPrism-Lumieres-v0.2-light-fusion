@@ -2,9 +2,9 @@
 
 namespace Modules\Fresnel\app\Filament\Resources\Versions\Pages;
 
-use Modules\Fresnel\app\Filament\Resources\Versions\VersionResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Modules\Fresnel\app\Filament\Resources\Versions\VersionResource;
 
 class ViewVersion extends ViewRecord
 {

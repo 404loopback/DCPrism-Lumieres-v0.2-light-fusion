@@ -2,18 +2,17 @@
 
 namespace Modules\Fresnel\app\Http\Controllers\Api\V1;
 
-use Modules\Fresnel\app\Http\Controllers\Controller;
-use Modules\Fresnel\app\Http\Resources\V1\FestivalResource;
-use Modules\Fresnel\app\Http\Resources\V1\FestivalCollection;
-use Modules\Fresnel\app\Http\Resources\V1\MovieResource;
-use Modules\Fresnel\app\Models\Festival;
-use Modules\Fresnel\app\Models\Movie;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Modules\Fresnel\app\Http\Controllers\Controller;
+use Modules\Fresnel\app\Http\Resources\V1\FestivalCollection;
+use Modules\Fresnel\app\Http\Resources\V1\FestivalResource;
+use Modules\Fresnel\app\Http\Resources\V1\MovieResource;
 use Modules\Fresnel\app\Jobs\BatchProcessingJob;
+use Modules\Fresnel\app\Models\Festival;
+use Modules\Fresnel\app\Models\Movie;
 
 class FestivalApiController extends Controller
 {
@@ -44,7 +43,7 @@ class FestivalApiController extends Controller
         }
 
         if ($request->filled('country')) {
-            $query->where('country', 'LIKE', '%' . $request->country . '%');
+            $query->where('country', 'LIKE', '%'.$request->country.'%');
         }
 
         if ($request->filled('year')) {
@@ -59,9 +58,9 @@ class FestivalApiController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('city', 'LIKE', "%{$search}%")
-                  ->orWhere('country', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%");
+                    ->orWhere('city', 'LIKE', "%{$search}%")
+                    ->orWhere('country', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -77,7 +76,7 @@ class FestivalApiController extends Controller
         $query->with(['organizer']);
 
         if ($request->boolean('include_movies')) {
-            $query->with(['movies' => function($q) {
+            $query->with(['movies' => function ($q) {
                 $q->limit(10)->latest();
             }]);
         }
@@ -134,7 +133,7 @@ class FestivalApiController extends Controller
 
         return response()->json([
             'message' => 'Festival created successfully',
-            'data' => new FestivalResource($festival->load('organizer'))
+            'data' => new FestivalResource($festival->load('organizer')),
         ], 201);
     }
 
@@ -147,15 +146,15 @@ class FestivalApiController extends Controller
 
         $festival->load([
             'organizer',
-            'movies' => function($q) {
-                $q->with(['processingJobs' => function($jobQuery) {
+            'movies' => function ($q) {
+                $q->with(['processingJobs' => function ($jobQuery) {
                     $jobQuery->latest()->limit(3);
                 }])->latest();
-            }
+            },
         ]);
 
         return response()->json([
-            'data' => new FestivalResource($festival)
+            'data' => new FestivalResource($festival),
         ]);
     }
 
@@ -203,7 +202,7 @@ class FestivalApiController extends Controller
 
         return response()->json([
             'message' => 'Festival updated successfully',
-            'data' => new FestivalResource($festival->load('organizer', 'movies'))
+            'data' => new FestivalResource($festival->load('organizer', 'movies')),
         ]);
     }
 
@@ -219,14 +218,14 @@ class FestivalApiController extends Controller
         if ($movieCount > 0) {
             return response()->json([
                 'message' => 'Cannot delete festival with associated movies',
-                'errors' => ['festival' => ['Festival has ' . $movieCount . ' associated movies']]
+                'errors' => ['festival' => ['Festival has '.$movieCount.' associated movies']],
             ], 422);
         }
 
         $festival->delete();
 
         return response()->json([
-            'message' => 'Festival deleted successfully'
+            'message' => 'Festival deleted successfully',
         ]);
     }
 
@@ -249,7 +248,7 @@ class FestivalApiController extends Controller
             $query->where('dcp_status', $request->status);
         }
 
-        $query->with(['processingJobs' => function($q) {
+        $query->with(['processingJobs' => function ($q) {
             $q->latest()->limit(3);
         }]);
 
@@ -267,8 +266,8 @@ class FestivalApiController extends Controller
                     'id' => $festival->id,
                     'name' => $festival->name,
                     'year' => $festival->year,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -283,7 +282,7 @@ class FestivalApiController extends Controller
         if ($festival->movies()->where('movie_id', $movie->id)->exists()) {
             return response()->json([
                 'message' => 'Movie already associated with festival',
-                'data' => ['already_attached' => true]
+                'data' => ['already_attached' => true],
             ]);
         }
 
@@ -299,7 +298,7 @@ class FestivalApiController extends Controller
                 'festival_id' => $festival->id,
                 'movie_id' => $movie->id,
                 'attached_at' => now()->toISOString(),
-            ]
+            ],
         ]);
     }
 
@@ -312,15 +311,15 @@ class FestivalApiController extends Controller
 
         $detached = $festival->movies()->detach($movie->id);
 
-        if (!$detached) {
+        if (! $detached) {
             return response()->json([
                 'message' => 'Movie not associated with festival',
-                'errors' => ['movie' => ['Movie is not associated with this festival']]
+                'errors' => ['movie' => ['Movie is not associated with this festival']],
             ], 404);
         }
 
         return response()->json([
-            'message' => 'Movie successfully detached from festival'
+            'message' => 'Movie successfully detached from festival',
         ]);
     }
 
@@ -375,7 +374,7 @@ class FestivalApiController extends Controller
                     'status' => $festival->status,
                 ],
                 'generated_at' => now()->toISOString(),
-            ])
+            ]),
         ]);
     }
 
@@ -403,18 +402,18 @@ class FestivalApiController extends Controller
                     // Attach movies to festival
                     $attachData = [];
                     foreach ($movieIds as $movieId) {
-                        if (!$festival->movies()->where('movie_id', $movieId)->exists()) {
+                        if (! $festival->movies()->where('movie_id', $movieId)->exists()) {
                             $attachData[$movieId] = [
                                 'submitted_at' => now(),
                                 'status' => 'submitted',
                             ];
                         }
                     }
-                    
-                    if (!empty($attachData)) {
+
+                    if (! empty($attachData)) {
                         $festival->movies()->attach($attachData);
                     }
-                    
+
                     $message = 'Movies successfully attached to festival';
                     break;
 
@@ -423,8 +422,8 @@ class FestivalApiController extends Controller
                     // Queue batch processing job
                     $movies = Movie::whereIn('id', $movieIds)->get();
                     BatchProcessingJob::dispatch($movies, $operation)->onQueue('dcp-batch');
-                    
-                    $message = 'Batch ' . $operation . ' job queued successfully';
+
+                    $message = 'Batch '.$operation.' job queued successfully';
                     break;
             }
 
@@ -437,7 +436,7 @@ class FestivalApiController extends Controller
                     'operation' => $operation,
                     'movie_count' => count($movieIds),
                     'processed_at' => now()->toISOString(),
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
@@ -445,7 +444,7 @@ class FestivalApiController extends Controller
 
             return response()->json([
                 'message' => 'Bulk operation failed',
-                'errors' => ['operation' => ['Failed to process bulk operation: ' . $e->getMessage()]]
+                'errors' => ['operation' => ['Failed to process bulk operation: '.$e->getMessage()]],
             ], 500);
         }
     }
@@ -463,7 +462,7 @@ class FestivalApiController extends Controller
             'search' => 'string|max:255',
         ]);
 
-        $cacheKey = 'public_festivals:' . md5(serialize($request->only(['page', 'per_page', 'country', 'year', 'search'])));
+        $cacheKey = 'public_festivals:'.md5(serialize($request->only(['page', 'per_page', 'country', 'year', 'search'])));
 
         $result = Cache::remember($cacheKey, 600, function () use ($request) {
             $query = Festival::where('is_public', true)
@@ -471,7 +470,7 @@ class FestivalApiController extends Controller
 
             // Apply filters
             if ($request->filled('country')) {
-                $query->where('country', 'LIKE', '%' . $request->country . '%');
+                $query->where('country', 'LIKE', '%'.$request->country.'%');
             }
 
             if ($request->filled('year')) {
@@ -482,14 +481,15 @@ class FestivalApiController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('city', 'LIKE', "%{$search}%")
-                      ->orWhere('country', 'LIKE', "%{$search}%");
+                        ->orWhere('city', 'LIKE', "%{$search}%")
+                        ->orWhere('country', 'LIKE', "%{$search}%");
                 });
             }
 
             $query->orderBy('start_date', 'asc');
 
             $perPage = min($request->get('per_page', 20), 50);
+
             return $query->select(['id', 'name', 'year', 'city', 'country', 'start_date', 'end_date', 'logo_url', 'website'])
                 ->paginate($perPage);
         });
@@ -501,7 +501,7 @@ class FestivalApiController extends Controller
                 'last_page' => $result->lastPage(),
                 'per_page' => $result->perPage(),
                 'total' => $result->total(),
-            ]
+            ],
         ]);
     }
 
@@ -510,10 +510,10 @@ class FestivalApiController extends Controller
      */
     public function publicShow(Request $request, Festival $festival): JsonResponse
     {
-        if (!$festival->is_public || !$festival->is_active) {
+        if (! $festival->is_public || ! $festival->is_active) {
             return response()->json([
                 'message' => 'Festival not found or not public',
-                'errors' => ['festival' => ['Festival is not publicly accessible']]
+                'errors' => ['festival' => ['Festival is not publicly accessible']],
             ], 404);
         }
 

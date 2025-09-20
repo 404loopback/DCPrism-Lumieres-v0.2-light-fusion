@@ -2,31 +2,27 @@
 
 namespace Modules\Fresnel\app\Filament\Manager\Resources;
 
+use BackedEnum;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Fresnel\app\Models\FestivalParameter;
 use Modules\Fresnel\app\Models\Parameter;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\KeyValue;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ActionGroup;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Support\Enums\FontWeight;
-use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
-use BackedEnum;
 
 class FestivalParameterResource extends Resource
 {
@@ -35,13 +31,13 @@ class FestivalParameterResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
     protected static ?string $navigationLabel = 'Paramètres du Festival';
-    
+
     protected static ?string $modelLabel = 'Paramètre';
-    
+
     protected static ?string $pluralModelLabel = 'Paramètres';
-    
+
     protected static ?int $navigationSort = 3;
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Configuration Festival';
 
     public static function form(Schema $schema): Schema
@@ -92,14 +88,13 @@ class FestivalParameterResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Bold)
-                    ->description(fn (FestivalParameter $record): string => 
-                        $record->parameter->description ?? ''
+                    ->description(fn (FestivalParameter $record): string => $record->parameter->description ?? ''
                     ),
 
                 TextColumn::make('parameter.category')
                     ->label('Catégorie')
                     ->badge()
-                    ->color(fn (string $state): string => match($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'technical' => 'primary',
                         'video' => 'success',
                         'audio' => 'warning',
@@ -113,7 +108,6 @@ class FestivalParameterResource extends Resource
                     ->label('Type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => Parameter::getAvailableTypes()[$state] ?? $state),
-
 
                 TextColumn::make('display_order')
                     ->label('Ordre')
@@ -129,13 +123,23 @@ class FestivalParameterResource extends Resource
                     ->label('Type')
                     ->badge()
                     ->getStateUsing(function (FestivalParameter $record): string {
-                        if ($record->parameter->is_system) return 'Système';
-                        if ($record->parameter->is_required) return 'Obligatoire';
+                        if ($record->parameter->is_system) {
+                            return 'Système';
+                        }
+                        if ($record->parameter->is_required) {
+                            return 'Obligatoire';
+                        }
+
                         return 'Optionnel';
                     })
                     ->color(function (FestivalParameter $record): string {
-                        if ($record->parameter->is_system) return 'danger';
-                        if ($record->parameter->is_required) return 'warning';
+                        if ($record->parameter->is_system) {
+                            return 'danger';
+                        }
+                        if ($record->parameter->is_required) {
+                            return 'warning';
+                        }
+
                         return 'success';
                     }),
 
@@ -164,14 +168,13 @@ class FestivalParameterResource extends Resource
                         ->label('Éditer'),
                     DeleteAction::make()
                         ->label('Supprimer')
-                        ->visible(fn (FestivalParameter $record): bool => 
-                            !$record->parameter->is_system && !$record->parameter->is_required
+                        ->visible(fn (FestivalParameter $record): bool => ! $record->parameter->is_system && ! $record->parameter->is_required
                         )
                         ->requiresConfirmation()
                         ->modalHeading('Supprimer le paramètre')
                         ->modalDescription('Voulez-vous vraiment supprimer ce paramètre du festival ? Cette action est irréversible.')
                         ->modalSubmitActionLabel('Supprimer'),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -181,7 +184,7 @@ class FestivalParameterResource extends Resource
             ->defaultSort('display_order')
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->with(['parameter'])
-                           ->where('festival_id', auth()->user()->current_festival_id ?? 1);
+                    ->where('festival_id', auth()->user()->current_festival_id ?? 1);
             });
     }
 

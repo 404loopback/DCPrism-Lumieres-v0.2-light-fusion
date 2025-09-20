@@ -9,6 +9,7 @@ use Spatie\Permission\Models\Role;
 class GenerateMultiPanelPermissions extends Command
 {
     protected $signature = 'shield:multi-panel {--reset : Reset all panel permissions}';
+
     protected $description = 'Generate permissions for multi-panel access management';
 
     public function handle()
@@ -19,7 +20,7 @@ class GenerateMultiPanelPermissions extends Command
 
         $this->generatePanelPermissions();
         $this->assignPanelPermissionsToRoles();
-        
+
         $this->info('Multi-panel permissions generated successfully!');
     }
 
@@ -36,17 +37,17 @@ class GenerateMultiPanelPermissions extends Command
     {
         $panels = [
             'admin' => 'Access Admin Panel',
-            'manager' => 'Access Manager Panel', 
+            'manager' => 'Access Manager Panel',
             'tech' => 'Access Tech Panel',
             'source' => 'Access Source Panel',
             'cinema' => 'Access Cinema Panel',
-            'infrastructure' => 'Access Infrastructure Panel'
+            'infrastructure' => 'Access Infrastructure Panel',
         ];
 
         foreach ($panels as $panel => $description) {
             $permission = Permission::firstOrCreate([
                 'name' => "panel.{$panel}",
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
             $this->line("Created permission: panel.{$panel}");
         }
@@ -61,18 +62,18 @@ class GenerateMultiPanelPermissions extends Command
             'tech' => ['panel.tech'],
             'supervisor' => ['panel.admin', 'panel.manager'],
             'source' => ['panel.source'],
-            'cinema' => ['panel.cinema']
+            'cinema' => ['panel.cinema'],
         ];
 
         foreach ($rolePermissions as $roleName => $permissions) {
             $role = Role::firstOrCreate([
                 'name' => $roleName,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
 
             foreach ($permissions as $permissionName) {
                 $permission = Permission::where('name', $permissionName)->first();
-                if ($permission && !$role->hasPermissionTo($permission)) {
+                if ($permission && ! $role->hasPermissionTo($permission)) {
                     $role->givePermissionTo($permission);
                     $this->line("Assigned {$permissionName} to {$roleName}");
                 }

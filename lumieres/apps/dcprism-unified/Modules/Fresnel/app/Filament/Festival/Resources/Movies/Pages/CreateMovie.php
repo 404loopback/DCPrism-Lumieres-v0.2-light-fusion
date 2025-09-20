@@ -2,8 +2,8 @@
 
 namespace Modules\Fresnel\app\Filament\Festival\Resources\Movies\Pages;
 
-use Modules\Fresnel\app\Filament\Festival\Resources\Movies\MovieResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Fresnel\app\Filament\Festival\Resources\Movies\MovieResource;
 
 class CreateMovie extends CreateRecord
 {
