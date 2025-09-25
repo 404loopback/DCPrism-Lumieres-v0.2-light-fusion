@@ -128,10 +128,10 @@ quick: ## ⚡ Setup rapide sans nettoyage complet
 # Installation
 install: ## Install all dependencies (PHP + Node)
 	@echo "🚀 Installing dependencies..."
-	@echo "📦 Installing PHP dependencies in apps/dcprism-unified..."
-	cd apps/dcprism-unified && composer install
-	@echo "📦 Installing Node dependencies in apps/dcprism-unified..."
-	cd apps/dcprism-unified && npm install
+	@echo "📦 Installing PHP dependencies in app..."
+	cd app && composer install
+	@echo "📦 Installing Node dependencies in app..."
+	cd app && npm install
 	@echo "📦 Installing PHP dependencies in packages..."
 	for dir in packages/*/; do \
 		if [ -f "$$dir/composer.json" ]; then \
@@ -144,7 +144,7 @@ dev: ## Start development environment (Docker + Vite in background)
 	@echo "🌟 Starting development environment..."
 	docker-compose --profile dev up -d
 	@echo "🔥 Starting Vite dev server in background..."
-	nohup sh -c 'cd apps/dcprism-unified && npm run dev' > vite.log 2>&1 &
+	nohup sh -c 'cd app && npm run dev' > vite.log 2>&1 &
 	@echo "✅ Development environment started!"
 	@echo "📋 Vite logs: tail -f vite.log"
 	@echo "🌐 Laravel: http://localhost"
@@ -152,25 +152,27 @@ dev: ## Start development environment (Docker + Vite in background)
 
 vite-fg: ## Start Vite dev server in foreground (interactive)
 	@echo "🔥 Starting Vite dev server..."
-	cd apps/dcprism-unified && npm run dev
+	cd app && npm run dev
 
 vite-logs: ## Show Vite logs
 	tail -f vite.log
 
 dev-stop: ## Stop development environment  
 	@echo "🛑 Stopping development environment..."
-	docker-compose down
+	docker-compose --profile dev --profile prod down
+	@echo "🛑 Stopping Vite dev server..."
+	pkill -f "npm run dev" || true
 
 # Building
 build: ## Build all applications for production
 	@echo "🏢️ Building applications..."
-	cd apps/dcprism-unified && npm run build
+	cd app && npm run build
 	@echo "✅ Build completé !"
 
 # Testing
 test: ## Run PHP tests
 	@echo "🧪 Running PHP tests..."
-	cd apps/dcprism-unified && composer test
+	cd app && composer test
 
 test-docker: ## Run PHP tests in Docker
 	@echo "🧪 Running PHP tests in Docker..."
@@ -179,7 +181,7 @@ test-docker: ## Run PHP tests in Docker
 # Code Quality
 lint: ## Run code linting (Laravel Pint)
 	@echo "✨ Linting code with Laravel Pint..."
-	cd apps/dcprism-unified && ./vendor/bin/pint
+	cd app && ./vendor/bin/pint
 
 lint-docker: ## Run code linting in Docker
 	@echo "✨ Linting code in Docker..."
@@ -194,7 +196,7 @@ clean: ## Clean all dependencies and build artifacts
 	rm -rf vendor node_modules || true
 	rm -rf apps/*/vendor apps/*/node_modules || true
 	rm -rf packages/*/vendor packages/*/node_modules || true
-	rm -rf apps/dcprism-unified/public/build || true
+	rm -rf app/public/build || true
 	rm -f vite.log || true
 	@echo "✅ Nettoyage terminé !"
 
