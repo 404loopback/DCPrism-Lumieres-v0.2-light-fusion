@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('extraction_pattern')->nullable(); // Pattern pour extraction auto
             $table->json('validation_rules')->nullable(); // Règles de validation
             $table->text('default_value')->nullable();
+            $table->string('format_rules')->nullable()->comment('Règles de formatage: no_spacing,caps_lock,camel_case,etc');
             $table->enum('category', ['video', 'audio', 'accessibility', 'format', 'technical', 'metadata', 'management', 'content'])->default('technical');
             $table->string('dcp_specification')->nullable()->comment('Spécification DCP (Interop/SMPTE) pour ce paramètre');
             $table->json('standard_compatibility')->nullable()->comment('Compatibilité avec les standards (Interop, SMPTE, etc.)');

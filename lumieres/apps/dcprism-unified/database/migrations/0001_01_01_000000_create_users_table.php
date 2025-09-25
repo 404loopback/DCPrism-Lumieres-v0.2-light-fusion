@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_partner')->default(false)->comment('Partenaire permanent - compte non désactivé sans festival');
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

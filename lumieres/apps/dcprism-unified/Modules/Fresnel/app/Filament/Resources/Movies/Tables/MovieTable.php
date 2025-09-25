@@ -42,72 +42,39 @@ class MovieTable
                 TextColumn::make('festivals_info')
                     ->label('Festivals')
                     ->getStateUsing(function (Movie $record): string {
-                        $festivals = $record->festivals->sortBy('id');
+                        $festivals = $record->festivals->sortBy('name');
 
                         if ($festivals->isEmpty()) {
                             return 'Aucun festival';
                         }
 
-                        $firstFestival = $festivals->first();
                         $totalCount = $festivals->count();
+                        $firstFestival = $festivals->first();
 
-                        // Status icon for the first festival
-                        $status = $firstFestival->pivot->submission_status ?? 'pending';
-                        $priority = $firstFestival->pivot->priority ?? 0;
-                        $statusLabel = match ($status) {
-                            'pending' => '⏳',
-                            'submitted' => '📤',
-                            'in_review' => '👀',
-                            'accepted' => '✅',
-                            'rejected' => '❌',
-                            'withdrawn' => '🚫',
-                            default => '⚪'
-                        };
-                        $priorityLabel = $priority > 2 ? ' 🔥' : '';
-
-                        $result = "{$statusLabel} {$firstFestival->name}{$priorityLabel}";
-
-                        // Add badge if more than one festival
-                        if ($totalCount > 1) {
-                            $additionalCount = $totalCount - 1;
-                            $result .= " <span class='inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10'>+{$additionalCount}</span>";
+                        if ($totalCount === 1) {
+                            return $firstFestival->name;
                         }
 
-                        return $result;
+                        // Afficher le premier festival + badge du nombre restant
+                        $remaining = $totalCount - 1;
+                        $badge = "<span class='inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10'>+{$remaining}</span>";
+                        return "{$firstFestival->name} {$badge}";
                     })
                     ->html()
                     ->limit(60)
-                    ->tooltip(function (Movie $record): string {
-                        $festivals = $record->festivals;
+                    ->tooltip(function (Movie $record): ?string {
+                        $festivals = $record->festivals->sortBy('name');
 
-                        if ($festivals->isEmpty()) {
-                            return 'Ce film n\'est lié à aucun festival';
+                        if ($festivals->isEmpty() || $festivals->count() <= 1) {
+                            return null; // Pas de tooltip s'il n'y a qu'un seul festival ou aucun
                         }
 
-                        return $festivals->map(function ($festival) {
-                            $status = $festival->pivot->submission_status ?? 'pending';
-                            $priority = $festival->pivot->priority ?? 0;
-                            $statusText = match ($status) {
-                                'pending' => 'En attente',
-                                'submitted' => 'Soumis',
-                                'in_review' => 'En cours d\'examen',
-                                'accepted' => 'Accepté',
-                                'rejected' => 'Rejeté',
-                                'withdrawn' => 'Retiré',
-                                default => 'Statut inconnu'
-                            };
-                            $priorityText = match ($priority) {
-                                0 => 'Normale',
-                                1 => 'Faible',
-                                2 => 'Moyenne',
-                                3 => 'Haute',
-                                4 => 'Critique',
-                                5 => 'Urgente',
-                                default => 'Inconnue'
-                            };
-
-                            return "• {$festival->name}: {$statusText} (Priorité: {$priorityText})";
-                        })->join('\n');
+                        // Afficher seulement les festivals non affichés (tous sauf le premier)
+                        $otherFestivals = $festivals->skip(1);
+                        
+                        return $otherFestivals->map(function ($festival) {
+                            return $festival->name;
+                        })->join(' • ');
                     }),
 
                 // Colonnes de dates partagées

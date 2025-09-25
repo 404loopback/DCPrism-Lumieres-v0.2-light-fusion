@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         // 'role', // ❌ SUPPRIMÉ - Utilise Shield/Spatie avec HasRoles trait
         'is_active',
+        'is_partner',
         'last_login_at',
     ];
 
@@ -58,6 +59,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'is_active' => 'boolean',
+            'is_partner' => 'boolean',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
@@ -138,5 +140,22 @@ class User extends Authenticatable implements FilamentUser
 
         // Tous les autres utilisateurs (y compris superviseurs) doivent être assignés au festival
         return $this->festivals()->where('id', $festivalId)->exists();
+    }
+
+    /**
+     * Vérifier si l'utilisateur est un partenaire
+     */
+    public function isPartner(): bool
+    {
+        return $this->is_partner === true;
+    }
+
+    /**
+     * Vérifier si l'utilisateur doit être protégé de la désactivation automatique
+     * Partenaires et super admin/admin sont protégés
+     */
+    public function isProtectedFromDeactivation(): bool
+    {
+        return $this->isPartner() || $this->hasRole(['super_admin', 'admin']);
     }
 }

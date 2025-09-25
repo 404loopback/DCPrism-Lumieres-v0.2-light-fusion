@@ -90,7 +90,7 @@ class FresnelAdminProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                // AuthenticateSession::class, // VIRE
+                AuthenticateSession::class, // RÉACTIVÉ selon la doc Filament
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,

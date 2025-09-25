@@ -35,10 +35,16 @@ class SourcePanelProvider extends PanelProvider
             ])
             ->discoverResources(in: module_path('Fresnel', 'app/Filament/Source/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Resources')
             ->discoverPages(in: module_path('Fresnel', 'app/Filament/Source/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Pages')
+            // Découverte des pages partagées
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Shared/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Shared\\Pages')
             ->pages([
                 SourceDashboard::class,
             ])
             ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Source/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Source\\Widgets')
+            // Découverte des widgets partagés
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Shared/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Shared\\Widgets')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

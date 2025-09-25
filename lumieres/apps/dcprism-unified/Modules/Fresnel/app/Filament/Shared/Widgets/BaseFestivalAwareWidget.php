@@ -73,7 +73,7 @@ abstract class BaseFestivalAwareWidget extends BaseStatsWidget
      */
     protected function scopeByFestival($query)
     {
-        return $this->scopeBySelectedFestival($query);
+        return $this->applyFestivalFilter($query);
     }
 
     /**

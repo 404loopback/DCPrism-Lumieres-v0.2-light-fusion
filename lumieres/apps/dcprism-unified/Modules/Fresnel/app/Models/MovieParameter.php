@@ -140,7 +140,7 @@ class MovieParameter extends Model
     public function markAsExtracted(string $value, string $method = self::EXTRACTION_AUTO, ?array $metadata = null): void
     {
         $this->update([
-            'value' => $value,
+            'value' => $this->formatValueBeforeSaving($value),
             'status' => self::STATUS_EXTRACTED,
             'extraction_method' => $method,
             'metadata' => $metadata,
@@ -194,6 +194,51 @@ class MovieParameter extends Model
     public function getErrorMessage(): ?string
     {
         return $this->metadata['error_message'] ?? null;
+    }
+
+    /**
+     * Mutateur pour appliquer automatiquement le formatage à la valeur
+     */
+    protected function setValue(string $value): void
+    {
+        $this->attributes['value'] = $this->formatValueBeforeSaving($value);
+    }
+    
+    /**
+     * Formatter la valeur avant sauvegarde selon les règles du paramètre
+     */
+    private function formatValueBeforeSaving(string $value): string
+    {
+        // Charger le paramètre si pas déjà chargé
+        if (!$this->relationLoaded('parameter')) {
+            $this->load('parameter');
+        }
+        
+        $parameter = $this->parameter;
+        
+        // Si le paramètre a des règles de formatage, les appliquer
+        if ($parameter && !empty($parameter->format_rules)) {
+            try {
+                $formatted = $parameter->applyFormatting($value);
+                \Log::debug('[MovieParameter] Applied formatting to parameter value', [
+                    'movie_parameter_id' => $this->id,
+                    'parameter_id' => $parameter->id,
+                    'rules' => $parameter->format_rules,
+                    'original' => $value,
+                    'formatted' => $formatted,
+                ]);
+                return $formatted;
+            } catch (\Exception $e) {
+                \Log::warning('[MovieParameter] Failed to apply formatting, using original value', [
+                    'movie_parameter_id' => $this->id,
+                    'parameter_id' => $parameter?->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+        
+        // Retourner la valeur originale si pas de formatage ou en cas d'erreur
+        return $value;
     }
 
     /**

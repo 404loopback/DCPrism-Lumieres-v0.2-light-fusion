@@ -82,12 +82,23 @@ class FormFieldBuilder
 
     /**
      * Build a field for a specific parameter
+     * Can return Select, TextInput, Toggle, DatePicker, or Textarea
      */
-    public function buildParameterField(Parameter $parameter, mixed $defaultValue = null, array $options = []): Component
+    public function buildParameterField(Parameter $parameter, mixed $defaultValue = null, array $options = []): Select|TextInput|Toggle|DatePicker|Textarea
     {
         $fieldName = $options['field_name'] ?? "parameter_{$parameter->id}";
         $required = $options['required'] ?? (bool) ($parameter->is_required ?? false);
 
+        // Handle special case: AUDIO_LANG uses langs table
+        if ($parameter->code === 'AUDIO_LANG') {
+            return $this->buildAudioLanguageField($parameter, $fieldName, $required, $defaultValue);
+        }
+        
+        // Handle special case: SUBTITLES uses langs table and conditional logic
+        if ($parameter->code === 'SUBTITLES') {
+            return $this->buildSubtitleLanguageField($parameter, $fieldName, $required, $defaultValue);
+        }
+        
         // Handle parameters with predefined values
         if (! empty($parameter->possible_values)) {
             return $this->buildSelectField($parameter, $fieldName, $required, $defaultValue);
@@ -105,6 +116,138 @@ class FormFieldBuilder
     }
 
     /**
+     * Build audio language field with conditional logic based on VERSION_TYPE
+     */
+    private function buildAudioLanguageField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Select
+    {
+        // Récupérer les langues depuis la table langs
+        $langs = \DB::table('langs')
+            ->orderBy('iso_639_1')
+            ->get()
+            ->mapWithKeys(function ($lang) {
+                // Utiliser le nom français s'il existe, sinon le nom anglais
+                $displayName = $lang->french_name ?: $lang->name;
+                // Format: "FR - Français" ou "EN - English"
+                $label = $lang->iso_639_1 . ' - ' . $displayName;
+                // La valeur stockée reste le code ISO
+                return [$lang->iso_639_1 => $label];
+            })
+            ->toArray();
+
+        $versionTypeFieldName = $this->findVersionTypeFieldName();
+
+        return Select::make($fieldName)
+            ->label($parameter->name)
+            ->options($langs)
+            ->required($required)
+            ->default($defaultValue)
+            ->searchable()
+            ->live(onBlur: true)
+            ->disabled(function ($get) use ($versionTypeFieldName) {
+                // Désactiver si VERSION_TYPE = 'MUTE'
+                return $versionTypeFieldName && $get($versionTypeFieldName) === 'MUTE';
+            })
+            ->helperText($parameter->description . ' - Codes ISO 639-1 (Désactivé pour les versions muettes)');
+    }
+
+    /**
+     * Build subtitle language field with conditional visibility based on VERSION_TYPE
+     */
+    private function buildSubtitleLanguageField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Select
+    {
+        // Récupérer les langues depuis la table langs
+        $langs = \DB::table('langs')
+            ->orderBy('iso_639_1')
+            ->get()
+            ->mapWithKeys(function ($lang) {
+                // Utiliser le nom français s'il existe, sinon le nom anglais
+                $displayName = $lang->french_name ?: $lang->name;
+                // Format: "FR - Français" ou "EN - English"
+                $label = $lang->iso_639_1 . ' - ' . $displayName;
+                // La valeur stockée reste le code ISO
+                return [$lang->iso_639_1 => $label];
+            })
+            ->toArray();
+
+        $versionTypeFieldName = $this->findVersionTypeFieldName();
+
+        return Select::make($fieldName)
+            ->label($parameter->name)
+            ->options($langs)
+            ->required($required)
+            ->default($defaultValue)
+            ->searchable()
+            ->live(onBlur: true)
+            ->visible(function ($get) use ($versionTypeFieldName) {
+                // Visible uniquement si VERSION_TYPE est VOST, DUBST ou MUTE
+                if (!$versionTypeFieldName) {
+                    return true; // Si pas de VERSION_TYPE trouvé, on affiche par défaut
+                }
+                
+                $versionType = $get($versionTypeFieldName);
+                return in_array($versionType, ['VOST', 'DUBST', 'MUTE']);
+            })
+            ->helperText($parameter->description . ' - Codes ISO 639-1 (Visible pour VOST, DUBST, MUTE)');
+    }
+
+    /**
+     * Find the field name for VERSION_TYPE parameter
+     */
+    private function findVersionTypeFieldName(): ?string
+    {
+        $festivalId = $this->festivalContext->getCurrentFestivalId();
+        
+        if (!$festivalId) {
+            return null;
+        }
+
+        // Chercher le paramètre VERSION_TYPE dans les paramètres du festival
+        $versionTypeParameter = FestivalParameter::where('festival_id', $festivalId)
+            ->where('is_enabled', true)
+            ->whereHas('parameter', function ($query) {
+                $query->where('code', 'VERSION_TYPE')
+                    ->where('is_active', true);
+            })
+            ->with('parameter')
+            ->first();
+
+        if (!$versionTypeParameter) {
+            return null;
+        }
+
+        return "parameter_{$versionTypeParameter->parameter->id}";
+    }
+
+    /**
+     * Build a select field for languages using langs table
+     */
+    private function buildLanguageSelectField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Select
+    {
+        // Récupérer les langues depuis la table langs
+        $langs = \DB::table('langs')
+            ->orderBy('iso_639_1')
+            ->get()
+            ->mapWithKeys(function ($lang) {
+                // Utiliser le nom français s'il existe, sinon le nom anglais
+                $displayName = $lang->french_name ?: $lang->name;
+                // Format: "FR - Français" ou "EN - English"
+                $label = $lang->iso_639_1 . ' - ' . $displayName;
+                // La valeur stockée reste le code ISO
+                return [$lang->iso_639_1 => $label];
+            })
+            ->toArray();
+
+        return Select::make($fieldName)
+            ->label($parameter->name)
+            ->options($langs)
+            ->required($required)
+            ->default($defaultValue)
+            ->searchable() // Pour pouvoir chercher dans la liste
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
+            ->helperText($parameter->description . ' - Codes ISO 639-1');
+    }
+
+    /**
      * Build a select field with predefined options
      */
     private function buildSelectField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Select
@@ -116,6 +259,7 @@ class FormFieldBuilder
             ->options($options)
             ->required($required)
             ->default($defaultValue)
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description);
     }
 
@@ -129,6 +273,7 @@ class FormFieldBuilder
             ->numeric()
             ->required($required)
             ->default($defaultValue)
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description);
     }
 
@@ -143,6 +288,7 @@ class FormFieldBuilder
             ->step(0.01)
             ->required($required)
             ->default($defaultValue)
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description);
     }
 
@@ -155,6 +301,7 @@ class FormFieldBuilder
             ->label($parameter->name)
             ->required($required)
             ->default($defaultValue)
+            ->live() // Toggle change immédiatement
             ->helperText($parameter->description);
     }
 
@@ -167,6 +314,7 @@ class FormFieldBuilder
             ->label($parameter->name)
             ->required($required)
             ->default($defaultValue)
+            ->live() // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description);
     }
 
@@ -180,13 +328,15 @@ class FormFieldBuilder
             ->rows(3)
             ->required($required)
             ->default($defaultValue)
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description.' (JSON format)');
     }
 
     /**
      * Build a text input field (default for strings)
+     * Returns either TextInput or Textarea (both extend Component)
      */
-    private function buildTextInputField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): Component
+    private function buildTextInputField(Parameter $parameter, string $fieldName, bool $required, mixed $defaultValue): TextInput|Textarea
     {
         // Use textarea for long descriptions or parameters with "description" in name
         $shouldUseTextarea = str_contains(strtolower($parameter->name), 'description') ||
@@ -199,6 +349,7 @@ class FormFieldBuilder
                 ->rows(3)
                 ->required($required)
                 ->default($defaultValue)
+                ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
                 ->helperText($parameter->description);
         }
 
@@ -206,6 +357,7 @@ class FormFieldBuilder
             ->label($parameter->name)
             ->required($required)
             ->default($defaultValue)
+            ->live(onBlur: true) // Pour déclencher la mise à jour de nomenclature
             ->helperText($parameter->description);
     }
 
@@ -247,8 +399,15 @@ class FormFieldBuilder
 
         foreach ($festivalParameters as $festivalParameter) {
             $parameter = $festivalParameter->parameter;
+            
             $defaultValue = $festivalParameter->getEffectiveDefaultValue();
             $required = (bool) ($parameter->is_required ?? false);
+
+            // Les paramètres titre sont maintenant gérés directement dans le wizard
+            // On les ignore ici pour éviter les doublons
+            if ($this->isTitleParameter($parameter)) {
+                continue; // Ignore les paramètres titre
+            }
 
             $field = $this->buildParameterField($parameter, $defaultValue, [
                 'required' => $required,
@@ -285,5 +444,31 @@ class FormFieldBuilder
         return Placeholder::make('no_parameters')
             ->content('No parameters configured for this festival. Please configure festival parameters first.')
             ->columnSpanFull();
+    }
+
+
+    /**
+     * Check if a parameter is the title parameter (system field)
+     * Le titre est déjà géré dans le step 1, on l'exclut du step 2
+     */
+    private function isTitleParameter(Parameter $parameter): bool
+    {
+        // Vérifier par nom de paramètre (différentes variations possibles)
+        $titleNames = ['title', 'titre', 'film_title', 'movie_title', 'nom', 'name'];
+        $paramName = strtolower($parameter->name);
+        $paramCode = strtolower($parameter->code ?? '');
+        
+        foreach ($titleNames as $titleName) {
+            if (str_contains($paramName, $titleName) || str_contains($paramCode, $titleName)) {
+                return true;
+            }
+        }
+        
+        // Vérifier par catégorie système si disponible
+        if ($parameter->is_system && str_contains(strtolower($parameter->category ?? ''), 'title')) {
+            return true;
+        }
+        
+        return false;
     }
 }

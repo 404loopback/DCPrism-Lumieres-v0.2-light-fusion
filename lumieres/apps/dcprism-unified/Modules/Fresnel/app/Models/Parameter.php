@@ -30,6 +30,7 @@ class Parameter extends Model
         'extraction_pattern',
         'validation_rules',
         'default_value',
+        'format_rules',
         'category',
     ];
 
@@ -77,6 +78,21 @@ class Parameter extends Model
     const CATEGORY_ACCESSIBILITY = 'accessibility';
 
     const CATEGORY_METADATA = 'metadata';
+
+    // Constantes des règles de formatage
+    const FORMAT_NO_SPACING = 'no_spacing';
+    const FORMAT_CAMEL_CASE = 'camel_case';
+    const FORMAT_SNAKE_CASE = 'snake_case';
+    const FORMAT_KEBAB_CASE = 'kebab_case';
+    const FORMAT_TITLE_CASE = 'title_case';
+    const FORMAT_LOWER_CASE = 'lower_case';
+    const FORMAT_UPPER_CASE = 'upper_case';
+    const FORMAT_TRIM = 'trim';
+    const FORMAT_NO_ACCENTS = 'no_accents';
+    const FORMAT_BRACKETS = 'brackets';
+    const FORMAT_EACH_BRACKETS = 'each_brackets';
+    const FORMAT_PARENTHESES = 'parentheses';
+    const FORMAT_EACH_PARENTHESES = 'each_parentheses';
 
     /**
      * Configuration du logging d'activité
@@ -309,5 +325,157 @@ class Parameter extends Model
         // Implémentation des règles de validation personnalisées
         // À développer selon les besoins spécifiques
         return true;
+    }
+
+    /**
+     * Obtenir les règles de formatage disponibles
+     */
+    public static function getAvailableFormatRules(): array
+    {
+        return [
+            self::FORMAT_NO_SPACING => 'Supprimer les espaces',
+            self::FORMAT_LOWER_CASE => 'Tout en minuscules',
+            self::FORMAT_UPPER_CASE => 'Tout en majuscules',
+            self::FORMAT_CAMEL_CASE => 'camelCase',
+            self::FORMAT_SNAKE_CASE => 'snake_case',
+            self::FORMAT_KEBAB_CASE => 'kebab-case',
+            self::FORMAT_TITLE_CASE => 'Title Case',
+            self::FORMAT_TRIM => 'Supprimer espaces début/fin',
+            self::FORMAT_NO_ACCENTS => 'Supprimer les accents',
+            self::FORMAT_BRACKETS => 'Entourer de crochets [texte]',
+            self::FORMAT_EACH_BRACKETS => 'Chaque mot entre crochets [mot1] [mot2]',
+            self::FORMAT_PARENTHESES => 'Entourer de parenthèses (texte)',
+            self::FORMAT_EACH_PARENTHESES => 'Chaque mot entre parenthèses (mot1) (mot2)',
+        ];
+    }
+
+    /**
+     * Appliquer les règles de formatage à une valeur
+     */
+    public function applyFormatting(string $value): string
+    {
+        if (empty($this->format_rules)) {
+            return $value;
+        }
+
+        // Séparer les règles par virgule
+        $rules = array_map('trim', explode(',', $this->format_rules));
+
+        foreach ($rules as $rule) {
+            $value = $this->applySingleFormatRule($value, $rule);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Appliquer une seule règle de formatage
+     */
+    private function applySingleFormatRule(string $value, string $rule): string
+    {
+        return match ($rule) {
+            self::FORMAT_NO_SPACING => str_replace(' ', '', $value),
+            self::FORMAT_UPPER_CASE => strtoupper($value),
+            self::FORMAT_LOWER_CASE => strtolower($value),
+            self::FORMAT_TRIM => trim($value),
+            self::FORMAT_TITLE_CASE => ucwords(strtolower($value)),
+            self::FORMAT_CAMEL_CASE => $this->toCamelCase($value),
+            self::FORMAT_SNAKE_CASE => $this->toSnakeCase($value),
+            self::FORMAT_KEBAB_CASE => $this->toKebabCase($value),
+            self::FORMAT_NO_ACCENTS => $this->removeAccents($value),
+            self::FORMAT_BRACKETS => '[' . $value . ']',
+            self::FORMAT_EACH_BRACKETS => $this->addBracketsToEachWord($value),
+            self::FORMAT_PARENTHESES => '(' . $value . ')',
+            self::FORMAT_EACH_PARENTHESES => $this->addParenthesesToEachWord($value),
+            default => $value // Règle inconnue, retourner la valeur sans modification
+        };
+    }
+
+    /**
+     * Convertir en camelCase
+     */
+    private function toCamelCase(string $value): string
+    {
+        // Remplacer espaces et tirets par des espaces, puis camelCase
+        $value = str_replace(['-', '_'], ' ', $value);
+        $value = ucwords(strtolower($value));
+        $value = str_replace(' ', '', $value);
+        return lcfirst($value);
+    }
+
+    /**
+     * Convertir en snake_case
+     */
+    private function toSnakeCase(string $value): string
+    {
+        // D'abord remplacer les espaces et tirets par des underscores
+        $value = str_replace([' ', '-'], '_', $value);
+        // Puis ajouter des underscores avant les majuscules
+        $value = preg_replace('/([A-Z])/', '_$1', $value);
+        // Nettoyer les underscores multiples et en début/fin
+        $value = preg_replace('/_+/', '_', $value);
+        return strtolower(trim($value, '_'));
+    }
+
+    /**
+     * Convertir en kebab-case
+     */
+    private function toKebabCase(string $value): string
+    {
+        // D'abord remplacer les espaces et underscores par des tirets
+        $value = str_replace([' ', '_'], '-', $value);
+        // Puis ajouter des tirets avant les majuscules
+        $value = preg_replace('/([A-Z])/', '-$1', $value);
+        // Nettoyer les tirets multiples et en début/fin
+        $value = preg_replace('/-+/', '-', $value);
+        return strtolower(trim($value, '-'));
+    }
+
+    /**
+     * Supprimer les accents
+     */
+    private function removeAccents(string $value): string
+    {
+        $accents = [
+            'à', 'á', 'â', 'ã', 'ä', 'å', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å',
+            'è', 'é', 'ê', 'ë', 'È', 'É', 'Ê', 'Ë',
+            'ì', 'í', 'î', 'ï', 'Ì', 'Í', 'Î', 'Ï',
+            'ò', 'ó', 'ô', 'õ', 'ö', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö',
+            'ù', 'ú', 'û', 'ü', 'Ù', 'Ú', 'Û', 'Ü',
+            'ç', 'Ç', 'ñ', 'Ñ'
+        ];
+        
+        $without = [
+            'a', 'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A', 'A',
+            'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
+            'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
+            'o', 'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O', 'O',
+            'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
+            'c', 'C', 'n', 'N'
+        ];
+        
+        return str_replace($accents, $without, $value);
+    }
+
+    /**
+     * Ajouter des crochets autour de chaque mot
+     */
+    private function addBracketsToEachWord(string $value): string
+    {
+        $words = explode(' ', trim($value));
+        $words = array_filter($words); // Supprimer les espaces vides
+        $words = array_map(fn($word) => '[' . $word . ']', $words);
+        return implode(' ', $words);
+    }
+
+    /**
+     * Ajouter des parenthèses autour de chaque mot
+     */
+    private function addParenthesesToEachWord(string $value): string
+    {
+        $words = explode(' ', trim($value));
+        $words = array_filter($words); // Supprimer les espaces vides
+        $words = array_map(fn($word) => '(' . $word . ')', $words);
+        return implode(' ', $words);
     }
 }

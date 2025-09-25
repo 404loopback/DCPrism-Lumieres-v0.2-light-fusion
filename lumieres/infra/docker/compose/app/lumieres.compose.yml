@@ -7,8 +7,8 @@ services:
       context: ${PWD}/apps/dcprism-unified
       dockerfile: docker/app/Dockerfile
       target: development
-    image: lumieres-dcprism-unified:app
-    container_name: lumieres-app
+    image: lumieres:app
+    container_name: lumieres
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     # ports:
@@ -45,7 +45,7 @@ services:
       context: ${PWD}/apps/dcprism-unified
       dockerfile: docker/app/Dockerfile
       target: development
-    image: lumieres-dcprism-unified:worker
+    image: lumieres:worker
     container_name: lumieres-worker
     environment:
       WWWUSER: '${WWWUSER:-1000}'
@@ -71,7 +71,7 @@ services:
       context: ${PWD}/apps/dcprism-unified
       dockerfile: docker/app/Dockerfile
       target: development
-    image: lumieres-dcprism-unified:scheduler
+    image: lumieres:scheduler
     container_name: lumieres-scheduler
     environment:
       WWWUSER: '${WWWUSER:-1000}'

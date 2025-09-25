@@ -548,6 +548,31 @@ class B2UploadController extends Controller
     }
 
     /**
+     * Test B2 connection using separate test credentials
+     */
+    public function pingB2()
+    {
+        try {
+            Log::info('🏓 [B2Upload] Test de connexion B2 demandé');
+            
+            $result = $this->b2Service->ping();
+            
+            $httpStatus = $result['status'] === 'success' ? 200 : 503;
+            
+            return response()->json($result, $httpStatus);
+            
+        } catch (\Exception $e) {
+            Log::error('❌ [B2Upload] Erreur ping B2: ' . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'B2 ping failed: ' . $e->getMessage(),
+                'timestamp' => now()->toISOString(),
+            ], 503);
+        }
+    }
+
+    /**
      * Generate nomenclature-based upload path
      */
     private function generateNomenclaturePath(Movie $movie, string $filename): string

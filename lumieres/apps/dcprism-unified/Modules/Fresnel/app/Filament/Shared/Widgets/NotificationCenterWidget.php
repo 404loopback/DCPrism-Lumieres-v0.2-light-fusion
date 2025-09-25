@@ -13,7 +13,7 @@ class NotificationCenterWidget extends Widget
 {
     use HasFestivalContext;
 
-    protected static string $view = 'filament.shared.widgets.notification-center';
+    protected string $view = 'filament.shared.widgets.notification-center';
 
     protected int|string|array $columnSpan = 'full';
 

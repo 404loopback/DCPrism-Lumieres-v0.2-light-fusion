@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Session;
 use Modules\Fresnel\app\Models\Festival;
 use Modules\Fresnel\app\Models\Nomenclature;
 use Modules\Fresnel\app\Models\Parameter;
+use Modules\Fresnel\app\Services\FestivalAccessService;
 use UnitEnum;
 
 class NomenclatureResource extends Resource
@@ -320,27 +321,72 @@ class NomenclatureResource extends Resource
     }
 
     /**
-     * Filtrer les nomenclatures pour le festival sélectionné
+     * Filtrer les nomenclatures selon l'accès et le festival sélectionné
      */
     public static function getEloquentQuery(): Builder
     {
-        $festivalId = Session::get('selected_festival_id');
+        $user = auth()->user();
+        
+        if (!$user) {
+            return parent::getEloquentQuery()->whereRaw('1 = 0');
+        }
 
-        if (! $festivalId) {
-            // Si aucun festival sélectionné, prendre le premier festival actif par ID
-            $defaultFestival = Festival::where('is_active', true)->orderBy('id')->first();
+        // Si l'utilisateur est super admin ou admin, respecter quand même la sélection de festival
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            $selectedFestivalId = Session::get('selected_festival_id');
+            
+            if (!$selectedFestivalId) {
+                // Prendre le premier festival actif par ID par défaut pour les admins
+                $defaultFestival = Festival::where('is_active', true)->orderBy('id')->first();
+                if ($defaultFestival) {
+                    $selectedFestivalId = $defaultFestival->id;
+                    Session::put('selected_festival_id', $selectedFestivalId);
+                } else {
+                    return parent::getEloquentQuery()->whereRaw('1 = 0');
+                }
+            }
+            
+            return parent::getEloquentQuery()
+                ->where('festival_id', $selectedFestivalId)
+                ->with(['festivalParameter.parameter']);
+        }
+
+        // Pour les autres utilisateurs : combiner les restrictions
+        $selectedFestivalId = Session::get('selected_festival_id');
+        
+        // Récupérer les IDs des festivals accessibles par l'utilisateur
+        $accessibleFestivalIds = $user->festivals()->pluck('festivals.id')->toArray();
+        
+        if (empty($accessibleFestivalIds)) {
+            return parent::getEloquentQuery()->whereRaw('1 = 0');
+        }
+        
+        // Si un festival spécifique est sélectionné, le filtrer en plus
+        if ($selectedFestivalId) {
+            // Vérifier que l'utilisateur a accès à ce festival
+            if (in_array($selectedFestivalId, $accessibleFestivalIds)) {
+                $festivalId = $selectedFestivalId;
+            } else {
+                // Festival sélectionné non autorisé pour cet utilisateur
+                return parent::getEloquentQuery()->whereRaw('1 = 0');
+            }
+        } else {
+            // Aucun festival sélectionné, prendre le premier accessible
+            $defaultFestival = Festival::whereIn('id', $accessibleFestivalIds)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->first();
             if ($defaultFestival) {
                 $festivalId = $defaultFestival->id;
                 Session::put('selected_festival_id', $festivalId);
             } else {
-                // Aucun festival actif, retourner vide
                 return parent::getEloquentQuery()->whereRaw('1 = 0');
             }
         }
-
+        
         return parent::getEloquentQuery()
             ->where('festival_id', $festivalId)
-            ->with(['festivalParameter.parameter']); // Optimisé : plus besoin du fallback 'parameter'
+            ->with(['festivalParameter.parameter']);
     }
 
     /**

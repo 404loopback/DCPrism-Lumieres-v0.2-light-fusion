@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Session;
 use Modules\Fresnel\app\Filament\Resources\Versions\Tables\VersionTable;
 use Modules\Fresnel\app\Models\Version;
+use Modules\Fresnel\app\Services\FestivalAccessService;
 use UnitEnum;
 
 class VersionResource extends Resource
@@ -78,22 +79,49 @@ class VersionResource extends Resource
     }
 
     /**
-     * Filter versions to only show those from manager's festivals
+     * Filter versions according to user's accessible festivals and selected festival
      */
     public static function getEloquentQuery(): Builder
     {
-        $festivalId = Session::get('selected_festival_id');
-
-        if (! $festivalId) {
-            // Si aucun festival sélectionné, retourner une query vide
+        $user = auth()->user();
+        
+        if (!$user) {
             return parent::getEloquentQuery()->whereRaw('1 = 0');
         }
 
-        return parent::getEloquentQuery()
-            ->whereHas('movie.festivals', function (Builder $query) use ($festivalId) {
-                $query->where('festival_id', $festivalId);
-            })
-            ->with(['movie', 'dcps', 'audioLanguage', 'subtitleLanguage']);
+        // Si l'utilisateur est super admin ou admin, respecter quand même la sélection de festival
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            $selectedFestivalId = Session::get('selected_festival_id');
+            
+            if (!$selectedFestivalId) {
+                return parent::getEloquentQuery()->whereRaw('1 = 0');
+            }
+            
+            return parent::getEloquentQuery()
+                ->whereHas('movie.festivals', function (Builder $query) use ($selectedFestivalId) {
+                    $query->where('festival_id', $selectedFestivalId);
+                })
+                ->with(['movie', 'dcps', 'audioLanguage', 'subtitleLanguage']);
+        }
+
+        // Pour les autres utilisateurs : combiner les restrictions
+        $selectedFestivalId = Session::get('selected_festival_id');
+        $query = FestivalAccessService::applyFestivalScope(parent::getEloquentQuery());
+        
+        // Si un festival spécifique est sélectionné, le filtrer en plus
+        if ($selectedFestivalId) {
+            // Vérifier que l'utilisateur a accès à ce festival
+            if ($user->festivals()->where('festivals.id', $selectedFestivalId)->exists()) {
+                $query = $query->whereHas('movie.festivals', function (Builder $subQuery) use ($selectedFestivalId) {
+                    $subQuery->where('festival_id', $selectedFestivalId);
+                });
+            } else {
+                // Festival sélectionné non autorisé pour cet utilisateur
+                return parent::getEloquentQuery()->whereRaw('1 = 0');
+            }
+        }
+        
+        return $query->with(['movie', 'dcps', 'audioLanguage', 'subtitleLanguage']);
     }
 
     /**

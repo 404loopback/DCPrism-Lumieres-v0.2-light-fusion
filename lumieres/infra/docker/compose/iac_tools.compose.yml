@@ -6,7 +6,7 @@ services:
     build:
       context: ${PWD}/infra/docker/opentofu
       dockerfile: Dockerfile
-    container_name: lumieres-opentofu
+    container_name: meniscus-opentofu
     working_dir: /workspace
     environment:
       - TF_DATA_DIR=/workspace/.terraform
@@ -28,7 +28,7 @@ services:
     build:
       context: ${PWD}/infra/docker/ansible
       dockerfile: Dockerfile
-    container_name: lumieres-ansible
+    container_name: meniscus-ansible
     working_dir: /ansible
     environment:
       - ANSIBLE_HOST_KEY_CHECKING=False

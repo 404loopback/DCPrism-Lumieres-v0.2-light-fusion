@@ -63,6 +63,14 @@ class Nomenclature extends Model
 
 
     /**
+     * Relation directe avec le paramètre (via parameter_id)
+     */
+    public function parameter(): BelongsTo
+    {
+        return $this->belongsTo(Parameter::class);
+    }
+
+    /**
      * Relation avec le paramètre de festival (ARCHITECTURE ACTUELLE)
      * 
      * @see resolveParameter() pour une résolution automatique

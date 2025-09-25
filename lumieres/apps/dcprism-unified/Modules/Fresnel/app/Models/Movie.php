@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Fresnel\app\Traits\HasFestivalScoping;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Movie extends Model
 {
-    use LogsActivity;
+    use LogsActivity, HasFestivalScoping;
 
     protected $fillable = [
         'title',

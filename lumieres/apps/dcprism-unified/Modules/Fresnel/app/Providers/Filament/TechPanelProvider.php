@@ -37,6 +37,9 @@ class TechPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: module_path('Fresnel', 'app/Filament/Tech/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Tech\\Resources')
             ->discoverPages(in: module_path('Fresnel', 'app/Filament/Tech/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Tech\\Pages')
+            // Découverte des pages partagées
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Shared/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Shared\\Pages')
             ->pages([
                 Dashboard::class,
             ])

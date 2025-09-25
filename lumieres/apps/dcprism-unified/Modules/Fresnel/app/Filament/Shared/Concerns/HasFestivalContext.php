@@ -109,6 +109,8 @@ trait HasFestivalContext
             return $query;
         }
 
+        $modelClass = get_class($query->getModel());
+
         // Check if the model has a direct festival relationship
         if (method_exists($query->getModel(), 'festivals')) {
             return $query->whereHas('festivals', function ($q) use ($festivalId) {
@@ -119,6 +121,20 @@ trait HasFestivalContext
         // Check if the model has a festival_id foreign key
         if (in_array('festival_id', $query->getModel()->getFillable())) {
             return $query->where('festival_id', $festivalId);
+        }
+
+        // Special case for DCP model - filter through movie.festivals
+        if (str_contains($modelClass, 'Dcp')) {
+            return $query->whereHas('movie.festivals', function ($q) use ($festivalId) {
+                $q->where('festivals.id', $festivalId);
+            });
+        }
+
+        // Special case for Version model - filter through movie.festivals
+        if (str_contains($modelClass, 'Version')) {
+            return $query->whereHas('movie.festivals', function ($q) use ($festivalId) {
+                $q->where('festivals.id', $festivalId);
+            });
         }
 
         return $query;

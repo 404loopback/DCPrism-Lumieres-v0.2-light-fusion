@@ -39,10 +39,16 @@ class ManagerPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: module_path('Fresnel', 'app/Filament/Manager/Resources'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Resources')
             ->discoverPages(in: module_path('Fresnel', 'app/Filament/Manager/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Pages')
+            // Découverte des pages partagées
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Pages')
+            ->discoverPages(in: module_path('Fresnel', 'app/Filament/Shared/Pages'), for: 'Modules\\Fresnel\\app\\Filament\\Shared\\Pages')
             ->pages([
                 ManagerDashboard::class,
             ])
             ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Manager/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Manager\\Widgets')
+            // Découverte des widgets partagés
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Widgets')
+            ->discoverWidgets(in: module_path('Fresnel', 'app/Filament/Shared/Widgets'), for: 'Modules\\Fresnel\\app\\Filament\\Shared\\Widgets')
             ->widgets([
                 // Widgets spécialisés pour la gestion festival
                 FestivalSelectorWidget::class,

@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Modules\Fresnel\app\Models\Parameter;
 
 class ParameterForm
 {
@@ -65,6 +66,29 @@ class ParameterForm
 
                 Section::make('Règles et validation')
                     ->schema([
+                        Forms\Components\TagsInput::make('format_rules_array')
+                            ->label('Règles de formatage')
+                            ->suggestions(array_keys(Parameter::getAvailableFormatRules()))
+                            ->helperText('Tapez ou sélectionnez les règles de formatage : no_spacing, upper_case, brackets, etc.')
+                            ->placeholder('Exemple: no_spacing,upper_case,brackets')
+                            ->columnSpanFull()
+                            ->dehydrateStateUsing(fn ($state) => is_array($state) ? implode(',', $state) : $state)
+                            ->afterStateHydrated(function ($component, $state) {
+                                if (is_string($state) && !empty($state)) {
+                                    $component->state(explode(',', $state));
+                                }
+                            })
+                            ->mutateDehydratedStateUsing(fn ($state) => $state)
+                            ->statePath('format_rules')
+                            ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false),
+                            
+                        Forms\Components\TextInput::make('format_rules')
+                            ->label('Règles de formatage actives')
+                            ->helperText('Les règles de formatage sont configurées par les administrateurs')
+                            ->disabled()
+                            ->placeholder('Aucune règle définie')
+                            ->columnSpanFull()
+                            ->visible(fn () => !auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? true),
                         Forms\Components\KeyValue::make('validation_rules')
                             ->label('Règles de validation'),
                     ]),

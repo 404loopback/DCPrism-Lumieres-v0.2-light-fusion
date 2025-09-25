@@ -20,8 +20,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Session;
 use Modules\Fresnel\app\Models\FestivalParameter;
 use Modules\Fresnel\app\Models\Parameter;
+use Modules\Fresnel\app\Services\FestivalAccessService;
 use UnitEnum;
 
 class FestivalParameterResource extends Resource
@@ -39,6 +41,58 @@ class FestivalParameterResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static string|UnitEnum|null $navigationGroup = 'Configuration Festival';
+
+    /**
+     * Filtrer les paramètres de festival selon l'accès et le festival sélectionné
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return parent::getEloquentQuery()->whereRaw('1 = 0');
+        }
+
+        // Si l'utilisateur est super admin ou admin, respecter quand même la sélection de festival
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            $selectedFestivalId = Session::get('selected_festival_id');
+            
+            if (!$selectedFestivalId) {
+                return parent::getEloquentQuery()->with(['parameter']);
+            }
+            
+            return parent::getEloquentQuery()
+                ->where('festival_id', $selectedFestivalId)
+                ->with(['parameter']);
+        }
+
+        // Pour les autres utilisateurs : combiner les restrictions
+        $selectedFestivalId = Session::get('selected_festival_id');
+        
+        // Récupérer les IDs des festivals accessibles par l'utilisateur
+        $accessibleFestivalIds = $user->festivals()->pluck('festivals.id')->toArray();
+        
+        if (empty($accessibleFestivalIds)) {
+            return parent::getEloquentQuery()->whereRaw('1 = 0');
+        }
+        
+        $query = parent::getEloquentQuery()
+            ->whereIn('festival_id', $accessibleFestivalIds)
+            ->with(['parameter']);
+        
+        // Si un festival spécifique est sélectionné, le filtrer en plus
+        if ($selectedFestivalId) {
+            // Vérifier que l'utilisateur a accès à ce festival
+            if (in_array($selectedFestivalId, $accessibleFestivalIds)) {
+                $query = $query->where('festival_id', $selectedFestivalId);
+            } else {
+                // Festival sélectionné non autorisé pour cet utilisateur
+                return parent::getEloquentQuery()->whereRaw('1 = 0');
+            }
+        }
+        
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -181,11 +235,7 @@ class FestivalParameterResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('display_order')
-            ->modifyQueryUsing(function (Builder $query) {
-                return $query->with(['parameter'])
-                    ->where('festival_id', auth()->user()->current_festival_id ?? 1);
-            });
+            ->defaultSort('display_order');
     }
 
     public static function getPages(): array

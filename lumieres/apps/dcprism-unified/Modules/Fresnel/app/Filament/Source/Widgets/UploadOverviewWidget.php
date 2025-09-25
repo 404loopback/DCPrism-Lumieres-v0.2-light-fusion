@@ -17,13 +17,20 @@ class UploadOverviewWidget extends BaseFestivalAwareWidget
 
     protected function getFestivalSpecificStats(): array
     {
-        // Filtrer les DCPs par festival via les movies
-        $baseQuery = $this->scopeByFestival(Dcp::query());
+        $festival = $this->getSelectedFestival();
+        if (!$festival) {
+            return [];
+        }
+
+        // Filtrer les DCPs par festival via les movies (relation many-to-many)
+        $baseQuery = Dcp::query()->whereHas('movie.festivals', function ($query) use ($festival) {
+            $query->where('festivals.id', $festival->id);
+        });
 
         $todayUploads = (clone $baseQuery)->whereDate('created_at', today())->count();
         $totalUploads = (clone $baseQuery)->count();
         $pendingProcessing = (clone $baseQuery)->whereIn('status', ['uploaded', 'processing'])->count();
-        $successfulUploads = (clone $baseQuery)->whereIn('status', ['validated', 'ready'])->count();
+        $successfulUploads = (clone $baseQuery)->whereIn('status', ['valid', 'validated'])->count();
 
         return [
             $this->createFestivalStat(

@@ -46,7 +46,9 @@ class MovieFormService
     {
         try {
             $festivalId = $this->festivalContext->getCurrentFestivalId();
-            $title = $get('../../title'); // Access movie title from upper level
+            // Essayer d'abord le chemin direct, puis le chemin relatif
+            $title = $get('title') ?? $get('../../title');
+            
 
             if (! $festivalId || ! $title) {
                 return 'Please select festival and enter title';
@@ -60,10 +62,10 @@ class MovieFormService
             // Create a mock movie for nomenclature generation
             $mockMovie = new Movie(['title' => $title]);
 
-            // Get parameter values from form
+            // Get parameter values from form (avec titre automatiquement injecté)
             $parameters = $this->extractParametersFromForm($get, $festivalId);
 
-            // Generate nomenclature preview
+            // Generate nomenclature preview avec les valeurs du formulaire
             $nomenclature = $this->nomenclatureService->previewNomenclature(
                 $mockMovie,
                 $festival,
@@ -181,6 +183,14 @@ class MovieFormService
 
             $fieldName = "parameter_{$parameter->id}";
             $value = $get($fieldName);
+
+            // Si c'est le paramètre titre (code = TITLE), utiliser le titre du formulaire
+            if (strtoupper($parameter->code ?? '') === 'TITLE' && empty($value)) {
+                $title = $get('title');
+                if (!empty($title)) {
+                    $value = $title;
+                }
+            }
 
             if ($value !== null) {
                 $parameters[$parameter->name] = $value;

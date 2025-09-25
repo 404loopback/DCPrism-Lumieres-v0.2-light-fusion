@@ -27,7 +27,32 @@ class UserTable
                 Columns::emailWithVerification(),
                 Columns::roleBadge(),
                 Columns::activeToggle(),
+                
+                Tables\Columns\IconColumn::make('is_partner')
+                    ->label('Provider')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-star')
+                    ->falseIcon('heroicon-o-user')
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->tooltip(fn ($state) => $state ? 'Compte partenaire/provider' : 'Compte standard')
+                    ->sortable(),
+                    
                 Columns::festivalsDisplay(),
+
+                Tables\Columns\TextColumn::make('assigned_movies_count')
+                    ->label('Films assignés')
+                    ->state(function ($record) {
+                        if (!$record || !$record->hasRole('source')) {
+                            return null;
+                        }
+                        return \Modules\Fresnel\app\Models\Movie::where('source_email', $record->email)->count();
+                    })
+                    ->badge()
+                    ->color(fn ($state) => $state > 0 ? 'success' : 'gray')
+                    ->visible(fn ($record) => $record && $record->hasRole('source'))
+                    ->sortable(false)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label('Dernière connexion')
@@ -55,6 +80,12 @@ class UserTable
                     ->placeholder('Tous')
                     ->trueLabel('Actifs')
                     ->falseLabel('Inactifs'),
+                    
+                Tables\Filters\TernaryFilter::make('is_partner')
+                    ->label('Type de compte')
+                    ->placeholder('Tous')
+                    ->trueLabel('Providers/Partenaires')
+                    ->falseLabel('Comptes standard'),
 
                 Tables\Filters\TernaryFilter::make('email_verified_at')
                     ->label('Email vérifié')
@@ -107,6 +138,12 @@ class UserTable
                                                 ->badge()
                                                 ->color(fn ($state): string => $state ? 'success' : 'danger')
                                                 ->formatStateUsing(fn ($state): string => $state ? 'Actif' : 'Inactif'),
+                                            TextEntry::make('is_partner')
+                                                ->label('Type de compte')
+                                                ->badge()
+                                                ->color(fn ($state): string => $state ? 'warning' : 'gray')
+                                                ->formatStateUsing(fn ($state): string => $state ? 'Provider/Partenaire' : 'Standard')
+                                                ->icon(fn ($state): string => $state ? 'heroicon-o-star' : 'heroicon-o-user'),
                                             TextEntry::make('email_verified_at')
                                                 ->label('Email vérifié')
                                                 ->dateTime('d/m/Y H:i')
@@ -170,12 +207,6 @@ class UserTable
                                 ->send();
                         }),
 
-                    Action::make('manage_festivals')
-                        ->label('Gérer les festivals')
-                        ->icon('heroicon-o-building-office')
-                        ->color('info')
-                        ->url(fn ($record) => route('filament.fresnel.resources.users.edit', ['record' => $record->id]).'#festivals')
-                        ->openUrlInNewTab(false),
 
                     Action::make('toggle_status')
                         ->label(fn ($record) => $record->is_active ? 'Désactiver' : 'Activer')
@@ -183,12 +214,28 @@ class UserTable
                         ->color(fn ($record) => $record->is_active ? 'danger' : 'success')
                         ->requiresConfirmation()
                         ->modalHeading(fn ($record) => ($record->is_active ? 'Désactiver' : 'Activer').' cet utilisateur')
-                        ->modalDescription(fn ($record) => $record->is_active
+                        ->modalDescription(function ($record) {
+                            if ($record->is_active && $record->isProtectedFromDeactivation()) {
+                                return 'Cet utilisateur est protégé contre la désactivation (partenaire ou admin).';
+                            }
+                            return $record->is_active
                                 ? 'Cet utilisateur ne pourra plus se connecter une fois désactivé.'
-                                : 'Cet utilisateur pourra à nouveau se connecter une fois activé.'
-                        )
+                                : 'Cet utilisateur pourra à nouveau se connecter une fois activé.';
+                        })
+                        ->visible(fn ($record) => !($record->is_active && $record->isProtectedFromDeactivation()))
                         ->action(function ($record) {
                             $newStatus = ! $record->is_active;
+                            
+                            // Vérification supplémentaire côté serveur
+                            if (!$newStatus && $record->isProtectedFromDeactivation()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Action interdite')
+                                    ->body('Impossible de désactiver un partenaire ou un administrateur.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            
                             $record->update(['is_active' => $newStatus]);
 
                             \Filament\Notifications\Notification::make()
@@ -222,7 +269,33 @@ class UserTable
                         ->label('Désactiver')
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
-                        ->action(fn ($records) => $records->each(fn ($record) => $record->update(['is_active' => false]))),
+                        ->requiresConfirmation()
+                        ->modalHeading('Désactiver les utilisateurs sélectionnés')
+                        ->modalDescription('Les partenaires et administrateurs ne seront pas désactivés.')
+                        ->action(function ($records) {
+                            $deactivatedCount = 0;
+                            $protectedCount = 0;
+                            
+                            $records->each(function ($record) use (&$deactivatedCount, &$protectedCount) {
+                                if ($record->isProtectedFromDeactivation()) {
+                                    $protectedCount++;
+                                } else {
+                                    $record->update(['is_active' => false]);
+                                    $deactivatedCount++;
+                                }
+                            });
+                            
+                            $message = "{$deactivatedCount} utilisateur(s) désactivé(s)";
+                            if ($protectedCount > 0) {
+                                $message .= ", {$protectedCount} partenaire(s)/admin(s) protégé(s)";
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Désactivation terminée')
+                                ->body($message)
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

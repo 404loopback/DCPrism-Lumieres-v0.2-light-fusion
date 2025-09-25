@@ -150,4 +150,23 @@ class FestivalContextService
 
         return $user->canAccessFestival($festivalId);
     }
+
+    /**
+     * Exiger qu'un festival soit sélectionné, sinon lancer une exception
+     */
+    public function requireFestivalSelected(): Festival
+    {
+        $festival = $this->getCurrentFestival();
+
+        if (! $festival) {
+            throw new \RuntimeException('Aucun festival sélectionné. Veuillez sélectionner un festival avant de continuer.');
+        }
+
+        // Vérifier que l'utilisateur peut accéder à ce festival
+        if (! $this->canAccessFestival($festival->id)) {
+            throw new \RuntimeException('Vous n\'avez pas accès à ce festival.');
+        }
+
+        return $festival;
+    }
 }
